@@ -16,6 +16,12 @@ export const state = () => ({
       icon: '/icons/credentials.svg'
     },
     {
+      label: 'Skills',
+      url: '/skills/',
+      adminUrl: '/skills/',
+      icon: '/icons/credentials.svg'
+    },
+    {
       label: 'Users',
       url: '/users/requests',
       adminUrl: '/users/',
