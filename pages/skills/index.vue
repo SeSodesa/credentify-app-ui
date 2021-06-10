@@ -7,12 +7,17 @@
     <div class="subtitle">
       A summary page of your earned skills and achievements.
     </div>
-    <div class="summary-canvas"></div>
+    <v-chart class="summary-chart" :option="option" />
   </div>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      achievements: []
+    }
+  },
   created() {
     this.$store.commit('nav/setTitle', 'Skills')
     this.$store.commit('nav/setBackUrl', '')
@@ -21,9 +26,7 @@ export default {
 </script>
 
 <style>
-.summary-canvas {
-  border: solid;
-  border-width: thin;
+.summary-chart {
   height: 100%;
   width: 100%;
 }
