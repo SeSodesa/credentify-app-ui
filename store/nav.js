@@ -19,7 +19,7 @@ export const state = () => ({
       label: 'Skills',
       url: '/skills/',
       adminUrl: '/skills/',
-      icon: '/icons/credentials.svg'
+      icon: '' // This is drawn in components/LeftSidebar.vue
     },
     {
       label: 'Users',

@@ -1,7 +1,7 @@
 <template>
   <div class="stage">
     <div class="icon--title mb-2">
-      <img src="~/assets/icons/credentials-big.svg" alt="Skills image" />
+      <img src="~/assets/icons/bootstrap-puzzle-big.svg" alt="Skills image" />
       <h1>Skills</h1>
     </div>
     <div class="subtitle">
