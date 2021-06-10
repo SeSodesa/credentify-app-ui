@@ -7,6 +7,7 @@
     <div class="subtitle">
       A summary page of your earned skills and achievements.
     </div>
+    <div class="summary-canvas"></div>
   </div>
 </template>
 
@@ -19,4 +20,11 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+.summary-canvas {
+  border: solid;
+  border-width: thin;
+  height: 100%;
+  width: 100%;
+}
+</style>
