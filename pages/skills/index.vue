@@ -24,21 +24,34 @@ export default {
   components: {
     VChart
   },
-  data() {
-    return {
-      async achievements() {
-        try {
-          const achievements = await this.$axios
-            .get('/achievements')
-            .then((result) => result.data.data)
-          return achievements
-        } catch (e) {
-          this.handleErrors(e)
-        }
-      }
+  async asyncData({ app, params }) {
+    try {
+      const credentials = await app.$axios
+        .get('/profile/credentials')
+        .then((result) => result.data.data)
+      return { credentials }
+    } catch (err) {
+      return { asyncDataError: err }
     }
   },
   computed: {
+    tagData() {
+      const tagData = {}
+      for (const credential of this.credentials) {
+        for (const tag of credential.achievement.tags) {
+          if (tag in tagData === false) {
+            tagData[tag] = { value: 1, name: tag }
+          } else {
+            tagData[tag].value += 1
+          }
+        }
+      }
+      const dataArray = []
+      for (const item in tagData) {
+        dataArray.push(item)
+      }
+      return dataArray
+    },
     // Generates the data used in drawing the summary figure
     option() {
       return {
@@ -64,16 +77,16 @@ export default {
             itemStyle: {
               borderRadius: 8
             },
-            data: [
-              { value: 40, name: 'petal 1' },
-              { value: 38, name: 'petal 2' },
-              { value: 32, name: 'petal 3' },
-              { value: 30, name: 'petal 4' },
-              { value: 28, name: 'petal 5' },
-              { value: 26, name: 'petal 6' },
-              { value: 22, name: 'petal 7' },
-              { value: 18, name: 'petal 8' }
-            ]
+            data: this.tagData // [
+            //   { value: 40, name: 'petal 1' },
+            //   { value: 38, name: 'petal 2' },
+            //   { value: 32, name: 'petal 3' },
+            //   { value: 30, name: 'petal 4' },
+            //   { value: 28, name: 'petal 5' },
+            //   { value: 26, name: 'petal 6' },
+            //   { value: 22, name: 'petal 7' },
+            //   { value: 18, name: 'petal 8' }
+            // ]
           }
         ]
       }
