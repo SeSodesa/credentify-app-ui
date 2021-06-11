@@ -7,18 +7,18 @@
     <div class="subtitle">
       A summary page of your earned skills and achievements.
     </div>
-    <v-chart :option="option" />
+    <v-chart class="summary-chart" :option="option" />
   </div>
 </template>
 
 <script>
 import * as echarts from 'echarts/core'
-import { ToolboxComponent, LegendComponent } from 'echarts/components'
+import { LegendComponent } from 'echarts/components'
 import { PieChart } from 'echarts/charts'
-import { CanvasRenderer } from 'echarts/renderers'
+import { SVGRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 
-echarts.use([ToolboxComponent, LegendComponent, PieChart, CanvasRenderer])
+echarts.use([LegendComponent, PieChart, SVGRenderer])
 
 export default {
   components: {
@@ -42,18 +42,18 @@ export default {
     // Generates the data used in drawing the summary figure
     option() {
       return {
-        legend: {
-          top: 'bottom'
-        },
-        toolbox: {
-          show: false,
-          feature: {
-            mark: { show: true },
-            dataView: { show: true, readOnly: false },
-            restore: { show: true },
-            saveAsImage: { show: true }
-          }
-        },
+        // legend: {
+        //   top: 'bottom'
+        // },
+        // toolbox: {
+        //   show: false,
+        //   feature: {
+        //     mark: { show: true },
+        //     dataView: { show: true, readOnly: false },
+        //     restore: { show: true },
+        //     saveAsImage: { show: true }
+        //   }
+        // },
         series: [
           {
             name: "A nightingale's rose",
@@ -88,7 +88,7 @@ export default {
 
 <style>
 .summary-chart {
-  height: 100%;
+  min-height: 550px;
   width: 100%;
 }
 </style>
