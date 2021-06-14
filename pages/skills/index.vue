@@ -62,18 +62,6 @@ export default {
     // Generates the data used in drawing the summary figure
     option() {
       return {
-        // legend: {
-        //   top: 'bottom'
-        // },
-        // toolbox: {
-        //   show: false,
-        //   feature: {
-        //     mark: { show: true },
-        //     dataView: { show: true, readOnly: false },
-        //     restore: { show: true },
-        //     saveAsImage: { show: true }
-        //   }
-        // },
         series: [
           {
             name: "A nightingale's rose",
@@ -84,16 +72,7 @@ export default {
             itemStyle: {
               borderRadius: 8
             },
-            data: [...this.tagData] // [
-            //   { value: 40, name: 'petal 1' },
-            //   { value: 38, name: 'petal 2' },
-            //   { value: 32, name: 'petal 3' },
-            //   { value: 30, name: 'petal 4' },
-            //   { value: 28, name: 'petal 5' },
-            //   { value: 26, name: 'petal 6' },
-            //   { value: 22, name: 'petal 7' },
-            //   { value: 18, name: 'petal 8' }
-            // ]
+            data: [...this.tagData]
           }
         ]
       }
