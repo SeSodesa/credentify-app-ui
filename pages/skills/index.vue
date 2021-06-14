@@ -35,23 +35,27 @@ export default {
     }
   },
   computed: {
-    // Filters data for drawing the summary graph
+    /* Filters data for drawing the summary graph */
     tagData() {
       const tagData = {}
       for (const credential of this.credentials) {
         const achievement = credential.achievement
         for (const tag of achievement.tag) {
+          /* Not supported by older browsers, but who cares */
+          const normalizedTag = tag.normalize().trim()
           if (tag in tagData === false) {
-            tagData[tag] = { value: 1, name: tag }
+            tagData[normalizedTag] = { value: 1, name: normalizedTag }
           } else {
-            tagData[tag].value += 1
+            tagData[normalizedTag].value += 1
           }
         }
       }
+      console.log(tagData)
       const dataArray = []
-      for (const item in tagData) {
+      for (const item of Object.values(tagData)) {
         dataArray.push(item)
       }
+      console.log(dataArray)
       return dataArray
     },
     // Generates the data used in drawing the summary figure
@@ -79,7 +83,7 @@ export default {
             itemStyle: {
               borderRadius: 8
             },
-            data: this.tagData // [
+            data: [...this.tagData] // [
             //   { value: 40, name: 'petal 1' },
             //   { value: 38, name: 'petal 2' },
             //   { value: 32, name: 'petal 3' },
