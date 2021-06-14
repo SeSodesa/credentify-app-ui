@@ -42,7 +42,10 @@ export default {
         const achievement = credential.achievement
         for (const tag of achievement.tag) {
           /* Not supported by older browsers, but who cares */
-          const normalizedTag = tag.normalize().trim()
+          const normalizedTag = tag
+            .normalize()
+            .trim()
+            .toUpperCase()
           if (tag in tagData) {
             tagData[normalizedTag].value += 1
           } else {
