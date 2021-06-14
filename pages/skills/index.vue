@@ -35,10 +35,12 @@ export default {
     }
   },
   computed: {
+    // Filters data for drawing the summary graph
     tagData() {
       const tagData = {}
       for (const credential of this.credentials) {
-        for (const tag of credential.achievement.tags) {
+        const achievement = credential.achievement
+        for (const tag of achievement.tag) {
           if (tag in tagData === false) {
             tagData[tag] = { value: 1, name: tag }
           } else {
