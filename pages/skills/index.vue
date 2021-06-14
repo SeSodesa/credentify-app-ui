@@ -43,19 +43,17 @@ export default {
         for (const tag of achievement.tag) {
           /* Not supported by older browsers, but who cares */
           const normalizedTag = tag.normalize().trim()
-          if (tag in tagData === false) {
-            tagData[normalizedTag] = { value: 1, name: normalizedTag }
-          } else {
+          if (tag in tagData) {
             tagData[normalizedTag].value += 1
+          } else {
+            tagData[normalizedTag] = { value: 1, name: normalizedTag }
           }
         }
       }
-      console.log(tagData)
       const dataArray = []
       for (const item of Object.values(tagData)) {
         dataArray.push(item)
       }
-      console.log(dataArray)
       return dataArray
     },
     // Generates the data used in drawing the summary figure
