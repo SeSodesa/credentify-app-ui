@@ -7,7 +7,10 @@
     <div class="subtitle">
       A summary page of your earned skills and achievements.
     </div>
-    <v-chart class="summary-chart" :option="option" />
+    <v-chart v-if="credentialsExist" class="summary-chart" :option="option" />
+    <div v-else>
+      No credentials to display…
+    </div>
   </div>
 </template>
 
@@ -55,11 +58,10 @@ export default {
           }
         }
       }
-      const dataArray = []
-      for (const item of Object.values(tagData)) {
-        dataArray.push(item)
-      }
-      return dataArray
+      return Object.values(tagData)
+    },
+    credentialsExist() {
+      return this.credentials.length > 0
     },
     // Generates the data used in drawing the summary figure
     option() {
