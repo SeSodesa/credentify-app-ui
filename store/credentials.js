@@ -22,5 +22,8 @@ export const actions = {
         .then((response) => response.data.data)
       commit('setCredentials', credentials)
     }
+  },
+  credentialsExist(state) {
+    return state.credentials.length > 0
   }
 }
