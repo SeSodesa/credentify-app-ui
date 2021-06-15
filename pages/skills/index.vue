@@ -8,8 +8,8 @@
       A summary page of your earned skills and achievements.
     </div>
     <v-chart v-if="credentialsExist" class="summary-chart" :option="option" />
-    <div v-else>
-      No credentials to display…
+    <div v-else class="hol-up-box">
+      No credentials to display yet. Hol' up…
     </div>
   </div>
 </template>
@@ -27,17 +27,10 @@ export default {
   components: {
     VChart
   },
-  async asyncData({ app, params }) {
-    try {
-      const credentials = await app.$axios
-        .get('/profile/credentials')
-        .then((result) => result.data.data)
-      return { credentials }
-    } catch (err) {
-      return { asyncDataError: err }
-    }
-  },
   computed: {
+    credentials() {
+      return this.$store.state.credentials.credentials
+    },
     /* Filters data for drawing the summary graph */
     tagData() {
       const tagData = {}
@@ -92,6 +85,14 @@ export default {
 <style>
 .summary-chart {
   min-height: 550px;
+  width: 100%;
+}
+
+.hol-up-box {
+  align-items: center;
+  font-size: 20px;
+  height: 200px;
+  text-align: center;
   width: 100%;
 }
 </style>
