@@ -23,9 +23,6 @@ export default {
   },
   computed: mapState({
     sidebarOpen: (state) => state.nav.sidebarOpen
-  }),
-  created() {
-    this.$store.dispatch('credentials/getCredentials')
-  }
+  })
 }
 </script>
