@@ -1,5 +1,6 @@
 export default {
-  mode: 'spa',
+  // mode: 'spa', // Deprecated in favor of ssr: false
+  ssr: false,
   head: {
     title: 'Credentify',
     meta: [
