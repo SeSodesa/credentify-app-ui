@@ -32,7 +32,20 @@ export default {
       const credentials = await app.$axios
         .get('/profile/credentials')
         .then((result) => result.data.data)
-      return { credentials }
+      const skillMapping = await app.$axios
+        .get(
+          'https://gitlab.com/' +
+            'api/v4/projects/27130233/jobs/artifacts/main/raw/the_mapping.json',
+          {
+            params: { job: 'make_json_mapping' },
+            headers: {
+              /*  Request access without authorization, as none is needed. */
+              Authorization: ''
+            }
+          }
+        )
+        .then((result) => result.data)
+      return { credentials, skillMapping }
     } catch (err) {
       return { asyncDataError: err }
     }
