@@ -86,6 +86,11 @@ export default {
             itemStyle: {
               borderRadius: 8
             },
+            label: {
+              textStyle: {
+                fontSize: 18
+              }
+            },
             data: [...this.tagData]
           }
         ]
