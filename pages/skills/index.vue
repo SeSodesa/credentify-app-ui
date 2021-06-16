@@ -59,11 +59,8 @@ export default {
         const achievement = credential.achievement
         for (const tag of achievement.tag) {
           /* Not supported by older browsers, but who cares */
-          const normalizedTag = tag
-            .normalize()
-            .trim()
-            .toUpperCase()
-          if (tag in tagData) {
+          const normalizedTag = this.normalizeTag(tag)
+          if (normalizedTag in tagData) {
             tagData[normalizedTag].value += 1
           } else {
             tagData[normalizedTag] = { value: 1, name: normalizedTag }
@@ -98,6 +95,18 @@ export default {
   created() {
     this.$store.commit('nav/setTitle', 'Skills')
     this.$store.commit('nav/setBackUrl', '')
+  },
+  methods: {
+    normalizeTag(tag) {
+      const whitespaceNormalized = tag
+        .trim()
+        .split(/\s+/)
+        .join(' ')
+      const capitalized =
+        whitespaceNormalized.charAt(0).toUpperCase() +
+        whitespaceNormalized.slice(1).toLowerCase()
+      return capitalized
+    }
   }
 }
 </script>
