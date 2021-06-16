@@ -54,12 +54,39 @@ export default {
     /* Filters data for drawing the summary graph */
     tagData() {
       const tagData = {}
+      const categories = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
         const achievement = credential.achievement
         for (const tag of achievement.tag) {
           /* Not supported by older browsers, but who cares */
           const normalizedTag = this.normalizeTag(tag)
+          const catAndSubCat = this.skillMapping[normalizedTag]
+          if (catAndSubCat !== undefined) {
+            const category = catAndSubCat.category
+            const subCategory = catAndSubCat['sub-category']
+            /* Check for existence of category */
+            if (category in categories) {
+              categories[category].value += 1
+            } else {
+              categories[category] = {
+                value: 1,
+                name: category,
+                subCategories: {}
+              }
+            }
+            /* Then check for subcategory in category */
+            if (subCategory in categories[category].subCategories) {
+              categories[category].subCategories[subCategory].value += 1
+            } else {
+              categories[category].subCategories[subCategory] = {
+                value: 1,
+                name: subCategory
+              }
+            }
+          } else {
+            continue
+          }
           if (normalizedTag in tagData) {
             tagData[normalizedTag].value += 1
           } else {
@@ -68,6 +95,7 @@ export default {
         }
         // }
       }
+      console.log(categories)
       return Object.values(tagData)
     },
     credentialsExist() {
@@ -87,9 +115,7 @@ export default {
               borderRadius: 8
             },
             label: {
-              textStyle: {
-                fontSize: 18
-              }
+              fontSize: 18
             },
             data: [...this.tagData]
           }
