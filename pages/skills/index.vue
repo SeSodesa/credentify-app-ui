@@ -55,21 +55,21 @@ export default {
     tagData() {
       const tagData = {}
       for (const credential of this.credentials) {
-        if (credential.stage === 5) {
-          const achievement = credential.achievement
-          for (const tag of achievement.tag) {
-            /* Not supported by older browsers, but who cares */
-            const normalizedTag = tag
-              .normalize()
-              .trim()
-              .toUpperCase()
-            if (tag in tagData) {
-              tagData[normalizedTag].value += 1
-            } else {
-              tagData[normalizedTag] = { value: 1, name: normalizedTag }
-            }
+        // if (credential.stage === 5) {
+        const achievement = credential.achievement
+        for (const tag of achievement.tag) {
+          /* Not supported by older browsers, but who cares */
+          const normalizedTag = tag
+            .normalize()
+            .trim()
+            .toUpperCase()
+          if (tag in tagData) {
+            tagData[normalizedTag].value += 1
+          } else {
+            tagData[normalizedTag] = { value: 1, name: normalizedTag }
           }
         }
+        // }
       }
       return Object.values(tagData)
     },
