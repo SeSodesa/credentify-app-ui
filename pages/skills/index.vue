@@ -160,10 +160,8 @@ export default {
       const lower = category.trim().toLowerCase()
       return lower.split(/\s+/).join('_')
     },
-    followCategoryLink() {
-      this.$refs['category-chart'].chart.on('click', (params) => {
-        window.location.href = params.data.url
-      })
+    followCategoryLink(event) {
+      window.location.href = event.data.url
     }
   }
 }
