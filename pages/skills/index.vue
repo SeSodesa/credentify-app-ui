@@ -7,7 +7,13 @@
     <div class="subtitle">
       A summary page of your earned skills and achievements.
     </div>
-    <v-chart v-if="credentialsExist" class="summary-chart" :option="option" />
+    <v-chart
+      v-if="credentialsExist"
+      :ref="'category-chart'"
+      class="summary-chart"
+      :option="option"
+      @click="followCategoryLink"
+    />
     <div v-else>
       No credentials to display…
     </div>
@@ -51,9 +57,25 @@ export default {
     }
   },
   computed: {
-    /* Filters data for drawing the summary graph */
     tagData() {
       const tagData = {}
+      for (const credential of this.credentials) {
+        // if (credential.stage === 5) {
+        const achievement = credential.achievement
+        for (const tag of achievement.tag) {
+          const normalizedTag = this.normalizeTag(tag)
+          if (normalizedTag in tagData) {
+            tagData[normalizedTag].value += 1
+          } else {
+            tagData[normalizedTag] = { value: 1, name: normalizedTag }
+          }
+        }
+        // }
+      }
+      return Object.values(tagData)
+    },
+    /* Filters data for drawing the summary graph */
+    skillCategories() {
       const categories = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
@@ -72,6 +94,7 @@ export default {
               categories[category] = {
                 value: 1,
                 name: category,
+                url: `/skills/${this.toValidURL(category)}`,
                 subCategories: {}
               }
             }
@@ -81,22 +104,17 @@ export default {
             } else {
               categories[category].subCategories[subCategory] = {
                 value: 1,
-                name: subCategory
+                name: subCategory,
+                url: `skills/${this.toValidURL(category)}/${this.toValidURL(
+                  subCategory
+                )}`
               }
             }
-          } else {
-            continue
-          }
-          if (normalizedTag in tagData) {
-            tagData[normalizedTag].value += 1
-          } else {
-            tagData[normalizedTag] = { value: 1, name: normalizedTag }
           }
         }
         // }
       }
-      console.log(categories)
-      return Object.values(tagData)
+      return Object.values(categories)
     },
     credentialsExist() {
       return this.credentials.length > 0
@@ -117,7 +135,7 @@ export default {
             label: {
               fontSize: 18
             },
-            data: [...this.tagData]
+            data: [...this.skillCategories]
           }
         ]
       }
@@ -137,6 +155,15 @@ export default {
         whitespaceNormalized.charAt(0).toUpperCase() +
         whitespaceNormalized.slice(1).toLowerCase()
       return capitalized
+    },
+    toValidURL(category) {
+      const lower = category.trim().toLowerCase()
+      return lower.split(/\s+/).join('_')
+    },
+    followCategoryLink() {
+      this.$refs['category-chart'].chart.on('click', (params) => {
+        window.location.href = params.data.url
+      })
     }
   }
 }
