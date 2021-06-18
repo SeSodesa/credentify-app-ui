@@ -146,7 +146,25 @@ export default {
                 name: subCategory,
                 url: `skills/${this.toValidURL(category)}/${this.toValidURL(
                   subCategory
-                )}`
+                )}`,
+                skills: {}
+              }
+            }
+            /* Finally, attach skill (tag) information to subcategories */
+            const skill = normalizedTag
+            if (
+              skill in categories[category].subCategories[subCategory].skills
+            ) {
+              categories[category].subCategories[subCategory].skills[
+                skill
+              ].value += 1
+              categories[category][subCategory].skills[skill].credentials.push(
+                credential
+              )
+            } else {
+              categories[category].subCategories[subCategory].skills[skill] = {
+                value: 1,
+                credentials: [credential]
               }
             }
           }
