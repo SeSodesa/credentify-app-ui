@@ -280,6 +280,9 @@ export default {
         title: {
           text: 'Sub-categories',
           subtext: '↑ Back up',
+          subtextStyle: {
+            fontSize: 14
+          },
           triggerEvent: true
         },
         series: [
