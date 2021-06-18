@@ -165,7 +165,8 @@ export default {
         title: {
           top: 'top',
           text: 'Categories',
-          subtext: ''
+          subtext: '',
+          triggerEvent: false
         },
         series: [
           {
