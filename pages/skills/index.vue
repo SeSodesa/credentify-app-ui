@@ -15,7 +15,7 @@
       :ref="'category-chart'"
       class="category-chart"
       :option="categoryOption"
-      @click="toSubCategory"
+      @click="categoryChartClickAction"
     />
     <v-chart
       v-else-if="
@@ -24,6 +24,7 @@
       :ref="'subcategory-chart'"
       class="category-chart"
       :option="currentSubcategoryOption"
+      @click="subCategoryChartClickAction"
     />
     <div v-else>
       No credentials to display…
@@ -228,6 +229,26 @@ export default {
         return false
       }
     },
+    categoryChartClickAction(chartComponent) {
+      if (chartComponent.componentType === 'title') {
+        console.log('Clicked on title…')
+      } else if (chartComponent.componentType === 'series') {
+        this.toSubCategory(chartComponent)
+      } else {
+        console.log('Unknown component type…')
+      }
+    },
+    subCategoryChartClickAction(chartComponent) {
+      if (chartComponent.componentType === 'title') {
+        console.log('Clicked on title…')
+      } else if (chartComponent.componentType === 'series') {
+        console.log(
+          'Clicked on series with name "' + chartComponent.data.name + '"…'
+        )
+      } else {
+        console.log('Unknown component type…')
+      }
+    },
     toSubCategory(series) {
       console.log(series)
       const subCategories = Object.values(series.data.subCategories)
@@ -235,7 +256,8 @@ export default {
       this.currentSubcategoryOption = {
         title: {
           text: 'Sub-categories',
-          subtext: '↑ Back up'
+          subtext: '↑ Back up',
+          triggerEvent: true
         },
         series: [
           {
