@@ -114,7 +114,7 @@ export default {
       return Object.values(tagData)
     },
     /* Filters data for drawing the summary graph */
-    skillCategories() {
+    skillTree() {
       const categories = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
@@ -201,7 +201,7 @@ export default {
               fontSize: 18,
               formatter: '{b}: {c}'
             },
-            data: [...this.skillCategories]
+            data: [...this.skillTree]
           }
         ]
       }
