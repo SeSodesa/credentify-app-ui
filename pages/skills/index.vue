@@ -33,12 +33,12 @@
 
 <script>
 import * as echarts from 'echarts/core'
-import { LegendComponent } from 'echarts/components'
+import { TitleComponent } from 'echarts/components'
 import { PieChart } from 'echarts/charts'
 import { SVGRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 
-echarts.use([LegendComponent, PieChart, SVGRenderer])
+echarts.use([TitleComponent, PieChart, SVGRenderer])
 
 export default {
   components: {
@@ -161,6 +161,10 @@ export default {
     // Generates the data used in drawing the summary figure
     categoryOption() {
       return {
+        title: {
+          top: 'top',
+          text: 'Categories'
+        },
         series: [
           {
             name: 'Main categories',
@@ -186,7 +190,6 @@ export default {
       },
       set(newValue) {
         this.subcategoryOption = newValue
-        return this.subcategoryOption
       }
     }
   },
@@ -230,6 +233,10 @@ export default {
       const subCategories = Object.values(series.data.subCategories)
       console.log(subCategories)
       this.currentSubcategoryOption = {
+        title: {
+          text: 'Sub-categories',
+          subtext: '↑ Back up'
+        },
         series: [
           {
             name: 'Subcategories',
