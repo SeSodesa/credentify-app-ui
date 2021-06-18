@@ -150,7 +150,7 @@ export default {
                 skills: {}
               }
             }
-            /* Finally, attach skill (tag) information to subcategories */
+            /* Finally, attach skill information and credential to subcategories */
             const skill = normalizedTag
             if (
               skill in categories[category].subCategories[subCategory].skills
@@ -164,6 +164,7 @@ export default {
             } else {
               categories[category].subCategories[subCategory].skills[skill] = {
                 value: 1,
+                name: skill,
                 credentials: [credential]
               }
             }
