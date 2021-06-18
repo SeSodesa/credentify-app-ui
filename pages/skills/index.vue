@@ -278,7 +278,7 @@ export default {
       console.log(subCategories)
       this.currentSubcategoryOption = {
         title: {
-          text: 'Sub-categories',
+          text: 'Sub-categories of ' + series.name,
           subtext: '↑ Back up',
           subtextStyle: {
             fontSize: 14
