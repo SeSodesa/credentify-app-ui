@@ -9,9 +9,7 @@
       view information related to the skill category.
     </div>
     <v-chart
-      v-if="
-        credentialsExist && currentCategoryLevel === categoryLevels.category
-      "
+      v-if="credentialsExist && currentCategoryLevel === categoryLevels.category"
       :ref="'category-chart'"
       class="category-chart"
       :option="categoryOption"
@@ -22,8 +20,8 @@
         credentialsExist && currentCategoryLevel === categoryLevels.subCategory
       "
       :ref="'subcategory-chart'"
-      class="category-chart"
-      :option="currentSubcategoryOption"
+      class="subcategory-chart"
+      :option="subCategoryOption"
     />
     <div v-else>
       No credentials to display…
@@ -89,7 +87,7 @@ export default {
       set(newValue) {
         if (
           newValue === this.categoryLevels.category ||
-          newValue === this.categoryLevels.subCategory
+            newValue === this.categoryLevels.subCategory
         ) {
           this.categoryLevel = newValue
         }
@@ -163,7 +161,7 @@ export default {
       return {
         series: [
           {
-            name: 'Main categories',
+            name: 'categoryOptions',
             type: 'pie',
             radius: [50, 250],
             center: ['50%', '50%'],
@@ -172,21 +170,20 @@ export default {
               borderRadius: 8
             },
             label: {
-              fontSize: 18,
-              formatter: '{b}: {c}'
+              fontSize: 18
             },
             data: [...this.skillCategories]
           }
         ]
       }
     },
-    currentSubcategoryOption: {
+    subCategoryOption: {
       get() {
-        return this.subcategoryOption
+        return this.currentSubcategoryOption
       },
       set(newValue) {
-        this.subcategoryOption = newValue
-        return this.subcategoryOption
+        this.currentSubcategoryOption = newValue
+        return this.currentSubcategoryOption
       }
     }
   },
@@ -213,13 +210,11 @@ export default {
       window.location.href = event.data.url
     },
     switchCategoryLevel() {
-      if (this.currentCategoryLevel === this.categoryLevels.category) {
-        this.currentCategoryLevel = this.categoryLevels.subCategory
+      if (this.categoryLevel === this.categoryLevels.category) {
+        this.categoryLevel = this.categoryLevels.subCategory
         return true
-      } else if (
-        this.currentCategoryLevel === this.categoryLevels.subCategory
-      ) {
-        this.currentCategoryLevel = this.categoryLevels.category
+      } else if (this.categoryLevel === this.categoryLevels.category) {
+        this.categoryLevel = this.categoryLevels.category
         return true
       } else {
         return false
@@ -232,7 +227,7 @@ export default {
       this.currentSubcategoryOption = {
         series: [
           {
-            name: 'Subcategories',
+            name: "A nightingale's rose",
             type: 'pie',
             radius: [50, 250],
             center: ['50%', '50%'],
