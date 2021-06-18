@@ -164,7 +164,8 @@ export default {
       return {
         title: {
           top: 'top',
-          text: 'Categories'
+          text: 'Categories',
+          subtext: ''
         },
         series: [
           {
@@ -241,6 +242,8 @@ export default {
     subCategoryChartClickAction(chartComponent) {
       if (chartComponent.componentType === 'title') {
         console.log('Clicked on title…')
+        this.currentCategoryLevel = this.categoryLevels.category
+        this.currentSubcategoryOption = {}
       } else if (chartComponent.componentType === 'series') {
         console.log(
           'Clicked on series with name "' + chartComponent.data.name + '"…'
