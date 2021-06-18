@@ -183,7 +183,7 @@ export default {
       return {
         title: {
           top: 'top',
-          text: 'Categories',
+          text: 'Main categories',
           subtext: '',
           triggerEvent: false
         },
