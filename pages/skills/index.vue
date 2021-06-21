@@ -9,22 +9,11 @@
       view information related to the skill category.
     </div>
     <v-chart
-      v-if="
-        credentialsExist && currentCategoryLevel === categoryLevels.category
-      "
+      v-if="credentialsExist"
       :ref="'category-chart'"
       class="category-chart"
-      :option="categoryOption"
-      @click="categoryChartClickAction"
-    />
-    <v-chart
-      v-else-if="
-        credentialsExist && currentCategoryLevel === categoryLevels.subCategory
-      "
-      :ref="'subcategory-chart'"
-      class="category-chart"
-      :option="currentSubcategoryOption"
-      @click="subCategoryChartClickAction"
+      :option="currentChartOption"
+      @click="chartClickAction"
     />
     <div v-else>
       No credentials to display…
@@ -71,17 +60,71 @@ export default {
   data() {
     return {
       categoryLevels: Object.freeze({
-        category: 'category',
-        subCategory: 'sub-category'
+        category: 0,
+        subCategory: 1,
+        skill: 2,
+        credential: 3
       }),
       categoryLevel: '',
-      subcategoryOption: {}
+      chartOption: {},
+      categoryLevelTitles: {
+        mainCategory: {
+          text: 'Main categories',
+          subtext: '',
+          triggerEvent: false
+        },
+        subCategory(mainCategoryName) {
+          return {
+            text: 'Subcategories of ' + mainCategoryName,
+            subtext: '↑ Back up',
+            subtextStyle: {
+              fontSize: 14
+            },
+            triggerEvent: true
+          }
+        },
+        skill(subCategoryName) {
+          return {
+            text: 'Skills within ' + subCategoryName,
+            subtext: '↑ Back up',
+            subtextStyle: {
+              fontSize: 14
+            },
+            triggerEvent: true
+          }
+        },
+        credential(skillName) {
+          return {
+            text: 'Credentials making up ' + skillName,
+            subtext: '↑ Back up',
+            subtextStyle: {
+              fontSize: 14
+            },
+            triggerEvent: true
+          }
+        }
+      },
+      commonSeriesSettings: {
+        type: 'pie',
+        radius: [50, 250],
+        center: ['50%', '50%'],
+        roseType: 'area',
+        itemStyle: {
+          borderRadius: 8
+        },
+        label: {
+          fontSize: 18,
+          formatter: '{b}: {c}'
+        }
+      },
+      breadcrumb: [],
+      optionStack: []
     }
   },
   computed: {
     currentCategoryLevel: {
       get() {
-        if (this.categoryLevel !== '') {
+        if (this.categoryLevel) {
           return this.categoryLevel
         } else {
           return this.categoryLevels.category
@@ -90,31 +133,19 @@ export default {
       set(newValue) {
         if (
           newValue === this.categoryLevels.category ||
-          newValue === this.categoryLevels.subCategory
+          newValue === this.categoryLevels.subCategory ||
+          newValue === this.categoryLevels.skill ||
+          newValue === this.categoryLevels.credential
         ) {
           this.categoryLevel = newValue
         }
       }
     },
-    tagData() {
-      const tagData = {}
-      for (const credential of this.credentials) {
-        // if (credential.stage === 5) {
-        const achievement = credential.achievement
-        for (const tag of achievement.tag) {
-          const normalizedTag = this.normalizeTag(tag)
-          if (normalizedTag in tagData) {
-            tagData[normalizedTag].value += 1
-          } else {
-            tagData[normalizedTag] = { value: 1, name: normalizedTag }
-          }
-        }
-        // }
-      }
-      return Object.values(tagData)
-    },
     /* Filters data for drawing the summary graph */
     skillTree() {
+      console.log('Generating skill tree…')
+      console.log(this.skillMapping)
+
       const categories = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
@@ -158,14 +189,29 @@ export default {
               categories[category].subCategories[subCategory].skills[
                 skill
               ].value += 1
-              categories[category][subCategory].skills[skill].credentials.push(
-                credential
-              )
             } else {
               categories[category].subCategories[subCategory].skills[skill] = {
                 value: 1,
                 name: skill,
-                credentials: [credential]
+                credentials: {}
+              }
+            }
+            /* Check for existence of credential in the skill */
+            if (
+              credential[credential.id] in
+              categories[category].subCategories[subCategory].skills[skill]
+                .credentials
+            ) {
+              categories[category].subCategories[subCategory].skills[
+                skill
+              ].credentials[credential.id].value += 1
+            } else {
+              categories[category].subCategories[subCategory].skills[
+                skill
+              ].credentials[credential.id] = {
+                value: 1,
+                name: credential.achievement.name,
+                credential
               }
             }
           }
@@ -173,51 +219,39 @@ export default {
         // }
       }
       console.log(categories)
-      return Object.values(categories)
+      return categories
     },
     credentialsExist() {
       return this.credentials.length > 0
     },
     // Generates the data used in drawing the summary figure
-    categoryOption() {
+    mainChartOption() {
       return {
-        title: {
-          top: 'top',
-          text: 'Main categories',
-          subtext: '',
-          triggerEvent: false
-        },
+        title: this.categoryLevelTitles.mainCategory,
         series: [
           {
             name: 'Main categories',
-            type: 'pie',
-            radius: [50, 250],
-            center: ['50%', '50%'],
-            roseType: 'area',
-            itemStyle: {
-              borderRadius: 8
-            },
-            label: {
-              fontSize: 18,
-              formatter: '{b}: {c}'
-            },
-            data: [...this.skillTree]
+            ...this.commonSeriesSettings,
+            data: [...Object.values(this.skillTree)]
           }
         ]
       }
     },
-    currentSubcategoryOption: {
+    currentChartOption: {
       get() {
-        return this.subcategoryOption
+        return this.chartOption
       },
       set(newValue) {
-        this.subcategoryOption = newValue
+        this.chartOption = newValue
       }
     }
   },
   created() {
     this.$store.commit('nav/setTitle', 'Skills')
     this.$store.commit('nav/setBackUrl', '')
+  },
+  mounted() {
+    this.chartOption = this.mainChartOption
   },
   methods: {
     normalizeTag(tag) {
@@ -237,72 +271,111 @@ export default {
     followCategoryLink(event) {
       window.location.href = event.data.url
     },
-    switchCategoryLevel() {
-      if (this.currentCategoryLevel === this.categoryLevels.category) {
-        this.currentCategoryLevel = this.categoryLevels.subCategory
-        return true
-      } else if (
-        this.currentCategoryLevel === this.categoryLevels.subCategory
-      ) {
-        this.currentCategoryLevel = this.categoryLevels.category
-        return true
+    chartClickAction(chartComponent) {
+      console.log(this.skillTree)
+      console.log(chartComponent)
+      const componentData = chartComponent.data
+      console.log('Component data:')
+      console.log(componentData)
+      if (chartComponent.componentType === 'title') {
+        if (this.currentCategoryLevel === this.categoryLevels.category) {
+          console.log('Clicked on main category title…')
+        } else if (
+          this.currentCategoryLevel === this.categoryLevels.subCategory
+        ) {
+          this.currentChartOption = this.mainChartOption
+          this.currentCategoryLevel = this.categoryLevels.category
+        } else if (this.currentCategoryLevel === this.categoryLevels.skill) {
+          const categoryName = this.breadcrumb[0]
+          const subCategories = this.skillTree[categoryName].subCategories
+          this.currentChartOption = {
+            title: this.categoryLevelTitles.subCategory(categoryName),
+            series: [
+              {
+                name: 'Subcategories',
+                ...this.commonSeriesSettings,
+                data: [...Object.values(subCategories)]
+              }
+            ]
+          }
+          this.currentCategoryLevel = this.categoryLevels.subCategory
+        } else if (
+          this.currentCategoryLevel === this.categoryLevels.credential
+        ) {
+          const categoryName = this.breadcrumb[0]
+          const subCategoryName = this.breadcrumb[1]
+          const skills = this.skillTree[categoryName].subCategories[
+            subCategoryName
+          ].skills
+          this.currentChartOption = {
+            title: this.categoryLevelTitles.skill(subCategoryName),
+            series: [
+              {
+                name: 'Subcategories',
+                ...this.commonSeriesSettings,
+                data: [...Object.values(skills)]
+              }
+            ]
+          }
+          this.currentCategoryLevel = this.categoryLevels.skill
+        } else {
+          return false
+        }
+        this.breadcrumb.pop()
+      } else if (chartComponent.componentType === 'series') {
+        if (this.currentCategoryLevel === this.categoryLevels.category) {
+          const subCategories = Object.values(componentData.subCategories)
+          this.currentChartOption = {
+            title: this.categoryLevelTitles.subCategory(componentData.name),
+            series: [
+              {
+                name: 'Subcategories',
+                ...this.commonSeriesSettings,
+                data: [...subCategories]
+              }
+            ]
+          }
+          this.currentCategoryLevel = this.categoryLevels.subCategory
+        } else if (
+          this.currentCategoryLevel === this.categoryLevels.subCategory
+        ) {
+          const skills = Object.values(componentData.skills)
+          this.currentChartOption = {
+            title: this.categoryLevelTitles.skill(chartComponent.name),
+            series: [
+              {
+                name: 'Skills',
+                ...this.commonSeriesSettings,
+                data: [...skills]
+              }
+            ]
+          }
+          this.currentCategoryLevel = this.categoryLevels.skill
+        } else if (this.currentCategoryLevel === this.categoryLevels.skill) {
+          const credentials = componentData.credentials
+          console.log(credentials)
+          this.currentChartOption = {
+            title: this.categoryLevelTitles.credential(componentData.name),
+            series: [
+              {
+                name: 'Credentials',
+                ...this.commonSeriesSettings,
+                data: [...Object.values(credentials)]
+              }
+            ]
+          }
+          this.currentCategoryLevel = this.categoryLevels.credential
+        } else {
+          return false
+        }
+        this.breadcrumb.push(componentData.name)
       } else {
+        console.log('Unknown component type…')
         return false
       }
-    },
-    categoryChartClickAction(chartComponent) {
-      if (chartComponent.componentType === 'title') {
-        console.log('Clicked on title…')
-      } else if (chartComponent.componentType === 'series') {
-        this.toSubCategory(chartComponent)
-      } else {
-        console.log('Unknown component type…')
-      }
-    },
-    subCategoryChartClickAction(chartComponent) {
-      if (chartComponent.componentType === 'title') {
-        console.log('Clicked on title…')
-        this.currentCategoryLevel = this.categoryLevels.category
-        this.currentSubcategoryOption = {}
-      } else if (chartComponent.componentType === 'series') {
-        console.log(
-          'Clicked on series with name "' + chartComponent.data.name + '"…'
-        )
-      } else {
-        console.log('Unknown component type…')
-      }
-    },
-    toSubCategory(series) {
-      console.log(series)
-      const subCategories = Object.values(series.data.subCategories)
-      console.log(subCategories)
-      this.currentSubcategoryOption = {
-        title: {
-          text: 'Sub-categories of ' + series.name,
-          subtext: '↑ Back up',
-          subtextStyle: {
-            fontSize: 14
-          },
-          triggerEvent: true
-        },
-        series: [
-          {
-            name: 'Subcategories',
-            type: 'pie',
-            radius: [50, 250],
-            center: ['50%', '50%'],
-            roseType: 'area',
-            itemStyle: {
-              borderRadius: 8
-            },
-            label: {
-              fontSize: 18
-            },
-            data: [...subCategories]
-          }
-        ]
-      }
-      this.switchCategoryLevel()
+      console.log('breadcrumb: ' + this.breadcrumb)
+      console.log('Skill tree depth: ' + this.currentCategoryLevel)
+      return true
     }
   }
 }
