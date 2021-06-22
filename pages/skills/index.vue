@@ -73,29 +73,9 @@ export default {
           subtext: '',
           triggerEvent: false
         },
-        subCategory(mainCategoryName) {
+        subCategory(breadcrumb) {
           return {
-            text: 'Subcategories of ' + mainCategoryName,
-            subtext: '↑ Back up',
-            subtextStyle: {
-              fontSize: 14
-            },
-            triggerEvent: true
-          }
-        },
-        skill(subCategoryName) {
-          return {
-            text: 'Skills within ' + subCategoryName,
-            subtext: '↑ Back up',
-            subtextStyle: {
-              fontSize: 14
-            },
-            triggerEvent: true
-          }
-        },
-        credential(skillName) {
-          return {
-            text: 'Credentials making up ' + skillName,
+            text: '→ ' + breadcrumb.join(' → '),
             subtext: '↑ Back up',
             subtextStyle: {
               fontSize: 14
@@ -144,7 +124,6 @@ export default {
     /* Filters data for drawing the summary graph */
     skillTree() {
       console.log('Generating skill tree…')
-      console.log(this.skillMapping)
 
       const categories = {}
       for (const credential of this.credentials) {
@@ -211,7 +190,10 @@ export default {
               ].credentials[credential.id] = {
                 value: 1,
                 name: credential.achievement.name,
-                credential
+                credential,
+                url: `skills/${this.toValidURL(category)}/${this.toValidURL(
+                  subCategory
+                )}/${this.toValidURL(credential.achievement.name)}`
               }
             }
           }
@@ -278,6 +260,7 @@ export default {
       console.log('Component data:')
       console.log(componentData)
       if (chartComponent.componentType === 'title') {
+        this.breadcrumb.pop()
         if (this.currentCategoryLevel === this.categoryLevels.category) {
           console.log('Clicked on main category title…')
         } else if (
@@ -289,7 +272,7 @@ export default {
           const categoryName = this.breadcrumb[0]
           const subCategories = this.skillTree[categoryName].subCategories
           this.currentChartOption = {
-            title: this.categoryLevelTitles.subCategory(categoryName),
+            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
             series: [
               {
                 name: 'Subcategories',
@@ -308,7 +291,7 @@ export default {
             subCategoryName
           ].skills
           this.currentChartOption = {
-            title: this.categoryLevelTitles.skill(subCategoryName),
+            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
             series: [
               {
                 name: 'Subcategories',
@@ -321,12 +304,14 @@ export default {
         } else {
           return false
         }
-        this.breadcrumb.pop()
       } else if (chartComponent.componentType === 'series') {
+        if (this.breadcrumb.length < this.categoryLevels.credential) {
+          this.breadcrumb.push(componentData.name)
+        }
         if (this.currentCategoryLevel === this.categoryLevels.category) {
           const subCategories = Object.values(componentData.subCategories)
           this.currentChartOption = {
-            title: this.categoryLevelTitles.subCategory(componentData.name),
+            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
             series: [
               {
                 name: 'Subcategories',
@@ -341,7 +326,7 @@ export default {
         ) {
           const skills = Object.values(componentData.skills)
           this.currentChartOption = {
-            title: this.categoryLevelTitles.skill(chartComponent.name),
+            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
             series: [
               {
                 name: 'Skills',
@@ -355,7 +340,7 @@ export default {
           const credentials = componentData.credentials
           console.log(credentials)
           this.currentChartOption = {
-            title: this.categoryLevelTitles.credential(componentData.name),
+            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
             series: [
               {
                 name: 'Credentials',
@@ -368,7 +353,6 @@ export default {
         } else {
           return false
         }
-        this.breadcrumb.push(componentData.name)
       } else {
         console.log('Unknown component type…')
         return false
@@ -383,7 +367,7 @@ export default {
 
 <style>
 .category-chart {
-  min-height: 550px;
+  min-height: 600px;
   width: 100%;
 }
 </style>
