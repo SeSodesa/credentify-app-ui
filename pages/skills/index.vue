@@ -118,10 +118,8 @@ export default {
         this.optionStackData = newValue
       }
     },
-    currentCategoryLevel: {
-      get() {
-        return this.optionStackData.length
-      }
+    currentCategoryLevel() {
+      return this.optionStackData.length
     },
     /* Filters data for drawing the summary graph */
     skillTree() {
