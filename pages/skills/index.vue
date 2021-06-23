@@ -269,6 +269,8 @@ export default {
       const componentData = chartComponent.data
       console.log('Component data:')
       console.log(componentData)
+      const categoryName = this.breadcrumb[0]
+      const subCategoryName = this.breadcrumb[1]
       if (chartComponent.componentType === 'title') {
         // Remove category key from breadcrumb
         this.breadcrumb.pop()
@@ -281,15 +283,12 @@ export default {
           this.currentChartOption = this.mainChartOption
           this.currentCategoryLevel = this.categoryLevels.category
         } else if (this.currentCategoryLevel === this.categoryLevels.skill) {
-          const categoryName = this.breadcrumb[0]
           const subCategories = this.skillTree[categoryName].subCategories
           this.setChartOption('Subcategories', subCategories)
           this.currentCategoryLevel = this.categoryLevels.subCategory
         } else if (
           this.currentCategoryLevel === this.categoryLevels.credential
         ) {
-          const categoryName = this.breadcrumb[0]
-          const subCategoryName = this.breadcrumb[1]
           const skills = this.skillTree[categoryName].subCategories[
             subCategoryName
           ].skills
