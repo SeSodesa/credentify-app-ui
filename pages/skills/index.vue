@@ -98,10 +98,18 @@ export default {
         }
       },
       breadcrumb: [],
-      optionStack: []
+      optionStackData: []
     }
   },
   computed: {
+    optionStack: {
+      get() {
+        return this.optionStackData
+      },
+      set(newValue) {
+        this.optionStackData = newValue
+      }
+    },
     currentCategoryLevel: {
       get() {
         if (this.categoryLevel) {
@@ -220,7 +228,7 @@ export default {
     },
     currentChartOption: {
       get() {
-        return this.chartOption
+        return this.optionStack[this.optionStack.length - 1]
       },
       set(newValue) {
         this.chartOption = newValue
@@ -232,7 +240,8 @@ export default {
     this.$store.commit('nav/setBackUrl', '')
   },
   mounted() {
-    this.chartOption = this.mainChartOption
+    // this.chartOption = this.mainChartOption
+    this.optionStack.push(this.mainChartOption)
   },
   methods: {
     normalizeTag(tag) {
@@ -253,7 +262,7 @@ export default {
       window.location.href = event.data.url
     },
     setChartOption(label, data) {
-      this.currentChartOption = {
+      const newOption = {
         title: this.categoryLevelTitles.subCategory(this.breadcrumb),
         series: [
           {
@@ -263,39 +272,20 @@ export default {
           }
         ]
       }
+      this.optionStack.push(newOption)
     },
     chartClickAction(chartComponent) {
+      console.log(this.optionStack)
       console.log(chartComponent)
       const componentData = chartComponent.data
       console.log('Component data:')
       console.log(componentData)
-      const categoryName = this.breadcrumb[0]
-      const subCategoryName = this.breadcrumb[1]
       if (chartComponent.componentType === 'title') {
-        // Remove category key from breadcrumb
-        this.breadcrumb.pop()
-        // Set chart option based on current depth
-        if (this.currentCategoryLevel === this.categoryLevels.category) {
-          console.log('Clicked on main category title…')
-        } else if (
-          this.currentCategoryLevel === this.categoryLevels.subCategory
-        ) {
-          this.currentChartOption = this.mainChartOption
-          this.currentCategoryLevel = this.categoryLevels.category
-        } else if (this.currentCategoryLevel === this.categoryLevels.skill) {
-          const subCategories = this.skillTree[categoryName].subCategories
-          this.setChartOption('Subcategories', subCategories)
-          this.currentCategoryLevel = this.categoryLevels.subCategory
-        } else if (
-          this.currentCategoryLevel === this.categoryLevels.credential
-        ) {
-          const skills = this.skillTree[categoryName].subCategories[
-            subCategoryName
-          ].skills
-          this.setChartOption('Skills', skills)
-          this.currentCategoryLevel = this.categoryLevels.skill
-        } else {
-          return false
+        if (this.currentCategoryLevel > this.categoryLevels.category) {
+          // Remove category key from breadcrumb
+          this.breadcrumb.pop()
+          this.optionStack.pop()
+          this.currentCategoryLevel -= 1
         }
       } else if (chartComponent.componentType === 'series') {
         if (this.breadcrumb.length < this.categoryLevels.credential) {
