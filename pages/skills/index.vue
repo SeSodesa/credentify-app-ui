@@ -215,13 +215,8 @@ export default {
         ]
       }
     },
-    currentChartOption: {
-      get() {
-        return this.optionStack[this.optionStack.length - 1]
-      },
-      set(newValue) {
-        this.chartOption = newValue
-      }
+    currentChartOption() {
+      return this.optionStack[this.optionStack.length - 1]
     }
   },
   created() {
