@@ -252,6 +252,18 @@ export default {
     followCategoryLink(event) {
       window.location.href = event.data.url
     },
+    setChartOption(label, data) {
+      this.currentChartOption = {
+        title: this.categoryLevelTitles.subCategory(this.breadcrumb),
+        series: [
+          {
+            name: 'Skills',
+            ...this.commonSeriesSettings,
+            data: [...Object.values(data)]
+          }
+        ]
+      }
+    },
     chartClickAction(chartComponent) {
       console.log(chartComponent)
       const componentData = chartComponent.data
@@ -271,16 +283,7 @@ export default {
         } else if (this.currentCategoryLevel === this.categoryLevels.skill) {
           const categoryName = this.breadcrumb[0]
           const subCategories = this.skillTree[categoryName].subCategories
-          this.currentChartOption = {
-            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
-            series: [
-              {
-                name: 'Subcategories',
-                ...this.commonSeriesSettings,
-                data: [...Object.values(subCategories)]
-              }
-            ]
-          }
+          this.setChartOption('Subcategories', subCategories)
           this.currentCategoryLevel = this.categoryLevels.subCategory
         } else if (
           this.currentCategoryLevel === this.categoryLevels.credential
@@ -290,16 +293,7 @@ export default {
           const skills = this.skillTree[categoryName].subCategories[
             subCategoryName
           ].skills
-          this.currentChartOption = {
-            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
-            series: [
-              {
-                name: 'Skills',
-                ...this.commonSeriesSettings,
-                data: [...Object.values(skills)]
-              }
-            ]
-          }
+          this.setChartOption('Skills', skills)
           this.currentCategoryLevel = this.categoryLevels.skill
         } else {
           return false
@@ -310,45 +304,18 @@ export default {
         }
         if (this.currentCategoryLevel === this.categoryLevels.category) {
           const subCategories = Object.values(componentData.subCategories)
-          this.currentChartOption = {
-            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
-            series: [
-              {
-                name: 'Subcategories',
-                ...this.commonSeriesSettings,
-                data: [...subCategories]
-              }
-            ]
-          }
+          this.setChartOption('Subcategories', subCategories)
           this.currentCategoryLevel = this.categoryLevels.subCategory
         } else if (
           this.currentCategoryLevel === this.categoryLevels.subCategory
         ) {
           const skills = Object.values(componentData.skills)
-          this.currentChartOption = {
-            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
-            series: [
-              {
-                name: 'Skills',
-                ...this.commonSeriesSettings,
-                data: [...skills]
-              }
-            ]
-          }
+          this.setChartOption('Skills', skills)
           this.currentCategoryLevel = this.categoryLevels.skill
         } else if (this.currentCategoryLevel === this.categoryLevels.skill) {
           const credentials = componentData.credentials
           console.log(credentials)
-          this.currentChartOption = {
-            title: this.categoryLevelTitles.subCategory(this.breadcrumb),
-            series: [
-              {
-                name: 'Credentials',
-                ...this.commonSeriesSettings,
-                data: [...Object.values(credentials)]
-              }
-            ]
-          }
+          this.setChartOption('Credentials', credentials)
           this.currentCategoryLevel = this.categoryLevels.credential
         } else {
           return false
@@ -357,8 +324,6 @@ export default {
         console.log('Unknown component type…')
         return false
       }
-      console.log('breadcrumb: ' + this.breadcrumb)
-      console.log('Skill tree depth: ' + this.currentCategoryLevel)
       return true
     }
   }
