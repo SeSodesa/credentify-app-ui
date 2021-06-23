@@ -125,7 +125,6 @@ export default {
     },
     /* Filters data for drawing the summary graph */
     skillTree() {
-      console.log('Generating skill tree…')
       const skillTree = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
@@ -197,7 +196,6 @@ export default {
         }
         // }
       }
-      console.log(skillTree)
       return skillTree
     },
     credentialsExist() {
@@ -284,10 +282,9 @@ export default {
             optionData
           )
         } else {
-          console.log('Already at max category level…')
+          return false
         }
       } else {
-        console.log('Unknown component type…')
         return false
       }
       return true
