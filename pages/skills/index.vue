@@ -110,13 +110,8 @@ export default {
     }
   },
   computed: {
-    optionStack: {
-      get() {
-        return this.optionStackData
-      },
-      set(newValue) {
-        this.optionStackData = newValue
-      }
+    optionStack() {
+      return this.optionStackData
     },
     currentCategoryLevel() {
       return this.optionStackData.length
