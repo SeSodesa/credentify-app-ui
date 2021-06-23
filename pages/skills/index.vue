@@ -60,12 +60,20 @@ export default {
   data() {
     return {
       categoryLevels: Object.freeze({
-        category: 0,
-        subCategory: 1,
-        skill: 2,
-        credential: 3
+        1: {
+          name: 'Main categories'
+        },
+        2: {
+          name: 'Subcategories'
+        },
+        3: {
+          name: 'Skills'
+        },
+        4: {
+          name: 'Credentials'
+        }
       }),
-      categoryLevel: '',
+      categoryLevel: 1,
       chartOption: {},
       categoryLevelTitles: {
         mainCategory: {
@@ -112,27 +120,13 @@ export default {
     },
     currentCategoryLevel: {
       get() {
-        if (this.categoryLevel) {
-          return this.categoryLevel
-        } else {
-          return this.categoryLevels.category
-        }
-      },
-      set(newValue) {
-        if (
-          newValue === this.categoryLevels.category ||
-          newValue === this.categoryLevels.subCategory ||
-          newValue === this.categoryLevels.skill ||
-          newValue === this.categoryLevels.credential
-        ) {
-          this.categoryLevel = newValue
-        }
+        return this.optionStackData.length
       }
     },
     /* Filters data for drawing the summary graph */
     skillTree() {
       console.log('Generating skill tree…')
-      const categories = {}
+      const skillTree = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
         const achievement = credential.achievement
@@ -143,57 +137,54 @@ export default {
             const category = catAndSubCat.category
             const subCategory = catAndSubCat['sub-category']
             /* Check for existence of category */
-            if (category in categories) {
-              categories[category].value += 1
+            if (category in skillTree) {
+              skillTree[category].value += 1
             } else {
-              categories[category] = {
+              skillTree[category] = {
                 value: 1,
                 name: category,
                 url: `/skills/${this.toValidURL(category)}`,
-                subCategories: {}
+                children: {}
               }
             }
             /* Then check for subcategory in category */
-            if (subCategory in categories[category].subCategories) {
-              categories[category].subCategories[subCategory].value += 1
+            if (subCategory in skillTree[category].children) {
+              skillTree[category].children[subCategory].value += 1
             } else {
-              categories[category].subCategories[subCategory] = {
+              skillTree[category].children[subCategory] = {
                 value: 1,
                 name: subCategory,
                 url: `skills/${this.toValidURL(category)}/${this.toValidURL(
                   subCategory
                 )}`,
-                skills: {}
+                children: {}
               }
             }
             /* Finally, attach skill information and credential to subcategories */
             const skill = normalizedTag
-            if (
-              skill in categories[category].subCategories[subCategory].skills
-            ) {
-              categories[category].subCategories[subCategory].skills[
+            if (skill in skillTree[category].children[subCategory].children) {
+              skillTree[category].children[subCategory].children[
                 skill
               ].value += 1
             } else {
-              categories[category].subCategories[subCategory].skills[skill] = {
+              skillTree[category].children[subCategory].children[skill] = {
                 value: 1,
                 name: skill,
-                credentials: {}
+                children: {}
               }
             }
             /* Check for existence of credential in the skill */
             if (
               credential[credential.id] in
-              categories[category].subCategories[subCategory].skills[skill]
-                .credentials
+              skillTree[category].children[subCategory].children[skill].children
             ) {
-              categories[category].subCategories[subCategory].skills[
+              skillTree[category].children[subCategory].children[
                 skill
-              ].credentials[credential.id].value += 1
+              ].children[credential.id].value += 1
             } else {
-              categories[category].subCategories[subCategory].skills[
+              skillTree[category].children[subCategory].children[
                 skill
-              ].credentials[credential.id] = {
+              ].children[credential.id] = {
                 value: 1,
                 name: credential.achievement.name,
                 credential,
@@ -206,8 +197,8 @@ export default {
         }
         // }
       }
-      console.log(categories)
-      return categories
+      console.log(skillTree)
+      return skillTree
     },
     credentialsExist() {
       return this.credentials.length > 0
@@ -261,7 +252,7 @@ export default {
     followCategoryLink(event) {
       window.location.href = event.data.url
     },
-    setChartOption(label, data) {
+    pushChartOption(label, data) {
       const newOption = {
         title: this.categoryLevelTitles.subCategory(this.breadcrumb),
         series: [
@@ -275,39 +266,25 @@ export default {
       this.optionStack.push(newOption)
     },
     chartClickAction(chartComponent) {
-      console.log(this.optionStack)
-      console.log(chartComponent)
       const componentData = chartComponent.data
-      console.log('Component data:')
-      console.log(componentData)
       if (chartComponent.componentType === 'title') {
-        if (this.currentCategoryLevel > this.categoryLevels.category) {
+        if (this.currentCategoryLevel > 1) {
           // Remove category key from breadcrumb
           this.breadcrumb.pop()
           this.optionStack.pop()
-          this.currentCategoryLevel -= 1
         }
       } else if (chartComponent.componentType === 'series') {
-        if (this.breadcrumb.length < this.categoryLevels.credential) {
-          this.breadcrumb.push(componentData.name)
-        }
-        if (this.currentCategoryLevel === this.categoryLevels.category) {
-          const subCategories = Object.values(componentData.subCategories)
-          this.setChartOption('Subcategories', subCategories)
-          this.currentCategoryLevel = this.categoryLevels.subCategory
-        } else if (
-          this.currentCategoryLevel === this.categoryLevels.subCategory
+        if (
+          this.currentCategoryLevel < Object.keys(this.categoryLevels).length
         ) {
-          const skills = Object.values(componentData.skills)
-          this.setChartOption('Skills', skills)
-          this.currentCategoryLevel = this.categoryLevels.skill
-        } else if (this.currentCategoryLevel === this.categoryLevels.skill) {
-          const credentials = componentData.credentials
-          console.log(credentials)
-          this.setChartOption('Credentials', credentials)
-          this.currentCategoryLevel = this.categoryLevels.credential
+          this.breadcrumb.push(componentData.name)
+          const optionData = componentData.children
+          this.pushChartOption(
+            this.categoryLevels[this.currentCategoryLevel].name,
+            optionData
+          )
         } else {
-          return false
+          console.log('Already at max category level…')
         }
       } else {
         console.log('Unknown component type…')
