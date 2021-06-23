@@ -257,7 +257,7 @@ export default {
         title: this.categoryLevelTitles.subCategory(this.breadcrumb),
         series: [
           {
-            name: 'Skills',
+            name: label,
             ...this.commonSeriesSettings,
             data: [...Object.values(data)]
           }
@@ -280,7 +280,7 @@ export default {
           this.breadcrumb.push(componentData.name)
           const optionData = componentData.children
           this.pushChartOption(
-            this.categoryLevels[this.currentCategoryLevel].name,
+            this.categoryLevels[this.currentCategoryLevel + 1].name,
             optionData
           )
         } else {
