@@ -124,13 +124,11 @@ export default {
     /* Filters data for drawing the summary graph */
     skillTree() {
       console.log('Generating skill tree…')
-
       const categories = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
         const achievement = credential.achievement
         for (const tag of achievement.tag) {
-          /* Not supported by older browsers, but who cares */
           const normalizedTag = this.normalizeTag(tag)
           const catAndSubCat = this.skillMapping[normalizedTag]
           if (catAndSubCat !== undefined) {
@@ -212,6 +210,7 @@ export default {
         title: this.categoryLevelTitles.mainCategory,
         series: [
           {
+            id: 'Skill tree',
             name: 'Main categories',
             ...this.commonSeriesSettings,
             data: [...Object.values(this.skillTree)]
@@ -254,13 +253,14 @@ export default {
       window.location.href = event.data.url
     },
     chartClickAction(chartComponent) {
-      console.log(this.skillTree)
       console.log(chartComponent)
       const componentData = chartComponent.data
       console.log('Component data:')
       console.log(componentData)
       if (chartComponent.componentType === 'title') {
+        // Remove category key from breadcrumb
         this.breadcrumb.pop()
+        // Set chart option based on current depth
         if (this.currentCategoryLevel === this.categoryLevels.category) {
           console.log('Clicked on main category title…')
         } else if (
@@ -294,7 +294,7 @@ export default {
             title: this.categoryLevelTitles.subCategory(this.breadcrumb),
             series: [
               {
-                name: 'Subcategories',
+                name: 'Skills',
                 ...this.commonSeriesSettings,
                 data: [...Object.values(skills)]
               }
