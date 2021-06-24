@@ -1,19 +1,37 @@
 <template>
   <div class="stage">
-    <div class="icon--title mb-2">
-      <img src="~/assets/icons/bootstrap-puzzle-big.svg" alt="Skills image" />
-      <h1>Skills</h1>
+    <div v-if="currentCategoryLevel < maxCategoryLevel">
+      <div class="icon--title mb-2">
+        <img src="~/assets/icons/bootstrap-puzzle-big.svg" alt="Skills image" />
+        <h1>Skills</h1>
+      </div>
+      <div class="subtitle">
+        A summary page of your earned skills and achievements. Click on a petal
+        to view information related to the skill category.
+      </div>
     </div>
-    <div class="subtitle">
-      A summary page of your earned skills and achievements. Click on a petal to
-      view information related to the skill category.
+    <div v-else-if="currentCategoryLevel === maxCategoryLevel">
+      <div class="icon--title">
+        <img src="~/assets/icons/credentials-big.svg" alt="Credential logo" />
+        <h1>Credential details</h1>
+      </div>
+      <div class="subtitle pointable" @click="backUp">
+        ↑ Back up
+      </div>
+    </div>
+    <div v-else>
+      <h1>Oops. Something went wrong…</h1>
     </div>
     <v-chart
-      v-if="credentialsExist"
+      v-if="credentialsExist && currentCategoryLevel < maxCategoryLevel"
       :ref="'category-chart'"
       class="category-chart"
       :option="currentChartOption"
       @click="chartClickAction"
+    />
+    <single-credential-view
+      v-else-if="credentialsExist && currentCategoryLevel === maxCategoryLevel"
+      :credential="credential"
     />
     <div v-else>
       No credentials to display…
@@ -27,12 +45,14 @@ import { TitleComponent } from 'echarts/components'
 import { PieChart } from 'echarts/charts'
 import { SVGRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
+import SingleCredentialView from '~/components/SingleCredentialView'
 
 echarts.use([TitleComponent, PieChart, SVGRenderer])
 
 export default {
   components: {
-    VChart
+    VChart,
+    SingleCredentialView
   },
   async asyncData({ app, params }) {
     try {
@@ -59,6 +79,7 @@ export default {
   },
   data() {
     return {
+      backUrl: '/skills',
       categoryLevels: Object.freeze({
         1: {
           name: 'Main categories'
@@ -71,10 +92,12 @@ export default {
         },
         4: {
           name: 'Credentials'
+        },
+        5: {
+          name: 'Specific credential'
         }
       }),
-      categoryLevel: 1,
-      chartOption: {},
+      credentialData: {},
       categoryLevelTitles: {
         mainCategory: {
           text: 'Main categories',
@@ -110,6 +133,14 @@ export default {
     }
   },
   computed: {
+    credential: {
+      get() {
+        return this.credentialData
+      },
+      set(newValue) {
+        this.credentialData = newValue
+      }
+    },
     optionStack() {
       return this.optionStackData
     },
@@ -194,6 +225,9 @@ export default {
     credentialsExist() {
       return this.credentials.length > 0
     },
+    maxCategoryLevel() {
+      return Object.keys(this.categoryLevels).length
+    },
     // Generates the data used in drawing the summary figure
     mainChartOption() {
       return {
@@ -221,6 +255,16 @@ export default {
     this.optionStack.push(this.mainChartOption)
   },
   methods: {
+    backUp() {
+      if (this.currentCategoryLevel > 1) {
+        this.breadcrumb.pop()
+        this.optionStack.pop()
+        this.credential = {}
+      }
+      console.log(this.currentChartOption)
+      console.log(this.optionStack)
+      console.log(this.breadcrumb)
+    },
     normalizeTag(tag) {
       const whitespaceNormalized = tag
         .trim()
@@ -245,7 +289,7 @@ export default {
           {
             name: label,
             ...this.commonSeriesSettings,
-            data: [...Object.values(data)]
+            data: data !== null ? [...Object.values(data)] : {}
           }
         ]
       }
@@ -253,28 +297,31 @@ export default {
     },
     chartClickAction(chartComponent) {
       const componentData = chartComponent.data
+      console.log(componentData)
       if (chartComponent.componentType === 'title') {
-        if (this.currentCategoryLevel > 1) {
-          // Remove category key from breadcrumb
-          this.breadcrumb.pop()
-          this.optionStack.pop()
-        }
+        this.backUp()
       } else if (chartComponent.componentType === 'series') {
-        if (
-          this.currentCategoryLevel < Object.keys(this.categoryLevels).length
-        ) {
+        if (this.currentCategoryLevel < this.maxCategoryLevel - 1) {
           this.breadcrumb.push(componentData.name)
-          const optionData = componentData.children
           this.pushChartOption(
             this.categoryLevels[this.currentCategoryLevel + 1].name,
-            optionData
+            componentData.children
           )
+          console.log('Over here!')
+        } else if (this.currentCategoryLevel === this.maxCategoryLevel - 1) {
+          this.breadcrumb.push(componentData.name)
+          this.pushChartOption(componentData.name, null)
+          this.credential = componentData.credential
+          console.log('Over here instead!')
         } else {
           return false
         }
       } else {
         return false
       }
+      console.log(`category level: ${this.currentCategoryLevel}`)
+      console.log(this.optionStack)
+      console.log(this.breadcrumb)
       return true
     }
   }
@@ -285,5 +332,9 @@ export default {
 .category-chart {
   min-height: 600px;
   width: 100%;
+}
+
+.pointable:hover {
+  cursor: pointer;
 }
 </style>
