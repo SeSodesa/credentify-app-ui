@@ -125,8 +125,24 @@ export default {
           borderRadius: 8
         },
         label: {
-          fontSize: 18,
-          formatter: '{b}: {c}'
+          fontSize: 20,
+          formatter(petal) {
+            if ('credential' in petal.data) {
+              const achievement = petal.data.credential.achievement
+              return (
+                achievement.name +
+                '\n' +
+                'ECTS: ' +
+                achievement.ectsCreditPoints
+              )
+            } else {
+              return petal.name + '\n' + 'Instances: ' + petal.value
+            }
+          },
+          position: 'outer',
+          alignTo: 'edge',
+          edgeDistance: 20,
+          distanceToLabelLine: 10
         }
       },
       breadcrumb: [],
