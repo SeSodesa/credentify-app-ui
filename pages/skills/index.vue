@@ -106,7 +106,7 @@ export default {
         },
         subCategory(breadcrumb) {
           return {
-            text: '→ ' + breadcrumb.join(' → '),
+            text: breadcrumb.join(' → '),
             subtext: '↑ Back up',
             subtextStyle: {
               fontSize: 14
@@ -269,6 +269,7 @@ export default {
   mounted() {
     // this.chartOption = this.mainChartOption
     this.optionStack.push(this.mainChartOption)
+    this.breadcrumb.push('Main categories')
   },
   methods: {
     backUp() {
