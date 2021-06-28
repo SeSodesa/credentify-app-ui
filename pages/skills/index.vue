@@ -116,6 +116,7 @@ export default {
         }
       },
       commonSeriesSettings: {
+        id: 'Skill tree visualization',
         type: 'pie',
         radius: [50, 250],
         center: ['50%', '50%'],
@@ -234,10 +235,9 @@ export default {
         title: this.categoryLevelTitles.mainCategory,
         series: [
           {
-            id: 'Skill tree',
             name: 'Main categories',
             ...this.commonSeriesSettings,
-            data: [...Object.values(this.skillTree)]
+            data: Object.values(this.skillTree)
           }
         ]
       }
@@ -256,14 +256,9 @@ export default {
   },
   methods: {
     backUp() {
-      if (this.currentCategoryLevel > 1) {
-        this.breadcrumb.pop()
-        this.optionStack.pop()
-        this.credential = {}
-      }
-      console.log(this.currentChartOption)
-      console.log(this.optionStack)
-      console.log(this.breadcrumb)
+      this.breadcrumb.pop()
+      this.optionStack.pop()
+      this.credential = {}
     },
     normalizeTag(tag) {
       const whitespaceNormalized = tag
@@ -289,7 +284,7 @@ export default {
           {
             name: label,
             ...this.commonSeriesSettings,
-            data: data !== null ? [...Object.values(data)] : {}
+            data: data !== null ? Object.values(data) : {}
           }
         ]
       }
@@ -297,7 +292,6 @@ export default {
     },
     chartClickAction(chartComponent) {
       const componentData = chartComponent.data
-      console.log(componentData)
       if (chartComponent.componentType === 'title') {
         this.backUp()
       } else if (chartComponent.componentType === 'series') {
@@ -307,21 +301,16 @@ export default {
             this.categoryLevels[this.currentCategoryLevel + 1].name,
             componentData.children
           )
-          console.log('Over here!')
         } else if (this.currentCategoryLevel === this.maxCategoryLevel - 1) {
           this.breadcrumb.push(componentData.name)
           this.pushChartOption(componentData.name, null)
           this.credential = componentData.credential
-          console.log('Over here instead!')
         } else {
           return false
         }
       } else {
         return false
       }
-      console.log(`category level: ${this.currentCategoryLevel}`)
-      console.log(this.optionStack)
-      console.log(this.breadcrumb)
       return true
     }
   }
