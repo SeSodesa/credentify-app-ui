@@ -141,7 +141,7 @@ export default {
           },
           position: 'outer',
           alignTo: 'edge',
-          edgeDistance: 20,
+          edgeDistance: 0,
           distanceToLabelLine: 10
         }
       },
