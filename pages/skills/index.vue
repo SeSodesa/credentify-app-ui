@@ -116,6 +116,7 @@ export default {
           borderRadius: 8
         },
         label: {
+          rotate: 'tangential',
           fontSize: 20,
           formatter(petal) {
             if ('credential' in petal.data) {
@@ -231,7 +232,6 @@ export default {
       return skillTree
     },
     sunburstData() {
-      console.log('Constructing sunburst data')
       const data = []
       this.sunburstDataConstructor(data, Object.values(this.skillTree))
       return data
