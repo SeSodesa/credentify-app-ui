@@ -26,7 +26,7 @@
       v-if="credentialsExist && currentCategoryLevel < maxCategoryLevel"
       :ref="'category-chart'"
       class="category-chart"
-      :option="currentChartOption"
+      :option="mainChartOption"
       @click="chartClickAction"
     />
     <single-credential-view
@@ -42,12 +42,12 @@
 <script>
 import * as echarts from 'echarts/core'
 import { TitleComponent } from 'echarts/components'
-import { PieChart } from 'echarts/charts'
+import { SunburstChart } from 'echarts/charts'
 import { SVGRenderer } from 'echarts/renderers'
 import VChart from 'vue-echarts'
 import SingleCredentialView from '~/components/SingleCredentialView'
 
-echarts.use([TitleComponent, PieChart, SVGRenderer])
+echarts.use([TitleComponent, SunburstChart, SVGRenderer])
 
 export default {
   components: {
@@ -85,15 +85,6 @@ export default {
           name: 'Main categories'
         },
         2: {
-          name: 'Subcategories'
-        },
-        3: {
-          name: 'Skills'
-        },
-        4: {
-          name: 'Credentials'
-        },
-        5: {
           name: 'Specific credential'
         }
       }),
@@ -117,10 +108,10 @@ export default {
       },
       commonSeriesSettings: {
         id: 'Skill tree visualization',
-        type: 'pie',
-        radius: [50, 250],
+        type: 'sunburst',
+        radius: [50, '100%'],
         center: ['50%', '50%'],
-        roseType: 'area',
+        // roseType: 'area',
         itemStyle: {
           borderRadius: 8
         },
@@ -239,6 +230,12 @@ export default {
       }
       return skillTree
     },
+    sunburstData() {
+      console.log('Constructing sunburst data')
+      const data = []
+      this.sunburstDataConstructor(data, Object.values(this.skillTree))
+      return data
+    },
     credentialsExist() {
       return this.credentials.length > 0
     },
@@ -253,13 +250,16 @@ export default {
           {
             name: 'Main categories',
             ...this.commonSeriesSettings,
-            data: Object.values(this.skillTree)
+            data: this.sunburstData // Object.values(this.skillTree)
           }
         ]
       }
     },
     currentChartOption() {
       return this.optionStack[this.optionStack.length - 1]
+    },
+    currentChartTitle() {
+      return this.breadcrumb[this.breadcrumb.length - 1]
     }
   },
   created() {
@@ -296,12 +296,12 @@ export default {
     },
     pushChartOption(label, data) {
       const newOption = {
-        title: this.categoryLevelTitles.subCategory(this.breadcrumb),
+        title: this.currentChartTitle,
         series: [
           {
             name: label,
             ...this.commonSeriesSettings,
-            data: data !== null ? Object.values(data) : {}
+            data: Object.values(this.skillTree)
           }
         ]
       }
@@ -312,13 +312,7 @@ export default {
       if (chartComponent.componentType === 'title') {
         this.backUp()
       } else if (chartComponent.componentType === 'series') {
-        if (this.currentCategoryLevel < this.maxCategoryLevel - 1) {
-          this.breadcrumb.push(componentData.name)
-          this.pushChartOption(
-            this.categoryLevels[this.currentCategoryLevel + 1].name,
-            componentData.children
-          )
-        } else if (this.currentCategoryLevel === this.maxCategoryLevel - 1) {
+        if ('credential' in componentData) {
           this.breadcrumb.push(componentData.name)
           this.pushChartOption(componentData.name, null)
           this.credential = componentData.credential
@@ -329,6 +323,27 @@ export default {
         return false
       }
       return true
+    },
+    /* Transforms the skill tree into sunburst-friendly form */
+    sunburstDataConstructor(targetList, sourceList) {
+      for (const sourceNode of sourceList) {
+        const targetNode = {
+          name: sourceNode.name,
+          value: sourceNode.value
+        }
+        if ('children' in sourceNode) {
+          targetNode.children = []
+          this.sunburstDataConstructor(
+            targetNode.children,
+            Object.values(sourceNode.children)
+          )
+        } else if ('credential' in sourceNode) {
+          targetNode.credential = sourceNode.credential
+        } else {
+          // Do nothing
+        }
+        targetList.push(targetNode)
+      }
     }
   }
 }
