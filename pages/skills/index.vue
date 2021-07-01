@@ -274,6 +274,7 @@ export default {
     // this.chartOption = this.mainChartOption
     this.optionStack.push(this.mainChartOption)
     this.breadcrumb.push('Main categories')
+    console.log(this.colorTints('#0C6291', 8))
   },
   methods: {
     backUp() {
@@ -340,25 +341,33 @@ export default {
     colorTints(darkestColor, nOfTints) {
       // Which idiot included conflicting linters.
       // "Unicorn numbers" my ass…
-      const colorMax = parseInt('0xff', 16)
-      const darkestAsInt = parseInt(darkestColor, 16)
-      if (darkestAsInt > colorMax || darkestAsInt < 0x00) {
+      const colorMax = 255
+      console.log(darkestColor.substring(1))
+      const darkestAsInt = parseInt(darkestColor.substring(1), 16)
+      console.log(darkestAsInt)
+      if (darkestAsInt < 0x00) {
         return null
       }
-      const darkestRed = darkestAsInt >> 16
-      const darkestGreen = (darkestAsInt << 16) >> 24
-      const darkestBlue = (darkestAsInt << 24) >> 24
+      const darkestRed = (darkestAsInt >> 16) >>> 0
+      console.log('red: ' + darkestRed.toString(16))
+      const darkestGreen = ((darkestAsInt << 16) >> 24) >>> 0
+      console.log('green: ' + darkestGreen.toString(16))
+      const darkestBlue = (darkestAsInt << 24) >>> 24
+      console.log('blue: ' + darkestBlue.toString(16))
       const darkestMax = Math.max(darkestRed, darkestGreen, darkestBlue)
+      console.log('darkest max coord: ' + darkestMax.toString(16))
       const colorDiff = colorMax - darkestMax
+      console.log('color diff: ' + colorDiff.toString(16))
       const colorStep = (1 / nOfTints) * colorDiff
+      console.log('color step: ' + colorStep)
       const tints = [darkestColor]
       for (let ii = 0; ii < nOfTints; ii++) {
         const nextRed = Math.floor(darkestRed + ii * colorStep)
         const nextGreen = Math.floor(darkestGreen + ii * colorStep)
         const nextBlue = Math.floor(darkestBlue + ii * colorStep)
-        const nextHex =
-          '0x' + ((nextRed << 16) + (nextGreen << 8) + nextBlue).toString(16)
-        tints.push(nextHex)
+        const nextColorHex =
+          '#' + ((nextRed << 16) + (nextGreen << 8) + nextBlue).toString(16)
+        tints.push(nextColorHex)
       }
       return tints
     }
