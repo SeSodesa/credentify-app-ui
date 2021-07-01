@@ -15,9 +15,9 @@
         <img src="~/assets/icons/credentials-big.svg" alt="Credential logo" />
         <h1>Credential details</h1>
       </div>
-      <div class="subtitle pointable" @click="backUp">
+      <button class="pointable" @click="backUp">
         ↑ Back up
-      </div>
+      </button>
     </div>
     <div v-else>
       <h1>Oops. Something went wrong…</h1>
