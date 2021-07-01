@@ -82,16 +82,20 @@ export default {
       backUrl: '/skills',
       categoryLevels: Object.freeze({
         1: {
-          name: 'Main categories'
+          name: 'Main categories',
+          color: '#0C6291'
         },
         2: {
-          name: 'Subcategories'
+          name: 'Subcategories',
+          color: '#4C9F70'
         },
         3: {
-          name: 'Skills'
+          name: 'Skills',
+          color: '#9A348E'
         },
         4: {
-          name: 'Credentials'
+          name: 'Credentials',
+          color: '#C69DD2'
         },
         5: {
           name: 'Specific credential'
@@ -299,6 +303,7 @@ export default {
         title: this.categoryLevelTitles.subCategory(this.breadcrumb),
         series: [
           {
+            color: this.categoryLevels[this.currentCategoryLevel + 1].color,
             name: label,
             ...this.commonSeriesSettings,
             data: data !== null ? Object.values(data) : {}
@@ -329,6 +334,33 @@ export default {
         return false
       }
       return true
+    },
+    // Generates a gradient of colors from a given darkest base color (0xRGB)
+    // and a number of color tints above it
+    colorTints(darkestColor, nOfTints) {
+      // Which idiot included conflicting linters.
+      // "Unicorn numbers" my ass…
+      const colorMax = parseInt('0xff', 16)
+      const darkestAsInt = parseInt(darkestColor, 16)
+      if (darkestAsInt > colorMax || darkestAsInt < 0x00) {
+        return null
+      }
+      const darkestRed = darkestAsInt >> 16
+      const darkestGreen = (darkestAsInt << 16) >> 24
+      const darkestBlue = (darkestAsInt << 24) >> 24
+      const darkestMax = Math.max(darkestRed, darkestGreen, darkestBlue)
+      const colorDiff = colorMax - darkestMax
+      const colorStep = (1 / nOfTints) * colorDiff
+      const tints = [darkestColor]
+      for (let ii = 0; ii < nOfTints; ii++) {
+        const nextRed = Math.floor(darkestRed + ii * colorStep)
+        const nextGreen = Math.floor(darkestGreen + ii * colorStep)
+        const nextBlue = Math.floor(darkestBlue + ii * colorStep)
+        const nextHex =
+          '0x' + String((nextRed << 16) + (nextGreen << 8) + nextBlue)
+        tints.push(nextHex)
+      }
+      return tints
     }
   }
 }
