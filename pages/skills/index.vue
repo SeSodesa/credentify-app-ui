@@ -98,7 +98,8 @@ export default {
           color: '#C69DD2'
         },
         5: {
-          name: 'Specific credential'
+          name: 'Specific credential',
+          color: '#FFFFFF'
         }
       }),
       credentialData: {},
@@ -154,6 +155,9 @@ export default {
     }
   },
   computed: {
+    currentBaseColor() {
+      return this.categoryLevels[Object.keys(this.breadcrumb).length].color
+    },
     credential: {
       get() {
         return this.credentialData
@@ -251,8 +255,13 @@ export default {
     },
     // Generates the data used in drawing the summary figure
     mainChartOption() {
+      const colorTints = this.colorTints(
+        this.categoryLevels[1].color,
+        Object.values(this.skillTree).length
+      )
       return {
         title: this.categoryLevelTitles.mainCategory,
+        color: colorTints,
         series: [
           {
             name: 'Main categories',
@@ -272,9 +281,8 @@ export default {
   },
   mounted() {
     // this.chartOption = this.mainChartOption
-    this.optionStack.push(this.mainChartOption)
     this.breadcrumb.push('Main categories')
-    console.log(this.colorTints('#0C6291', 8))
+    this.optionStack.push(this.mainChartOption)
   },
   methods: {
     backUp() {
@@ -300,11 +308,13 @@ export default {
       window.location.href = event.data.url
     },
     pushChartOption(label, data) {
+      const N = data !== null ? Object.values(data).length : 0
+      const colorTints = this.colorTints(this.currentBaseColor, N)
       const newOption = {
         title: this.categoryLevelTitles.subCategory(this.breadcrumb),
+        color: colorTints,
         series: [
           {
-            color: this.categoryLevels[this.currentCategoryLevel + 1].color,
             name: label,
             ...this.commonSeriesSettings,
             data: data !== null ? Object.values(data) : {}
@@ -342,26 +352,18 @@ export default {
       // Which idiot included conflicting linters.
       // "Unicorn numbers" my ass…
       const colorMax = 255
-      console.log(darkestColor.substring(1))
       const darkestAsInt = parseInt(darkestColor.substring(1), 16)
-      console.log(darkestAsInt)
       if (darkestAsInt < 0x00) {
         return null
       }
-      const darkestRed = (darkestAsInt >> 16) >>> 0
-      console.log('red: ' + darkestRed.toString(16))
-      const darkestGreen = ((darkestAsInt << 16) >> 24) >>> 0
-      console.log('green: ' + darkestGreen.toString(16))
+      const darkestRed = darkestAsInt >>> 16
+      const darkestGreen = (darkestAsInt << 16) >>> 24
       const darkestBlue = (darkestAsInt << 24) >>> 24
-      console.log('blue: ' + darkestBlue.toString(16))
       const darkestMax = Math.max(darkestRed, darkestGreen, darkestBlue)
-      console.log('darkest max coord: ' + darkestMax.toString(16))
       const colorDiff = colorMax - darkestMax
-      console.log('color diff: ' + colorDiff.toString(16))
       const colorStep = (1 / nOfTints) * colorDiff
-      console.log('color step: ' + colorStep)
       const tints = [darkestColor]
-      for (let ii = 0; ii < nOfTints; ii++) {
+      for (let ii = 1; ii < nOfTints; ii++) {
         const nextRed = Math.floor(darkestRed + ii * colorStep)
         const nextGreen = Math.floor(darkestGreen + ii * colorStep)
         const nextBlue = Math.floor(darkestBlue + ii * colorStep)
