@@ -357,7 +357,7 @@ export default {
         const nextGreen = Math.floor(darkestGreen + ii * colorStep)
         const nextBlue = Math.floor(darkestBlue + ii * colorStep)
         const nextHex =
-          '0x' + String((nextRed << 16) + (nextGreen << 8) + nextBlue)
+          '0x' + ((nextRed << 16) + (nextGreen << 8) + nextBlue).toString(16)
         tints.push(nextHex)
       }
       return tints
