@@ -15,7 +15,7 @@
         <img src="~/assets/icons/credentials-big.svg" alt="Credential logo" />
         <h1>Credential details</h1>
       </div>
-      <button class="pointable" @click="backUp">
+      <button class="pointable back-from-details" @click="backUp">
         ↑ Back up
       </button>
     </div>
@@ -338,6 +338,10 @@ export default {
 .category-chart {
   min-height: 600px;
   width: 100%;
+}
+
+.back-from-details {
+  font-size: 16px;
 }
 
 .pointable:hover {
