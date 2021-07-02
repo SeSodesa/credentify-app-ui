@@ -123,7 +123,7 @@ export default {
       commonSeriesSettings: {
         id: 'Skill tree visualization',
         type: 'pie',
-        radius: [50, 250],
+        radius: [50, '90%'],
         center: ['50%', '50%'],
         roseType: 'area',
         itemStyle: {
