@@ -83,23 +83,23 @@ export default {
       categoryLevels: Object.freeze({
         1: {
           name: 'Main categories',
-          color: '#0C6291'
+          color: '#5470c6'
         },
         2: {
           name: 'Subcategories',
-          color: '#4C9F70'
+          color: '#91cc75'
         },
         3: {
           name: 'Skills',
-          color: '#9A348E'
+          color: '#fac858'
         },
         4: {
           name: 'Credentials',
-          color: '#C69DD2'
+          color: '#ee6666'
         },
         5: {
           name: 'Specific credential',
-          color: '#FFFFFF'
+          color: '#73c0de'
         }
       }),
       credentialData: {},
