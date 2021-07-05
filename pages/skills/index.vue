@@ -57,8 +57,18 @@ export default {
   async asyncData({ app, params }) {
     try {
       const credentials = await app.$axios
-        .get('/profile/credentials')
-        .then((result) => result.data.data)
+        .get(
+          'https://gitlab.com/' +
+            'api/v4/projects/27853615/jobs/artifacts/master/raw/test_data_as.json',
+          {
+            params: { job: 'test_data_to_json' },
+            headers: {
+              /*  Request access without authorization, as none is needed. */
+              Authorization: ''
+            }
+          }
+        )
+        .then((result) => result.data)
       const skillMapping = await app.$axios
         .get(
           'https://gitlab.com/' +
@@ -123,7 +133,7 @@ export default {
       commonSeriesSettings: {
         id: 'Skill tree visualization',
         type: 'pie',
-        radius: [50, '90%'],
+        radius: [50, '80%'],
         center: ['50%', '50%'],
         roseType: 'area',
         itemStyle: {
@@ -176,14 +186,26 @@ export default {
     skillTree() {
       const skillTree = {}
       for (const credential of this.credentials) {
+        console.log('credential')
+        console.log(credential)
         // if (credential.stage === 5) {
         const achievement = credential.achievement
+        console.log(achievement.tag)
         for (const tag of achievement.tag) {
+          console.log('tag: ' + tag)
           const normalizedTag = this.normalizeTag(tag)
-          const catAndSubCat = this.skillMapping[normalizedTag]
+          const lowerTag = this.lowerTag(tag)
+          console.log('normalized tag: ' + normalizedTag)
+          console.log('lower tag: ' + lowerTag)
+          const catAndSubCat = this.skillMapping[lowerTag]
+          console.log(
+            `cat and subcat: ${catAndSubCat.category} ${catAndSubCat['sub-category']}`
+          )
           if (catAndSubCat !== undefined) {
             const category = catAndSubCat.category
+            console.log(`category: ${category}`)
             const subCategory = catAndSubCat['sub-category']
+            console.log(`sub-category: ${subCategory}`)
             /* Check for existence of category */
             if (category in skillTree) {
               skillTree[category].value += 1
@@ -210,41 +232,48 @@ export default {
             }
             /* Finally, attach skill information and credential to subcategories */
             const skill = normalizedTag
-            if (skill in skillTree[category].children[subCategory].children) {
-              skillTree[category].children[subCategory].children[
-                skill
-              ].value += 1
+            const observedSubCategory =
+              skillTree[category].children[subCategory]
+            if (skill in observedSubCategory.children) {
+              observedSubCategory.children[skill].value += 1
             } else {
-              skillTree[category].children[subCategory].children[skill] = {
+              observedSubCategory.children[skill] = {
                 value: 1,
                 name: skill,
                 children: {}
               }
             }
             /* Check for existence of credential in the skill */
-            if (
-              credential[credential.id] in
-              skillTree[category].children[subCategory].children[skill].children
-            ) {
-              skillTree[category].children[subCategory].children[
-                skill
-              ].children[credential.id].value += 1
+            console.log('Setting credential…')
+            const observedSkill =
+              skillTree[category].children[subCategory].children[skill]
+            if (credential[credential.id] in observedSkill.children) {
+              console.log('Incrementing credential points…')
+              console.log('category: ' + category)
+              observedSkill.children[credential.id].value += 1
             } else {
-              skillTree[category].children[subCategory].children[
-                skill
-              ].children[credential.id] = {
+              console.log('Adding new credential…')
+              console.log('category: ' + category)
+              console.log(skillTree[category])
+              observedSkill.children[credential.id] = {
                 value: 1,
                 name: credential.achievement.name,
-                credential,
-                url: `skills/${this.toValidURL(category)}/${this.toValidURL(
-                  subCategory
-                )}/${this.toValidURL(credential.achievement.name)}`
+                credential
+                // url: `skills/${this.toValidURL(category)}/${this.toValidURL(
+                //   subCategory
+                // )}/${this.toValidURL(credential.achievement.name)}`
               }
+              console.log('Done.')
             }
+            console.log(normalizedTag + ' added to skill tree…')
+          } else {
+            console.log('Failed to construct skill tree')
+            return null
           }
         }
         // }
       }
+      console.log(skillTree)
       return skillTree
     },
     credentialsExist() {
@@ -289,6 +318,14 @@ export default {
       this.breadcrumb.pop()
       this.optionStack.pop()
       this.credential = {}
+    },
+    lowerTag(tag) {
+      const whitespaceNormalized = tag
+        .trim()
+        .split(/\s+/)
+        .join(' ')
+      const lower = whitespaceNormalized.toLowerCase()
+      return lower
     },
     normalizeTag(tag) {
       const whitespaceNormalized = tag
