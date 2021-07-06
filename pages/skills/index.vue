@@ -186,26 +186,15 @@ export default {
     skillTree() {
       const skillTree = {}
       for (const credential of this.credentials) {
-        console.log('credential')
-        console.log(credential)
         // if (credential.stage === 5) {
         const achievement = credential.achievement
-        console.log(achievement.tag)
         for (const tag of achievement.tag) {
-          console.log('tag: ' + tag)
           const normalizedTag = this.normalizeTag(tag)
           const lowerTag = this.lowerTag(tag)
-          console.log('normalized tag: ' + normalizedTag)
-          console.log('lower tag: ' + lowerTag)
           const catAndSubCat = this.skillMapping[lowerTag]
-          console.log(
-            `cat and subcat: ${catAndSubCat.category} ${catAndSubCat['sub-category']}`
-          )
           if (catAndSubCat !== undefined) {
             const category = this.normalizeTag(catAndSubCat.category)
-            console.log(`category: ${category}`)
             const subCategory = this.normalizeTag(catAndSubCat['sub-category'])
-            console.log(`sub-category: ${subCategory}`)
             /* Check for existence of category */
             if (category in skillTree) {
               skillTree[category].value += 1
@@ -244,17 +233,11 @@ export default {
               }
             }
             /* Check for existence of credential in the skill */
-            console.log('Setting credential…')
             const observedSkill =
               skillTree[category].children[subCategory].children[skill]
             if (credential[credential.id] in observedSkill.children) {
-              console.log('Incrementing credential points…')
-              console.log('category: ' + category)
               observedSkill.children[credential.id].value += 1
             } else {
-              console.log('Adding new credential…')
-              console.log('category: ' + category)
-              console.log(skillTree[category])
               observedSkill.children[credential.id] = {
                 value: 1,
                 name: credential.achievement.name,
@@ -263,17 +246,13 @@ export default {
                 //   subCategory
                 // )}/${this.toValidURL(credential.achievement.name)}`
               }
-              console.log('Done.')
             }
-            console.log(normalizedTag + ' added to skill tree…')
           } else {
-            console.log('Failed to construct skill tree')
-            return null
+            //
           }
         }
         // }
       }
-      console.log(skillTree)
       return skillTree
     },
     credentialsExist() {
@@ -354,7 +333,7 @@ export default {
           {
             name: label,
             ...this.commonSeriesSettings,
-            data: data !== null ? Object.values(data) : {}
+            data: data !== null ? Object.values(data) : [null]
           }
         ]
       }
@@ -371,7 +350,10 @@ export default {
             this.categoryLevels[this.currentCategoryLevel + 1].name,
             componentData.children
           )
-        } else if (this.currentCategoryLevel === this.maxCategoryLevel - 1) {
+        } else if (
+          this.currentCategoryLevel === this.maxCategoryLevel - 1 &&
+          'credential' in componentData
+        ) {
           this.breadcrumb.push(componentData.name)
           this.pushChartOption(componentData.name, null)
           this.credential = componentData.credential
