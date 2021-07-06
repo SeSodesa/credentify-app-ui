@@ -123,6 +123,10 @@ export default {
           return {
             text: breadcrumb.join(' → '),
             subtext: '↑ Back up',
+            textStyle: {
+              width: 900,
+              overflow: 'break'
+            },
             subtextStyle: {
               fontSize: 14
             },
@@ -133,7 +137,7 @@ export default {
       commonSeriesSettings: {
         id: 'Skill tree visualization',
         type: 'pie',
-        radius: [50, '75%'],
+        radius: [50, '65%'],
         center: ['50%', '50%'],
         roseType: 'area',
         itemStyle: {
@@ -141,7 +145,7 @@ export default {
         },
         label: {
           overflow: 'break',
-          fontSize: 20,
+          fontSize: 18,
           formatter(petal) {
             if ('credential' in petal.data) {
               const achievement = petal.data.credential.achievement
@@ -198,9 +202,9 @@ export default {
             `cat and subcat: ${catAndSubCat.category} ${catAndSubCat['sub-category']}`
           )
           if (catAndSubCat !== undefined) {
-            const category = catAndSubCat.category
+            const category = this.normalizeTag(catAndSubCat.category)
             console.log(`category: ${category}`)
-            const subCategory = catAndSubCat['sub-category']
+            const subCategory = this.normalizeTag(catAndSubCat['sub-category'])
             console.log(`sub-category: ${subCategory}`)
             /* Check for existence of category */
             if (category in skillTree) {
