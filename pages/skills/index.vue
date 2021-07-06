@@ -133,25 +133,21 @@ export default {
       commonSeriesSettings: {
         id: 'Skill tree visualization',
         type: 'pie',
-        radius: [50, '80%'],
+        radius: [50, '75%'],
         center: ['50%', '50%'],
         roseType: 'area',
         itemStyle: {
           borderRadius: 8
         },
         label: {
+          overflow: 'break',
           fontSize: 20,
           formatter(petal) {
             if ('credential' in petal.data) {
               const achievement = petal.data.credential.achievement
-              return (
-                achievement.name +
-                '\n' +
-                'ECTS: ' +
-                achievement.ectsCreditPoints
-              )
+              return achievement.name + ': ' + achievement.ectsCreditPoints
             } else {
-              return petal.name + '\n' + 'Instances: ' + petal.value
+              return petal.name + ': ' + petal.value
             }
           },
           position: 'outer',
