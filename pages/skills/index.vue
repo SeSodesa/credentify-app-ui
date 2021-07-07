@@ -124,7 +124,7 @@ export default {
             text: breadcrumb.join(' → '),
             subtext: '↑ Back up',
             textStyle: {
-              width: 900,
+              width: 1000,
               overflow: 'break'
             },
             subtextStyle: {
