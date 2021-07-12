@@ -21,7 +21,7 @@
     <div v-else>
       <h1>Oops. Something went wrong…</h1>
     </div>
-    <div v-if="!credentials">
+    <div v-if="!credential">
       Awaiting construction…
     </div>
     <single-credential-view v-else-if="credential" :credential="credential" />
