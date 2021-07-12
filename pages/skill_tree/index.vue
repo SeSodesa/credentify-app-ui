@@ -2,7 +2,7 @@
   <div class="stage">
     <div v-if="currentCategoryLevel < maxCategoryLevel">
       <div class="icon--title mb-2">
-        <img src="~/assets/icons/bootstrap-puzzle-big.svg" alt="Skills image" />
+        <img src="~/assets/icons/tree_icon.svg" width="45" alt="Skills image" />
         <h1>Skill Tree</h1>
       </div>
       <div class="subtitle">
