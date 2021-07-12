@@ -12,7 +12,7 @@
       >
         <NuxtLink :to="menuitem.url">
           <svg
-            v-if="menuitem.label === 'Skill Rose'"
+            v-if="menuitem.label.toLowerCase().startsWith('skill')"
             xmlns="http://www.w3.org/2000/svg"
             width="25"
             height="25"
