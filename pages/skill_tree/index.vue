@@ -21,12 +21,10 @@
     <div v-else>
       <h1>Oops. Something went wrong…</h1>
     </div>
-    <div v-if="credentials !== {}">
+    <div v-if="!credentials">
       Awaiting construction…
     </div>
-    <div v-else-if="credential === {}">
-      No credentials to display…
-    </div>
+    <single-credential-view v-else-if="credential" :credential="credential" />
     <div v-else>
       No credentials downloaded…
     </div>
@@ -34,11 +32,11 @@
 </template>
 
 <script>
-// TODO: import SingleCredentialView from '~/components/SingleCredentialView'
+import SingleCredentialView from '~/components/SingleCredentialView'
 
 export default {
   components: {
-    // TODO: SingleCredentialView
+    SingleCredentialView
   },
   async asyncData({ app, params }) {
     try {
