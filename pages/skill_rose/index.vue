@@ -3,7 +3,7 @@
     <div v-if="currentCategoryLevel < maxCategoryLevel">
       <div class="icon--title mb-2">
         <img src="~/assets/icons/bootstrap-puzzle-big.svg" alt="Skills image" />
-        <h1>Skills</h1>
+        <h1>Skill Rose</h1>
       </div>
       <div class="subtitle">
         A summary page of your earned skills and achievements. Click on a petal

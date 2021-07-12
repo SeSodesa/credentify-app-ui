@@ -16,9 +16,9 @@ export const state = () => ({
       icon: '/icons/credentials.svg'
     },
     {
-      label: 'Skills',
-      url: '/skills/',
-      adminUrl: '/skills/',
+      label: 'Skill Rose',
+      url: '/skill_rose/',
+      adminUrl: '/skill_rose/',
       icon: '' // This is drawn in components/LeftSidebar.vue
     },
     {
