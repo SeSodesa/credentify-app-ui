@@ -2,7 +2,7 @@
   <div class="stage">
     <div v-if="currentCategoryLevel < maxCategoryLevel">
       <div class="icon--title mb-2">
-        <img src="~/assets/icons/rose_icon.svg" alt="Skills image" />
+        <img src="~/assets/icons/rose_icon.svg" width="45" alt="Skills image" />
         <h1>Skill Rose</h1>
       </div>
       <div class="subtitle">
