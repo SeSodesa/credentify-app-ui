@@ -284,7 +284,7 @@ export default {
     }
   },
   created() {
-    this.$store.commit('nav/setTitle', 'Skills')
+    this.$store.commit('nav/setTitle', 'Skill Rose')
     this.$store.commit('nav/setBackUrl', '')
   },
   mounted() {
