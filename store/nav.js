@@ -22,6 +22,12 @@ export const state = () => ({
       icon: '' // This is drawn in components/LeftSidebar.vue
     },
     {
+      label: 'Skill Tree',
+      url: '/skill_tree/',
+      adminUrl: '/skill_tree/',
+      icon: '' // This is drawn in components/LeftSidebar.vue
+    },
+    {
       label: 'Users',
       url: '/users/requests',
       adminUrl: '/users/',
