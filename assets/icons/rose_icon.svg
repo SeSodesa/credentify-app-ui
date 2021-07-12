@@ -1,0 +1,26 @@
+<!--
+Image in public domain, taken from
+https://commons.wikimedia.org/wiki/File:Dina-Gor-alternative.svg
+Color and size modified.
+-->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  xmlns:xlink="http://www.w3.org/1999/xlink"
+  width="45"
+  viewBox="0 0 618 600">
+  <title>Alternative version of Gorean dina symbol.</title>
+  <defs>
+    <path id="Petal" stroke-width="74.91" d="
+      M382.9584352 525.560421
+      A390.1261514 390.1261514 0 1 1 -152.4344314 240.8869842"
+    />
+  </defs>
+  <g transform="translate(309,317.1885) scale(0.3,-0.3)" fill="none" stroke="#000000">
+    <circle cx="0" cy="0" stroke-width="121.2069261" r="261.6353856"/>
+    <use xlink:href="#Petal"/>
+    <use transform="rotate(72)" xlink:href="#Petal"/>
+    <use transform="rotate(144)" xlink:href="#Petal"/>
+    <use transform="rotate(216)" xlink:href="#Petal"/>
+    <use transform="rotate(288)" xlink:href="#Petal"/>
+  </g>
+</svg>
