@@ -22,13 +22,29 @@
     <div v-else>
       <h1>Oops. Something went wrong…</h1>
     </div>
-    <v-chart
-      v-if="credentialsExist && currentCategoryLevel < maxCategoryLevel"
-      :ref="'category-chart'"
-      class="category-chart"
-      :option="currentChartOption"
-      @click="chartClickAction"
-    />
+    <div v-if="credentialsExist && currentCategoryLevel < maxCategoryLevel">
+      <v-chart
+        :ref="'category-chart'"
+        class="category-chart"
+        :option="currentChartOption"
+        @click="chartClickAction"
+      />
+      <div class="legend">
+        <div v-for="level in legendLevels" :key="level" class="legend-entry">
+          <svg width="20" height="20">
+            <rect
+              width="20"
+              height="20"
+              rx="5"
+              ry="5"
+              :fill="level.color"
+              stroke="#000000"
+            />
+          </svg>
+          <span>{{ level.name }}</span>
+        </div>
+      </div>
+    </div>
     <single-credential-view
       v-else-if="credentialsExist && currentCategoryLevel === maxCategoryLevel"
       :credential="credential"
@@ -165,6 +181,9 @@ export default {
     }
   },
   computed: {
+    legendLevels() {
+      return Object.values(this.categoryLevels).slice(0, 4)
+    },
     currentBaseColor() {
       return this.categoryLevels[Object.keys(this.breadcrumb).length].color
     },
@@ -396,7 +415,7 @@ export default {
 }
 </script>
 
-<style>
+<style lang="scss">
 .category-chart {
   min-height: 600px;
   width: 100%;
@@ -408,5 +427,22 @@ export default {
 
 .pointable:hover {
   cursor: pointer;
+}
+
+.legend {
+  align-items: center;
+  display: flex;
+  width: 100%;
+}
+
+.legend-entry {
+  height: 20px;
+  text-align: center;
+  width: 100%;
+
+  svg,
+  span {
+    vertical-align: middle;
+  }
 }
 </style>
