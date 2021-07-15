@@ -31,10 +31,10 @@
       />
       <div class="legend">
         <div v-for="level in legendLevels" :key="level" class="legend-entry">
-          <svg width="20" height="20">
+          <svg width="15" height="15">
             <rect
-              width="20"
-              height="20"
+              width="15"
+              height="15"
               rx="5"
               ry="5"
               :fill="level.color"
