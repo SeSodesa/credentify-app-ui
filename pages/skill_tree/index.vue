@@ -40,6 +40,40 @@
 <script>
 import SingleCredentialView from '~/components/SingleCredentialView'
 
+// A single node in the skill tree
+function SkillTreeNode(args) {
+  this.depth = 'depth' in args ? args.depth : 0
+  this.children = 'children' in args ? args.children : []
+  this.childCount = 'childCount' in args ? args.childCount : 0
+  this.width = 'width' in args ? args.width : 0
+  this.height = 'height' in args ? args.height : 0
+  this.xpos = 'xpos' in args ? args.xpos : 0
+  this.ypos = 'ypos' in args ? args.ypos : 0
+  // Preliminary horizontal coordinate of the node.
+  // Set when positioning the root, after moving its children.
+  this.prelimX = 'prelim' in args ? args.prelim : null
+  // How much entire subtree should be moved horizontally.
+  this.mod = 'mod' in args ? args.mod : null
+  // Used to calculate positions of siblings in O(1), togehter with `change`
+  this.shift = 'shift' in args ? args.shift : null
+  // Used to calculate positions of siblings in O(1) togehter with `shift`
+  this.change = 'change' in args ? args.change : null
+  // Reference to node in right contour
+  this.rightThread = 'rightThread' in args ? args.rightThread : null
+  // Reference to node in left contour
+  this.leftThread = 'leftThread' in args ? args.leftThread : null
+  // Lowest node in this subtree that can be seen from the left
+  this.extremeLeftNode = 'extremeLeft' in args ? args.extremeLeft : null
+  // Lowest node in this subtree that can be seen from the right
+  this.extremeRightNode = 'extremeRight' in args ? args.extremeRight : null
+  // Sum of mods along left contour. Needed in relative positioning.
+  this.modSumExtremeLeft =
+    'modSumExtremeLeft' in args ? args.modSumExtremeLeft : null
+  // Sum of mods along right contour. Needed in relative positioning.
+  this.modSumExtremeRight =
+    'modSumExtremeRight' in args ? args.modSumExtremeRight : null
+}
+
 // A singly linked list of left siblings and their lowest vertical coordinates.
 function NodesWithRightPair(lowY, index, next) {
   this.lowY = lowY
@@ -130,6 +164,8 @@ export default {
     },
     /* Filters data for drawing the summary graph */
     skillTree() {
+      const tree = new SkillTreeNode({})
+      console.log(tree)
       const skillTree = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
