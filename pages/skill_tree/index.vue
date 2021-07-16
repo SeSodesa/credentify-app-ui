@@ -23,6 +23,9 @@
     </div>
     <div v-if="credentials && !credential">
       Awaiting construction…
+      <div id="tree-view-container">
+        <svg id="tree-view" xmlns="http://www.w3.org/2000/svg"></svg>
+      </div>
     </div>
     <div v-else-if="credentials && credential">
       Credentials found but no single credential to display…
@@ -36,6 +39,20 @@
 
 <script>
 import SingleCredentialView from '~/components/SingleCredentialView'
+
+// A singly linked list of left siblings and their lowest vertical coordinates.
+function NodesWithRightPair(lowY, index, next) {
+  this.lowY = lowY
+  this.index = index
+  this.next = next
+}
+
+function updateNodesWithRightPair(minY, childIndex, contour) {
+  while (contour !== null && minY >= contour.lowY) {
+    contour = contour.next
+  }
+  return new NodesWithRightPair(minY, childIndex, contour)
+}
 
 export default {
   components: {
@@ -76,6 +93,7 @@ export default {
   },
   data() {
     return {
+      svgNameSpace: 'http://www.w3.org/2000/svg',
       categoryLevels: Object.freeze({
         1: {
           name: 'Main categories',
@@ -192,9 +210,67 @@ export default {
     this.$store.commit('nav/setBackUrl', '')
   },
   mounted() {
-    // TODO
+    this.drawSkillTree(this.skillTree)
   },
   methods: {
+    // Calculates the positions of the nodes based on a modification to the
+    // Reingold--Tilford algorithm, and adds them to each node.
+    //
+    // See https://doi.org/10.1002/spe.2213
+    calculateNodePositions(skillTree) {
+      this.firstWalk(skillTree)
+      this.secondWalk(skillTree)
+    },
+    firstWalk(skillTree) {
+      if (!skillTree.children) {
+        this.setExtremes(skillTree)
+        return true
+      } else {
+        this.firstWalk(skillTree.children[0])
+        let contour = new NodesWithRightPair()
+        for (
+          let ind = 0;
+          ind < Object.values(skillTree.children).length;
+          ind++
+        ) {
+          this.firstWalk(skillTree.children[ind])
+          const minY = skillTree.vertPos + skillTree.height
+          this.separate(skillTree, ind, contour)
+          contour = updateNodesWithRightPair(minY, ind, contour)
+        }
+      }
+    },
+    contour(skillTree, child, contour) {},
+    secondWalk(skillTree) {},
+    // Sets the extreme nodes of the current subtree
+    setExtremes(skillTree) {
+      if (!skillTree.children) {
+        skillTree.extremeLeft = skillTree
+        skillTree.extremeRight = skillTree
+      } else {
+        skillTree.extremeLeft = skillTree.children[0].extremeLeft
+        skillTree.modifierSumLeft = skillTree.children[0].modifierSumLeft
+        const childCount = Object.values(skillTree.children).length
+        skillTree.extremeRight = skillTree.children[childCount - 1].extremeRight
+        skillTree.modifierSumRight = skillTree.children[0].modifierSumRight
+      }
+    },
+    drawNodes(skillTree) {
+      const treeView = document.getElementById('tree-view')
+      const myCircle = document.createElementNS(this.svgNameSpace, 'circle')
+      myCircle.setAttributeNS(null, 'id', 'mycircle')
+      myCircle.setAttributeNS(null, 'cx', 100)
+      myCircle.setAttributeNS(null, 'cy', 100)
+      myCircle.setAttributeNS(null, 'r', 50)
+      myCircle.setAttributeNS(null, 'fill', 'white')
+      myCircle.setAttributeNS(null, 'stroke', 'black')
+      treeView.appendChild(myCircle)
+    },
+    drawSkillTree(skillTree) {
+      this.calculateNodePositions(skillTree)
+      this.drawNodes(skillTree)
+      // To create a circle. For rectangle use "rectangle"
+    },
     lowerTag(tag) {
       const whitespaceNormalized = tag
         .trim()
@@ -233,5 +309,11 @@ export default {
 
 .pointable:hover {
   cursor: pointer;
+}
+
+#tree-view-container {
+  min-height: 600px;
+  overflow: scroll;
+  width: 100%;
 }
 </style>
