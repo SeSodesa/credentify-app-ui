@@ -41,37 +41,42 @@
 import SingleCredentialView from '~/components/SingleCredentialView'
 
 // A single node in the skill tree
-function SkillTreeNode(args) {
-  this.depth = 'depth' in args ? args.depth : 0
-  this.children = 'children' in args ? args.children : []
-  this.childCount = 'childCount' in args ? args.childCount : 0
-  this.width = 'width' in args ? args.width : 0
-  this.height = 'height' in args ? args.height : 0
-  this.xpos = 'xpos' in args ? args.xpos : 0
-  this.ypos = 'ypos' in args ? args.ypos : 0
+function SkillTreeNode(name, value, children, posArgs) {
+  // Node data
+  this.name = name
+  this.value = value
+  this.children = children
+  // ↓ Positioning fields ↓
+  this.depth = 'depth' in posArgs ? posArgs.depth : 0
+  this.childCount = this.children.length
+  this.width = 'width' in posArgs ? posArgs.width : 0
+  this.height = 'height' in posArgs ? posArgs.height : 0
+  this.xpos = 'xpos' in posArgs ? posArgs.xpos : 0
+  this.ypos = 'ypos' in posArgs ? posArgs.ypos : 0
   // Preliminary horizontal coordinate of the node.
   // Set when positioning the root, after moving its children.
-  this.prelimX = 'prelim' in args ? args.prelim : null
+  this.prelimX = 'prelim' in posArgs ? posArgs.prelim : null
   // How much entire subtree should be moved horizontally.
-  this.mod = 'mod' in args ? args.mod : null
+  this.mod = 'mod' in posArgs ? posArgs.mod : null
   // Used to calculate positions of siblings in O(1), togehter with `change`
-  this.shift = 'shift' in args ? args.shift : null
+  this.shift = 'shift' in posArgs ? posArgs.shift : null
   // Used to calculate positions of siblings in O(1) togehter with `shift`
-  this.change = 'change' in args ? args.change : null
+  this.change = 'change' in posArgs ? posArgs.change : null
   // Reference to node in right contour
-  this.rightThread = 'rightThread' in args ? args.rightThread : null
+  this.rightThread = 'rightThread' in posArgs ? posArgs.rightThread : null
   // Reference to node in left contour
-  this.leftThread = 'leftThread' in args ? args.leftThread : null
+  this.leftThread = 'leftThread' in posArgs ? posArgs.leftThread : null
   // Lowest node in this subtree that can be seen from the left
-  this.extremeLeftNode = 'extremeLeft' in args ? args.extremeLeft : null
+  this.extremeLeftNode = 'extremeLeft' in posArgs ? posArgs.extremeLeft : null
   // Lowest node in this subtree that can be seen from the right
-  this.extremeRightNode = 'extremeRight' in args ? args.extremeRight : null
+  this.extremeRightNode =
+    'extremeRight' in posArgs ? posArgs.extremeRight : null
   // Sum of mods along left contour. Needed in relative positioning.
   this.modSumExtremeLeft =
-    'modSumExtremeLeft' in args ? args.modSumExtremeLeft : null
+    'modSumExtremeLeft' in posArgs ? posArgs.modSumExtremeLeft : null
   // Sum of mods along right contour. Needed in relative positioning.
   this.modSumExtremeRight =
-    'modSumExtremeRight' in args ? args.modSumExtremeRight : null
+    'modSumExtremeRight' in posArgs ? posArgs.modSumExtremeRight : null
 }
 
 // A singly linked list of left siblings and their lowest vertical coordinates.
@@ -164,8 +169,11 @@ export default {
     },
     /* Filters data for drawing the summary graph */
     skillTree() {
-      const tree = new SkillTreeNode({})
-      console.log(tree)
+      //
+      const tree = new Map()
+      const rootKey = this.normalizeTag('main categories')
+      const root = new SkillTreeNode(rootKey, 0, [], {})
+      tree.set(rootKey, root)
       const skillTree = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
@@ -174,7 +182,7 @@ export default {
           const normalizedTag = this.normalizeTag(tag)
           const lowerTag = this.lowerTag(tag)
           const catAndSubCat = this.skillMapping[lowerTag]
-          if (catAndSubCat !== undefined) {
+          if (catAndSubCat) {
             const category = this.normalizeTag(catAndSubCat.category)
             const subCategory = this.normalizeTag(catAndSubCat['sub-category'])
             /* Check for existence of category */
@@ -187,6 +195,15 @@ export default {
                 url: `/skills/${this.toValidURL(category)}`,
                 children: {}
               }
+            }
+            let categoryNode = tree.get(category)
+            if (categoryNode) {
+              const categoryNode = tree.get(category)
+              categoryNode.value += 1
+            } else {
+              categoryNode = new SkillTreeNode(category, 0, [], {})
+              tree.set(category, categoryNode)
+              root.children.push(categoryNode)
             }
             /* Then check for subcategory in category */
             if (subCategory in skillTree[category].children) {
@@ -201,6 +218,14 @@ export default {
                 children: {}
               }
             }
+            let subcategoryNode = tree.get(subCategory)
+            if (subcategoryNode) {
+              subcategoryNode.value += 1
+            } else {
+              subcategoryNode = new SkillTreeNode(subCategory, 0, [], {})
+              tree.set(subCategory, subcategoryNode)
+              categoryNode.children.push(subcategoryNode)
+            }
             /* Finally, attach skill information and credential to subcategories */
             const skill = normalizedTag
             const observedSubCategory =
@@ -214,6 +239,15 @@ export default {
                 children: {}
               }
             }
+            let skillNode = tree.get(skill)
+            if (skillNode) {
+              skillNode.value += 1
+            } else {
+              skillNode = new SkillTreeNode(skill, 0, [], {})
+              tree.set(skill, skillNode)
+              subcategoryNode.children.push(skillNode)
+            }
+            skillNode.children.push(credential)
             /* Check for existence of credential in the skill */
             const observedSkill =
               skillTree[category].children[subCategory].children[skill]
@@ -235,7 +269,8 @@ export default {
         }
         // }
       }
-      return skillTree
+      console.log(tree)
+      return tree
     },
     credentialsExist() {
       return this.credentials.length > 0
@@ -246,7 +281,7 @@ export default {
     this.$store.commit('nav/setBackUrl', '')
   },
   mounted() {
-    this.drawSkillTree(this.skillTree)
+    this.drawSkillTree(this.skillTree.get(this.normalizeTag('main categories')))
   },
   methods: {
     // Calculates the positions of the nodes based on a modification to the
@@ -276,6 +311,7 @@ export default {
         }
       }
     },
+    separate() {},
     contour(skillTree, child, contour) {},
     secondWalk(skillTree) {},
     // Sets the extreme nodes of the current subtree
@@ -283,12 +319,14 @@ export default {
       if (!skillTree.children) {
         skillTree.extremeLeft = skillTree
         skillTree.extremeRight = skillTree
+        skillTree.modSumExtremeLeft = 0
+        skillTree.modSumExtremeRight = 0
       } else {
         skillTree.extremeLeft = skillTree.children[0].extremeLeft
-        skillTree.modifierSumLeft = skillTree.children[0].modifierSumLeft
+        skillTree.modSumExtremeLeft = skillTree.children[0].modSumExtremeLeft
         const childCount = Object.values(skillTree.children).length
         skillTree.extremeRight = skillTree.children[childCount - 1].extremeRight
-        skillTree.modifierSumRight = skillTree.children[0].modifierSumRight
+        skillTree.modSumExtremeRight = skillTree.children[0].modSumExtremeRight
       }
     },
     drawNodes(skillTree) {
