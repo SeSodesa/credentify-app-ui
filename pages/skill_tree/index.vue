@@ -94,6 +94,7 @@ function Contour(lowY, index, next) {
 }
 
 function updateContour(minY, childIndex, contour) {
+  // Remove siblings hidden by subtree
   while (contour && minY >= contour.lowY) {
     contour = contour.next
   }
@@ -289,7 +290,6 @@ export default {
         }
         // }
       }
-      console.log(tree)
       return tree
     },
     credentialsExist() {
@@ -309,9 +309,7 @@ export default {
     //
     // See https://doi.org/10.1002/spe.2213
     calculateNodePositions(tree) {
-      console.log('Starting first walk…')
       this.firstWalk(tree)
-      console.log('Starting second walk…')
       this.secondWalk(tree)
     },
     firstWalk(tree) {
@@ -319,13 +317,15 @@ export default {
         this.setExtremes(tree)
       } else {
         this.firstWalk(tree.children[0])
-        let contour = new Contour(
+        let contour = updateContour(
           this.bottom(tree.children[0].extremeLeftNode),
           0,
           null
         )
         for (let childIndex = 1; childIndex < childCount(tree); childIndex++) {
           this.firstWalk(tree.children[childIndex])
+          // console.log('Extreme left node:')
+          // console.log(tree.children[childIndex].extremeLeftNode)
           const minY = this.bottom(tree.children[childIndex].extremeRightNode)
           this.separate(tree, childIndex, contour)
           contour = updateContour(minY, childIndex, contour)
@@ -334,7 +334,6 @@ export default {
         this.setExtremes(tree)
       }
     },
-    // Sets the extreme nodes of the current subtree
     setExtremes(tree) {
       if (!tree.children) {
         tree.extremeLeftNode = tree
@@ -344,7 +343,8 @@ export default {
       } else {
         tree.extremeLeftNode = tree.children[0].extremeLeftNode
         tree.modSumExtremeLeft = tree.children[0].modSumExtremeLeft
-        tree.extremeRight = tree.children[childCount(tree) - 1].extremeRightNode
+        tree.extremeRightNode =
+          tree.children[childCount(tree) - 1].extremeRightNode
         tree.modSumExtremeRight =
           tree.children[childCount(tree) - 1].modSumExtremeRight
       }
@@ -357,12 +357,12 @@ export default {
       const maxiter = 20
       let leftContourNodeModSum = rightContourNode.mod
       while (rightContourNode && leftContourNode) {
-        console.log('Right countour node:')
-        console.log(rightContourNode)
-        console.log('Left countour node:')
-        console.log(leftContourNode)
-        console.log('Contour:')
-        console.log(contour)
+        // console.log('Right countour node:')
+        // console.log(rightContourNode)
+        // console.log('Left countour node:')
+        // console.log(leftContourNode)
+        // console.log('Contour:')
+        // console.log(contour)
         if (this.bottom(rightContourNode) > contour.lowY) {
           contour = contour.next
         }
@@ -412,8 +412,8 @@ export default {
         throw new Error('Left contour not taller than right nor vic versa?')
       }
     },
-    bottom(treeNode) {
-      return treeNode.y + treeNode.height
+    bottom(tree) {
+      return tree.y + tree.height
     },
     moveSubtree(tree, childIndex, contourIndex, moveDistance) {
       tree.children[childIndex].mod += moveDistance
