@@ -357,12 +357,6 @@ export default {
       const maxiter = 20
       let leftContourNodeModSum = rightContourNode.mod
       while (rightContourNode && leftContourNode) {
-        // console.log('Right countour node:')
-        // console.log(rightContourNode)
-        // console.log('Left countour node:')
-        // console.log(leftContourNode)
-        // console.log('Contour:')
-        // console.log(contour)
         if (this.bottom(rightContourNode) > contour.lowY) {
           contour = contour.next
         }
@@ -378,14 +372,14 @@ export default {
         }
         const rightContourBottom = this.bottom(rightContourNode)
         const leftContourBottom = this.bottom(leftContourNode)
-        if (rightContourBottom < leftContourBottom) {
+        if (rightContourBottom <= leftContourBottom) {
           rightContourNode = this.nextRightContour(rightContourNode)
           if (rightContourNode) {
             rightContourNodeModSum += rightContourNode.mod
           }
         }
         if (rightContourBottom >= leftContourBottom) {
-          leftContourNode = this.nextLeftContour(rightContourNode)
+          leftContourNode = this.nextLeftContour(leftContourNode)
           if (leftContourNode) {
             leftContourNodeModSum += leftContourNode.mod
           }
@@ -401,15 +395,14 @@ export default {
           leftContourNode,
           leftContourNodeModSum
         )
-      } else if (rightContourNode && !leftContourNode) {
+      }
+      if (rightContourNode && !leftContourNode) {
         this.setRightThread(
           tree,
           childIndex,
           rightContourNode,
           rightContourNodeModSum
         )
-      } else {
-        throw new Error('Left contour not taller than right nor vic versa?')
       }
     },
     bottom(tree) {
