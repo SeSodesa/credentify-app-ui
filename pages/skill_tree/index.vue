@@ -483,13 +483,13 @@ export default {
           moveDistance - moveDistance / intermediates
       }
     },
-    nextLeftContour(treeNode) {
-      return treeNode.children ? treeNode.children[0] : treeNode.leftThread
+    nextLeftContour(tree) {
+      return tree.children ? tree.children[0] : tree.leftThread
     },
-    nextRightContour(treeNode) {
-      return treeNode.children
-        ? treeNode.children[childCount(treeNode) - 1]
-        : treeNode.rightThread
+    nextRightContour(tree) {
+      return tree.children
+        ? tree.children[childCount(tree) - 1]
+        : tree.rightThread
     },
     setLeftThread(tree, childIndex, leftContourNode, leftContourNodeModSum) {
       const firstChild = tree.children[0]
