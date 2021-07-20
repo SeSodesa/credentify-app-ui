@@ -410,9 +410,9 @@ export default {
       let rightContourNode = tree.children[childIndex - 1]
       let rightContourModSum = rightContourNode.mod
       let leftContourNode = tree.children[childIndex]
+      let leftContourModSum = leftContourNode.mod
       let iter = 0
-      const maxiter = 50
-      let leftContourModSum = rightContourNode.mod
+      const maxiter = 20
       while (rightContourNode && leftContourNode) {
         if (this.bottom(rightContourNode) > contour.lowY) {
           contour = contour.next
