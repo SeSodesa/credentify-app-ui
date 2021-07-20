@@ -98,40 +98,59 @@ function SkillTreeNode(name, value, children, credential, posArgs) {
   this.prelim = 'prelim' in posArgs ? posArgs.prelim : 0
   // How much entire subtree should be moved horizontally.
   this.mod = 'mod' in posArgs ? posArgs.mod : 0
-  // Used to calculate positions of siblings in O(1), togehter with `change`
+  // Used to calculate positions of siblings in O(1), together with `change`
   this.shift = 'shift' in posArgs ? posArgs.shift : 0
-  // Used to calculate positions of siblings in O(1) togehter with `shift`
+  // Used to calculate positions of siblings in O(1) together with `shift`
   this.change = 'change' in posArgs ? posArgs.change : 0
-  // Reference to node in right contour
+  // Reference to the extreme right node of the left siblings of current root.
+  // Only set for leaf nodes and updated if left subtree is taller than current.
   this.rightThread = 'rightThread' in posArgs ? posArgs.rightThread : null
-  // Reference to node in left contour
+  // Reference to the extreme left node of the current root from left siblings.
+  // Only set for leaf nodes and updated if current subtree is taller than left.
   this.leftThread = 'leftThread' in posArgs ? posArgs.leftThread : null
-  // Lowest node in this subtree that can be seen from the left
+  // Lowest node in this subtree that can be seen from the left.
+  // Used to keep left thread up to date.
   this.extremeLeftNode = 'extremeLeft' in posArgs ? posArgs.extremeLeft : null
   // Lowest node in this subtree that can be seen from the right
+  // Used to keep right thread up to date.
   this.extremeRightNode =
     'extremeRight' in posArgs ? posArgs.extremeRight : null
   // Sum of mods along left contour. Needed in relative positioning.
-  this.modSumExtremeLeft =
-    'modSumExtremeLeft' in posArgs ? posArgs.modSumExtremeLeft : null
+  this.modSumLeftContour =
+    'modSumLeftContour' in posArgs ? posArgs.modSumLeftContour : null
   // Sum of mods along right contour. Needed in relative positioning.
-  this.modSumExtremeRight =
-    'modSumExtremeRight' in posArgs ? posArgs.modSumExtremeRight : null
+  this.modSumRightContour =
+    'modSumRightContour' in posArgs ? posArgs.modSumRightContour : null
 }
 
 function childCount(tree) {
   return tree.children ? tree.children.length : 0
 }
 
-// A singly linked list of left siblings and their lowest vertical coordinates.
+/**
+ * "… during the moving of the children, we maintain a linked list of the siblings
+ * that currently have a node in the right contour. Each node in this linked list
+ * is a pair of the index of the corresponding sibling and its lowest vertical bottom
+ * coordinate. This list is always sorted in descending order of the siblings indices."
+ *
+ * -- Ploeg 2014
+ **/
 function Contour(lowY, index, next) {
   this.lowY = lowY
   this.index = index
   this.next = next
 }
 
+/**
+ * To update the list, we then remove elements at the head of the list that have a higher
+ * lowest vertical coordinate than the new pair. This removes siblings from the list that
+ * had nodes in the right contour, but these nodes are now occluded by the current subtree.
+ * Afterwards, we prepend the new pair to the list. In this way, the list always corresponds
+ * to the siblings that currently have a node in the right contour.
+ *
+ * -- Ploeg 2014
+ **/
 function updateContour(minY, childIndex, contour) {
-  // Remove siblings hidden by subtree
   while (contour && minY >= contour.lowY) {
     contour = contour.next
   }
@@ -245,7 +264,7 @@ export default {
               categoryNode = new SkillTreeNode(category, 0, [], null, {
                 width: nd.width,
                 height: nd.height,
-                y: root.y + root.height
+                y: this.bottom(root)
               })
               tree.set(category, categoryNode)
               root.children.push(categoryNode)
@@ -264,7 +283,7 @@ export default {
               subcategoryNode = new SkillTreeNode(subCategory, 0, [], null, {
                 width: nd.width,
                 height: nd.height,
-                y: categoryNode.y + categoryNode.height
+                y: this.bottom(categoryNode)
               })
               tree.set(subCategory, subcategoryNode)
               categoryNode.children.push(subcategoryNode)
@@ -284,7 +303,7 @@ export default {
               skillNode = new SkillTreeNode(skill, 0, [], null, {
                 width: nd.width,
                 height: nd.height,
-                y: subcategoryNode.y + subcategoryNode.height
+                y: this.bottom(subcategoryNode)
               })
               tree.set(skill, skillNode)
               subcategoryNode.children.push(skillNode)
@@ -311,7 +330,7 @@ export default {
                 {
                   width: nd.width,
                   height: nd.height,
-                  y: skillNode.y + skillNode.height
+                  y: this.bottom(skillNode)
                 }
               )
             }
@@ -372,23 +391,27 @@ export default {
       if (!tree.children) {
         tree.extremeLeftNode = tree
         tree.extremeRightNode = tree
-        tree.modSumExtremeLeft = 0
-        tree.modSumExtremeRight = 0
+        tree.modSumLeftContour = 0
+        tree.modSumRightContour = 0
       } else {
         tree.extremeLeftNode = tree.children[0].extremeLeftNode
-        tree.modSumExtremeLeft = tree.children[0].modSumExtremeLeft
+        tree.modSumLeftContour = tree.children[0].modSumLeftContour
         tree.extremeRightNode =
           tree.children[childCount(tree) - 1].extremeRightNode
-        tree.modSumExtremeRight =
-          tree.children[childCount(tree) - 1].modSumExtremeRight
+        tree.modSumRightContour =
+          tree.children[childCount(tree) - 1].modSumRightContour
       }
     },
+    // Separates right contour of left siblings from the left contour of the
+    // right siblings, thus separating the subtrees
     separate(tree, childIndex, contour) {
+      console.log('----- Contour -----')
+      console.log(contour)
       let rightContourNode = tree.children[childIndex - 1]
       let rightContourNodeModSum = rightContourNode.mod
       let leftContourNode = tree.children[childIndex]
       let iter = 0
-      const maxiter = 20
+      const maxiter = 50
       let leftContourNodeModSum = rightContourNode.mod
       while (rightContourNode && leftContourNode) {
         if (this.bottom(rightContourNode) > contour.lowY) {
@@ -418,6 +441,9 @@ export default {
             leftContourNodeModSum += leftContourNode.mod
           }
         }
+        console.log('----- Contour pair -----')
+        console.log(leftContourNode)
+        console.log(rightContourNode)
         if (++iter > maxiter) {
           throw new Error('Infinite loop during separation?')
         }
@@ -444,8 +470,8 @@ export default {
     },
     moveSubtree(tree, childIndex, contourIndex, moveDistance) {
       tree.children[childIndex].mod += moveDistance
-      tree.children[childIndex].modSumExtremeLeft += moveDistance
-      tree.children[childIndex].modSumExtremeRight += moveDistance
+      tree.children[childIndex].modSumLeftContour += moveDistance
+      tree.children[childIndex].modSumRightContour += moveDistance
     },
     distributeExtra(tree, childIndex, siblingIndex, moveDistance) {
       if (siblingIndex !== childIndex) {
@@ -471,11 +497,11 @@ export default {
       const diff =
         leftContourNodeModSum -
         leftContourNode.mod -
-        firstChild.modSumExtremeLeft
+        firstChild.modSumLeftContour
       li.mod += diff
       li.prelim -= diff
       firstChild.extremeLeftNode = tree.children[childIndex].extremeLeftNode
-      firstChild.modSumExtremeLeft = tree.children[childIndex].modSumExtremeLeft
+      firstChild.modSumLeftContour = tree.children[childIndex].modSumLeftContour
     },
     setRightThread(tree, childIndex, rightContourNode, rightContourNodeModSum) {
       const ithChild = tree.children[childIndex]
@@ -488,7 +514,7 @@ export default {
       ri.mod += diff
       ri.prelim -= diff
       ithChild.extremeLeftNode = tree.children[childIndex].extremeLeftNode
-      ithChild.modSumExtremeLeft = tree.children[childIndex].modSumExtremeLeft
+      ithChild.modSumLeftContour = tree.children[childIndex].modSumLeftContour
     },
     positionRoot(tree) {
       const firstChild = tree.children[0]
