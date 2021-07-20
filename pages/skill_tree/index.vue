@@ -221,7 +221,8 @@ export default {
       const nd = nodeDimensions(rootKey, nodeFont, nodeFontSize)
       const root = new SkillTreeNode(rootKey, 0, [], null, {
         width: nd.width,
-        height: nd.height
+        height: nd.height,
+        y: 0
       })
       tree.set(rootKey, root)
       for (const credential of this.credentials) {
@@ -239,10 +240,12 @@ export default {
               const categoryNode = tree.get(category)
               categoryNode.value += 1
             } else {
+              console.log(`category y ← ${root.y + root.height}`)
               const nd = nodeDimensions(category, nodeFont, nodeFontSize)
               categoryNode = new SkillTreeNode(category, 0, [], null, {
                 width: nd.width,
-                height: nd.height
+                height: nd.height,
+                y: root.y + root.height
               })
               tree.set(category, categoryNode)
               root.children.push(categoryNode)
@@ -253,9 +256,15 @@ export default {
               subcategoryNode.value += 1
             } else {
               const nd = nodeDimensions(subCategory, nodeFont, nodeFontSize)
+              console.log(
+                `    subcategory y ← ${categoryNode.y} + ${
+                  categoryNode.height
+                } = ${categoryNode.y + categoryNode.height}`
+              )
               subcategoryNode = new SkillTreeNode(subCategory, 0, [], null, {
                 width: nd.width,
-                height: nd.height
+                height: nd.height,
+                y: categoryNode.y + categoryNode.height
               })
               tree.set(subCategory, subcategoryNode)
               categoryNode.children.push(subcategoryNode)
@@ -266,10 +275,16 @@ export default {
             if (skillNode) {
               skillNode.value += 1
             } else {
+              console.log(
+                `        skill y ← ${subcategoryNode.y} + ${
+                  subcategoryNode.height
+                } = ${subcategoryNode.y + subcategoryNode.height}`
+              )
               const nd = nodeDimensions(subCategory, nodeFont, nodeFontSize)
               skillNode = new SkillTreeNode(skill, 0, [], null, {
                 width: nd.width,
-                height: nd.height
+                height: nd.height,
+                y: subcategoryNode.y + subcategoryNode.height
               })
               tree.set(skill, skillNode)
               subcategoryNode.children.push(skillNode)
@@ -278,6 +293,11 @@ export default {
             if (credentialNode) {
               credentialNode.value += 1
             } else {
+              console.log(
+                `            credential y ← ${skillNode.y} + ${
+                  skillNode.height
+                } = ${skillNode.y + skillNode.height}`
+              )
               const nd = nodeDimensions(
                 credential.achievement.name,
                 nodeFont,
@@ -288,7 +308,11 @@ export default {
                 0,
                 null,
                 credential,
-                { width: nd.width, height: nd.height }
+                {
+                  width: nd.width,
+                  height: nd.height,
+                  y: skillNode.y + skillNode.height
+                }
               )
             }
             tree.set(credential.id, credentialNode)
