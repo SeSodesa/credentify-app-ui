@@ -40,6 +40,47 @@
 <script>
 import SingleCredentialView from '~/components/SingleCredentialView'
 
+/**
+ * Uses canvas.measureText to compute and return the width of the given text of given font in pixels.
+ *
+ * @param {String} text The text to be rendered.
+ * @param {String} font The css font descriptor that text is to be rendered with (e.g. "bold 14px verdana").
+ *
+ * @see https://stackoverflow.com/questions/118241/calculate-text-width-with-javascript/21015393#21015393
+ */
+function getTextWidth(text, font) {
+  // re-use canvas object for better performance
+  const canvas =
+    getTextWidth.canvas ||
+    (getTextWidth.canvas = document.createElement('canvas'))
+  const context = canvas.getContext('2d')
+  context.font = font
+  const metrics = context.measureText(text)
+  return metrics.width
+}
+
+function nodeDimensions(text, font, fontsize) {
+  const MIN_NODE_WIDTH = 80
+  const MAX_NODE_WIDTH = 150
+  const tw = Math.ceil(getTextWidth(text, font))
+  if (!tw) {
+    throw new Error(`Text width calculation for text "${text}" failed…`)
+  }
+  let nw = 0
+  if (MIN_NODE_WIDTH <= tw && tw <= MAX_NODE_WIDTH) {
+    nw = tw
+  } else if (MIN_NODE_WIDTH > tw) {
+    nw = MIN_NODE_WIDTH
+  } else if (tw > MAX_NODE_WIDTH) {
+    nw = MAX_NODE_WIDTH
+  } else {
+    throw new Error(`Could not set width for node ${text} with font ${font}…`)
+  }
+  const tr = Math.floor(tw / nw) + 1
+  const nh = tr * fontsize
+  return { width: nw, height: nh }
+}
+
 // A single node in the skill tree
 function SkillTreeNode(name, value, children, credential, posArgs) {
   // Node data
@@ -173,12 +214,16 @@ export default {
     },
     /* Filters data for drawing the summary graph */
     skillTree() {
-      //
       const tree = new Map()
+      const nodeFont = 'bold 14px fira sans'
+      const nodeFontSize = 14
       const rootKey = this.normalizeTag('main categories')
-      const root = new SkillTreeNode(rootKey, 0, [], null, {})
+      const nd = nodeDimensions(rootKey, nodeFont, nodeFontSize)
+      const root = new SkillTreeNode(rootKey, 0, [], null, {
+        width: nd.width,
+        height: nd.height
+      })
       tree.set(rootKey, root)
-      const skillTree = {}
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
         const achievement = credential.achievement
@@ -189,65 +234,43 @@ export default {
           if (catAndSubCat) {
             const category = this.normalizeTag(catAndSubCat.category)
             const subCategory = this.normalizeTag(catAndSubCat['sub-category'])
-            /* Check for existence of category */
-            if (category in skillTree) {
-              skillTree[category].value += 1
-            } else {
-              skillTree[category] = {
-                value: 1,
-                name: category,
-                url: `/skills/${this.toValidURL(category)}`,
-                children: {}
-              }
-            }
             let categoryNode = tree.get(category)
             if (categoryNode) {
               const categoryNode = tree.get(category)
               categoryNode.value += 1
             } else {
-              categoryNode = new SkillTreeNode(category, 0, [], null, {})
+              const nd = nodeDimensions(category, nodeFont, nodeFontSize)
+              categoryNode = new SkillTreeNode(category, 0, [], null, {
+                width: nd.width,
+                height: nd.height
+              })
               tree.set(category, categoryNode)
               root.children.push(categoryNode)
             }
             /* Then check for subcategory in category */
-            if (subCategory in skillTree[category].children) {
-              skillTree[category].children[subCategory].value += 1
-            } else {
-              skillTree[category].children[subCategory] = {
-                value: 1,
-                name: subCategory,
-                url: `skills/${this.toValidURL(category)}/${this.toValidURL(
-                  subCategory
-                )}`,
-                children: {}
-              }
-            }
             let subcategoryNode = tree.get(subCategory)
             if (subcategoryNode) {
               subcategoryNode.value += 1
             } else {
-              subcategoryNode = new SkillTreeNode(subCategory, 0, [], null, {})
+              const nd = nodeDimensions(subCategory, nodeFont, nodeFontSize)
+              subcategoryNode = new SkillTreeNode(subCategory, 0, [], null, {
+                width: nd.width,
+                height: nd.height
+              })
               tree.set(subCategory, subcategoryNode)
               categoryNode.children.push(subcategoryNode)
             }
             /* Finally, attach skill information and credential to subcategories */
             const skill = normalizedTag
-            const observedSubCategory =
-              skillTree[category].children[subCategory]
-            if (skill in observedSubCategory.children) {
-              observedSubCategory.children[skill].value += 1
-            } else {
-              observedSubCategory.children[skill] = {
-                value: 1,
-                name: skill,
-                children: {}
-              }
-            }
             let skillNode = tree.get(skill)
             if (skillNode) {
               skillNode.value += 1
             } else {
-              skillNode = new SkillTreeNode(skill, 0, [], null, {})
+              const nd = nodeDimensions(subCategory, nodeFont, nodeFontSize)
+              skillNode = new SkillTreeNode(skill, 0, [], null, {
+                width: nd.width,
+                height: nd.height
+              })
               tree.set(skill, skillNode)
               subcategoryNode.children.push(skillNode)
             }
@@ -255,31 +278,22 @@ export default {
             if (credentialNode) {
               credentialNode.value += 1
             } else {
+              const nd = nodeDimensions(
+                credential.achievement.name,
+                nodeFont,
+                nodeFontSize
+              )
               credentialNode = new SkillTreeNode(
                 credential.achievement.name,
                 0,
                 null,
                 credential,
-                {}
+                { width: nd.width, height: nd.height }
               )
             }
             tree.set(credential.id, credentialNode)
             skillNode.children.push(credentialNode)
             /* Check for existence of credential in the skill */
-            const observedSkill =
-              skillTree[category].children[subCategory].children[skill]
-            if (credential[credential.id] in observedSkill.children) {
-              observedSkill.children[credential.id].value += 1
-            } else {
-              observedSkill.children[credential.id] = {
-                value: 1,
-                name: credential.achievement.name,
-                credential
-                // url: `skills/${this.toValidURL(category)}/${this.toValidURL(
-                //   subCategory
-                // )}/${this.toValidURL(credential.achievement.name)}`
-              }
-            }
           } else {
             //
           }
@@ -465,10 +479,10 @@ export default {
         tree.width / 2
     },
     secondWalk(tree, modsum) {
-      console.log('----- secondWalk -----')
+      // console.log('----- secondWalk -----')
       modsum += tree.mod
-      console.log(`tree.x = ${tree.x}`)
-      console.log(`tree.prelim = ${tree.prelim}`)
+      // console.log(`tree.x = ${tree.x}`)
+      // console.log(`tree.prelim = ${tree.prelim}`)
       tree.x = tree.prelim + modsum
       this.addChildSpacing(tree)
       for (let i = 0; i < childCount(tree); i++) {
