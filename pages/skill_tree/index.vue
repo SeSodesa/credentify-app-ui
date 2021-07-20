@@ -402,8 +402,6 @@ export default {
       let iter = 0
       const maxiter = 20
       while (rightContourNode && leftContourNode && contour) {
-        console.log(tree.name)
-        console.log(contour)
         if (this.bottom(rightContourNode) > contour.lowY) {
           contour = contour.next
         }
@@ -460,6 +458,12 @@ export default {
     distributeExtra(tree, childIndex, siblingIndex, moveDistance) {
       if (siblingIndex !== childIndex) {
         const intermediates = childIndex - siblingIndex
+        if (intermediates === 0) {
+          throw new Error(
+            'Division by 0 when distributing horizontal space among children of ' +
+              tree.name
+          )
+        }
         tree.children[siblingIndex + 1].shift += moveDistance / intermediates
         tree.children[childIndex].shift -= moveDistance / intermediates
         tree.children[childIndex].change -=
@@ -513,7 +517,13 @@ export default {
     },
     secondWalk(tree, modsum) {
       modsum += tree.mod
+      if (!tree.mod) {
+        throw new Error(tree.name + '.mod is NaN when starting second walk…')
+      }
       tree.x = tree.prelim + modsum
+      if (!tree.x) {
+        throw new Error(tree.name + '.x set to NaN during second walk…')
+      }
       this.addChildSpacing(tree)
       for (let i = 0; i < childCount(tree); i++) {
         const child = tree.children[i]
