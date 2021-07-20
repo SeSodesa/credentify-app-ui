@@ -408,23 +408,23 @@ export default {
       console.log('----- Contour -----')
       console.log(contour)
       let rightContourNode = tree.children[childIndex - 1]
-      let rightContourNodeModSum = rightContourNode.mod
+      let rightContourModSum = rightContourNode.mod
       let leftContourNode = tree.children[childIndex]
       let iter = 0
       const maxiter = 50
-      let leftContourNodeModSum = rightContourNode.mod
+      let leftContourModSum = rightContourNode.mod
       while (rightContourNode && leftContourNode) {
         if (this.bottom(rightContourNode) > contour.lowY) {
           contour = contour.next
         }
         const moveDistance =
-          rightContourNodeModSum +
+          rightContourModSum +
           rightContourNode.prelim +
           rightContourNode.width -
-          leftContourNodeModSum -
+          leftContourModSum -
           leftContourNode.prelim
         if (moveDistance > 0) {
-          leftContourNodeModSum += moveDistance
+          leftContourModSum += moveDistance
           this.moveSubtree(tree, childIndex, contour.index, moveDistance)
         }
         const rightContourBottom = this.bottom(rightContourNode)
@@ -432,13 +432,13 @@ export default {
         if (rightContourBottom <= leftContourBottom) {
           rightContourNode = this.nextRightContour(rightContourNode)
           if (rightContourNode) {
-            rightContourNodeModSum += rightContourNode.mod
+            rightContourModSum += rightContourNode.mod
           }
         }
         if (rightContourBottom >= leftContourBottom) {
           leftContourNode = this.nextLeftContour(leftContourNode)
           if (leftContourNode) {
-            leftContourNodeModSum += leftContourNode.mod
+            leftContourModSum += leftContourNode.mod
           }
         }
         console.log('----- Contour pair -----')
@@ -449,19 +449,14 @@ export default {
         }
       }
       if (!rightContourNode && leftContourNode) {
-        this.setLeftThread(
-          tree,
-          childIndex,
-          leftContourNode,
-          leftContourNodeModSum
-        )
+        this.setLeftThread(tree, childIndex, leftContourNode, leftContourModSum)
       }
       if (rightContourNode && !leftContourNode) {
         this.setRightThread(
           tree,
           childIndex,
           rightContourNode,
-          rightContourNodeModSum
+          rightContourModSum
         )
       }
     },
@@ -474,6 +469,8 @@ export default {
       tree.children[childIndex].modSumRightContour += moveDistance
       this.distributeExtra(tree, childIndex, contourIndex, moveDistance)
     },
+    // Distributes the available horizontal space between two given children
+    // evenly
     distributeExtra(tree, childIndex, siblingIndex, moveDistance) {
       if (siblingIndex !== childIndex) {
         const intermediates = childIndex - siblingIndex
@@ -491,27 +488,23 @@ export default {
         ? tree.children[childCount(tree) - 1]
         : tree.rightThread
     },
-    setLeftThread(tree, childIndex, leftContourNode, leftContourNodeModSum) {
+    setLeftThread(tree, childIndex, leftContourNode, leftContourModSum) {
       const firstChild = tree.children[0]
       const li = firstChild.extremeLeftNode
       li.leftThread = leftContourNode
       const diff =
-        leftContourNodeModSum -
-        leftContourNode.mod -
-        firstChild.modSumLeftContour
+        leftContourModSum - leftContourNode.mod - firstChild.modSumLeftContour
       li.mod += diff
       li.prelim -= diff
       firstChild.extremeLeftNode = tree.children[childIndex].extremeLeftNode
       firstChild.modSumLeftContour = tree.children[childIndex].modSumLeftContour
     },
-    setRightThread(tree, childIndex, rightContourNode, rightContourNodeModSum) {
+    setRightThread(tree, childIndex, rightContourNode, rightContourModSum) {
       const ithChild = tree.children[childIndex]
       const ri = ithChild.extremeRightNode
       ri.leftThread = rightContourNode
       const diff =
-        rightContourNodeModSum -
-        rightContourNode.mod -
-        ithChild.extremeRightModSum
+        rightContourModSum - rightContourNode.mod - ithChild.extremeRightModSum
       ri.mod += diff
       ri.prelim -= diff
       ithChild.extremeLeftNode = tree.children[childIndex].extremeLeftNode
