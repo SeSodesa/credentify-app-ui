@@ -24,7 +24,12 @@
     <div v-if="credentials && !credential">
       Awaiting construction…
       <div id="tree-view-container">
-        <svg id="tree-view" xmlns="http://www.w3.org/2000/svg"></svg>
+        <svg
+          id="tree-view"
+          xmlns="http://www.w3.org/2000/svg"
+          width="5000px"
+          height="5000px"
+        ></svg>
       </div>
     </div>
     <div v-else-if="credentials && credential">
@@ -110,10 +115,11 @@ function SkillTreeNode(name, value, children, credential, posArgs) {
   this.leftThread = 'leftThread' in posArgs ? posArgs.leftThread : null
   // Lowest node in this subtree that can be seen from the left.
   // Used to keep left thread up to date.
-  this.extremeLeftNode = 'extremeLeft' in posArgs ? posArgs.extremeLeft : null
+  this.extremeLeftDescendant =
+    'extremeLeft' in posArgs ? posArgs.extremeLeft : null
   // Lowest node in this subtree that can be seen from the right
   // Used to keep right thread up to date.
-  this.extremeRightNode =
+  this.extremeRightDescendant =
     'extremeRight' in posArgs ? posArgs.extremeRight : null
   // Sum of mods along left contour. Needed in relative positioning.
   this.modSumLeftContour =
@@ -259,7 +265,6 @@ export default {
               const categoryNode = tree.get(category)
               categoryNode.value += 1
             } else {
-              console.log(`category y ← ${root.y + root.height}`)
               const nd = nodeDimensions(category, nodeFont, nodeFontSize)
               categoryNode = new SkillTreeNode(category, 0, [], null, {
                 width: nd.width,
@@ -275,11 +280,6 @@ export default {
               subcategoryNode.value += 1
             } else {
               const nd = nodeDimensions(subCategory, nodeFont, nodeFontSize)
-              console.log(
-                `    subcategory y ← ${categoryNode.y} + ${
-                  categoryNode.height
-                } = ${categoryNode.y + categoryNode.height}`
-              )
               subcategoryNode = new SkillTreeNode(subCategory, 0, [], null, {
                 width: nd.width,
                 height: nd.height,
@@ -294,11 +294,6 @@ export default {
             if (skillNode) {
               skillNode.value += 1
             } else {
-              console.log(
-                `        skill y ← ${subcategoryNode.y} + ${
-                  subcategoryNode.height
-                } = ${subcategoryNode.y + subcategoryNode.height}`
-              )
               const nd = nodeDimensions(subCategory, nodeFont, nodeFontSize)
               skillNode = new SkillTreeNode(skill, 0, [], null, {
                 width: nd.width,
@@ -312,11 +307,6 @@ export default {
             if (credentialNode) {
               credentialNode.value += 1
             } else {
-              console.log(
-                `            credential y ← ${skillNode.y} + ${
-                  skillNode.height
-                } = ${skillNode.y + skillNode.height}`
-              )
               const nd = nodeDimensions(
                 credential.achievement.name,
                 nodeFont,
@@ -371,15 +361,15 @@ export default {
       } else {
         this.firstWalk(tree.children[0])
         let contour = updateContour(
-          this.bottom(tree.children[0].extremeLeftNode),
+          this.bottom(tree.children[0].extremeLeftDescendant),
           0,
           null
         )
         for (let childIndex = 1; childIndex < childCount(tree); childIndex++) {
           this.firstWalk(tree.children[childIndex])
-          // console.log('Extreme left node:')
-          // console.log(tree.children[childIndex].extremeLeftNode)
-          const minY = this.bottom(tree.children[childIndex].extremeRightNode)
+          const minY = this.bottom(
+            tree.children[childIndex].extremeRightDescendant
+          )
           this.separate(tree, childIndex, contour)
           contour = updateContour(minY, childIndex, contour)
         }
@@ -389,15 +379,15 @@ export default {
     },
     setExtremes(tree) {
       if (!tree.children) {
-        tree.extremeLeftNode = tree
-        tree.extremeRightNode = tree
+        tree.extremeLeftDescendant = tree
+        tree.extremeRightDescendant = tree
         tree.modSumLeftContour = 0
         tree.modSumRightContour = 0
       } else {
-        tree.extremeLeftNode = tree.children[0].extremeLeftNode
+        tree.extremeLeftDescendant = tree.children[0].extremeLeftDescendant
         tree.modSumLeftContour = tree.children[0].modSumLeftContour
-        tree.extremeRightNode =
-          tree.children[childCount(tree) - 1].extremeRightNode
+        tree.extremeRightDescendant =
+          tree.children[childCount(tree) - 1].extremeRightDescendant
         tree.modSumRightContour =
           tree.children[childCount(tree) - 1].modSumRightContour
       }
@@ -405,15 +395,15 @@ export default {
     // Separates right contour of left siblings from the left contour of the
     // right siblings, thus separating the subtrees
     separate(tree, childIndex, contour) {
-      console.log('----- Contour -----')
-      console.log(contour)
       let rightContourNode = tree.children[childIndex - 1]
       let rightContourModSum = rightContourNode.mod
       let leftContourNode = tree.children[childIndex]
       let leftContourModSum = leftContourNode.mod
       let iter = 0
       const maxiter = 20
-      while (rightContourNode && leftContourNode) {
+      while (rightContourNode && leftContourNode && contour) {
+        console.log(tree.name)
+        console.log(contour)
         if (this.bottom(rightContourNode) > contour.lowY) {
           contour = contour.next
         }
@@ -441,17 +431,13 @@ export default {
             leftContourModSum += leftContourNode.mod
           }
         }
-        console.log('----- Contour pair -----')
-        console.log(leftContourNode)
-        console.log(rightContourNode)
         if (++iter > maxiter) {
           throw new Error('Infinite loop during separation?')
         }
       }
       if (!rightContourNode && leftContourNode) {
         this.setLeftThread(tree, childIndex, leftContourNode, leftContourModSum)
-      }
-      if (rightContourNode && !leftContourNode) {
+      } else if (rightContourNode && !leftContourNode) {
         this.setRightThread(
           tree,
           childIndex,
@@ -490,25 +476,28 @@ export default {
     },
     setLeftThread(tree, childIndex, leftContourNode, leftContourModSum) {
       const firstChild = tree.children[0]
-      const li = firstChild.extremeLeftNode
+      const li = firstChild.extremeLeftDescendant
       li.leftThread = leftContourNode
       const diff =
         leftContourModSum - leftContourNode.mod - firstChild.modSumLeftContour
       li.mod += diff
       li.prelim -= diff
-      firstChild.extremeLeftNode = tree.children[childIndex].extremeLeftNode
+      firstChild.extremeLeftDescendant =
+        tree.children[childIndex].extremeLeftDescendant
       firstChild.modSumLeftContour = tree.children[childIndex].modSumLeftContour
     },
     setRightThread(tree, childIndex, rightContourNode, rightContourModSum) {
       const ithChild = tree.children[childIndex]
-      const ri = ithChild.extremeRightNode
-      ri.leftThread = rightContourNode
+      const ri = ithChild.extremeRightDescendant
+      ri.rightThread = rightContourNode
       const diff =
         rightContourModSum - rightContourNode.mod - ithChild.extremeRightModSum
       ri.mod += diff
       ri.prelim -= diff
-      ithChild.extremeLeftNode = tree.children[childIndex].extremeLeftNode
-      ithChild.modSumLeftContour = tree.children[childIndex].modSumLeftContour
+      ithChild.extremeRightDescendant =
+        tree.children[childIndex - 1].extremeRightDescendant
+      ithChild.modSumRightContour =
+        tree.children[childIndex - 1].modSumRightContour
     },
     positionRoot(tree) {
       const firstChild = tree.children[0]
@@ -523,10 +512,7 @@ export default {
         tree.width / 2
     },
     secondWalk(tree, modsum) {
-      // console.log('----- secondWalk -----')
       modsum += tree.mod
-      // console.log(`tree.x = ${tree.x}`)
-      // console.log(`tree.prelim = ${tree.prelim}`)
       tree.x = tree.prelim + modsum
       this.addChildSpacing(tree)
       for (let i = 0; i < childCount(tree); i++) {
@@ -544,20 +530,26 @@ export default {
         child.mod += modsumdelta
       }
     },
-    drawNodes(skillTree) {
+    drawNodes(tree, level) {
       const treeView = document.getElementById('tree-view')
-      const myCircle = document.createElementNS(this.svgNameSpace, 'circle')
-      myCircle.setAttributeNS(null, 'id', 'mycircle')
-      myCircle.setAttributeNS(null, 'cx', 100)
-      myCircle.setAttributeNS(null, 'cy', 100)
-      myCircle.setAttributeNS(null, 'r', 50)
-      myCircle.setAttributeNS(null, 'fill', 'white')
-      myCircle.setAttributeNS(null, 'stroke', 'black')
-      treeView.appendChild(myCircle)
+      const mynode = document.createElementNS(this.svgNameSpace, 'rect')
+      mynode.setAttributeNS(null, 'id', tree.name)
+      mynode.setAttributeNS(null, 'x', tree.x + 'px')
+      mynode.setAttributeNS(null, 'y', tree.y + 'px')
+      mynode.setAttributeNS(null, 'width', tree.width + 'px')
+      mynode.setAttributeNS(null, 'height', tree.height + 'px')
+      mynode.setAttributeNS(null, 'rx', 10)
+      mynode.setAttributeNS(null, 'ry', 10)
+      mynode.setAttributeNS(null, 'fill', this.categoryLevels[level].color)
+      mynode.setAttributeNS(null, 'stroke', 'black')
+      treeView.appendChild(mynode)
+      for (let i = 0; i < childCount(tree); i++) {
+        this.drawNodes(tree.children[i], level + 1)
+      }
     },
     drawSkillTree(skillTree) {
       this.calculateNodePositions(skillTree)
-      this.drawNodes(skillTree)
+      this.drawNodes(skillTree, 1)
     },
     lowerTag(tag) {
       const whitespaceNormalized = tag
@@ -601,6 +593,11 @@ export default {
 
 #tree-view-container {
   min-height: 600px;
+  overflow: scroll;
+}
+
+#tree-view {
+  height: 500px;
   overflow: scroll;
   width: 100%;
 }
