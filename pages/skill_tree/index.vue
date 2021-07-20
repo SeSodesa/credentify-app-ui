@@ -48,23 +48,19 @@ function SkillTreeNode(name, value, children, credential, posArgs) {
   this.children = children
   this.credential = credential
   // ↓ Positioning fields ↓
-  this.depth = 'depth' in posArgs ? posArgs.depth : 0
-  // this.childCount = function() {
-  //   return this.children.length
-  // }
   this.width = 'width' in posArgs ? posArgs.width : 0
   this.height = 'height' in posArgs ? posArgs.height : 0
-  this.x = 'x' in posArgs ? posArgs.xpos : 0
-  this.y = 'y' in posArgs ? posArgs.ypos : 0
+  this.x = 'x' in posArgs ? posArgs.x : 0
+  this.y = 'y' in posArgs ? posArgs.y : 0
   // Preliminary horizontal coordinate of the node.
   // Set when positioning the root, after moving its children.
-  this.prelim = 'prelim' in posArgs ? posArgs.prelim : null
+  this.prelim = 'prelim' in posArgs ? posArgs.prelim : 0
   // How much entire subtree should be moved horizontally.
-  this.mod = 'mod' in posArgs ? posArgs.mod : null
+  this.mod = 'mod' in posArgs ? posArgs.mod : 0
   // Used to calculate positions of siblings in O(1), togehter with `change`
-  this.shift = 'shift' in posArgs ? posArgs.shift : null
+  this.shift = 'shift' in posArgs ? posArgs.shift : 0
   // Used to calculate positions of siblings in O(1) togehter with `shift`
-  this.change = 'change' in posArgs ? posArgs.change : null
+  this.change = 'change' in posArgs ? posArgs.change : 0
   // Reference to node in right contour
   this.rightThread = 'rightThread' in posArgs ? posArgs.rightThread : null
   // Reference to node in left contour
@@ -310,7 +306,7 @@ export default {
     // See https://doi.org/10.1002/spe.2213
     calculateNodePositions(tree) {
       this.firstWalk(tree)
-      this.secondWalk(tree)
+      this.secondWalk(tree, 0)
     },
     firstWalk(tree) {
       if (!tree.children) {
@@ -469,17 +465,22 @@ export default {
         tree.width / 2
     },
     secondWalk(tree, modsum) {
+      console.log('----- secondWalk -----')
       modsum += tree.mod
+      console.log(`tree.x = ${tree.x}`)
+      console.log(`tree.prelim = ${tree.prelim}`)
       tree.x = tree.prelim + modsum
       this.addChildSpacing(tree)
-      for (const child of tree.children) {
+      for (let i = 0; i < childCount(tree); i++) {
+        const child = tree.children[i]
         this.secondWalk(child, modsum)
       }
     },
     addChildSpacing(tree) {
       let d = 0
       let modsumdelta = 0
-      for (const child of tree.children) {
+      for (let i = 0; i < childCount(tree); i++) {
+        const child = tree.children[i]
         d += child.shift
         modsumdelta += d + child.change
         child.mod += modsumdelta
@@ -499,7 +500,6 @@ export default {
     drawSkillTree(skillTree) {
       this.calculateNodePositions(skillTree)
       this.drawNodes(skillTree)
-      // To create a circle. For rectangle use "rectangle"
     },
     lowerTag(tag) {
       const whitespaceNormalized = tag
