@@ -472,6 +472,7 @@ export default {
       tree.children[childIndex].mod += moveDistance
       tree.children[childIndex].modSumLeftContour += moveDistance
       tree.children[childIndex].modSumRightContour += moveDistance
+      this.distributeExtra(tree, childIndex, contourIndex, moveDistance)
     },
     distributeExtra(tree, childIndex, siblingIndex, moveDistance) {
       if (siblingIndex !== childIndex) {
