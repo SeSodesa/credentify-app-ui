@@ -364,6 +364,7 @@ export default {
       this.secondWalk(tree, 0)
     },
     firstWalk(tree) {
+      console.log(`↓ ${tree.name}…`)
       if (!tree.children) {
         this.setExtremes(tree)
       } else {
@@ -373,8 +374,11 @@ export default {
           0,
           null
         )
+        console.log('←←←←←←←←←←← LEFT SIBLING INDEX LIST ←←←←←←←←←←←')
+        console.log(siblingIndexList)
         for (let childIndex = 1; childIndex < childCount(tree); childIndex++) {
           this.firstWalk(tree.children[childIndex])
+          console.log(`→ ${tree.name}`)
           // Store lowest descendant coordinate while extreme nodes are still
           // in current subtree
           const minYRight = this.bottom(
@@ -386,12 +390,12 @@ export default {
             childIndex,
             siblingIndexList
           )
+          console.log(siblingIndexList)
         }
-        console.log(tree.name)
-        console.log(siblingIndexList)
         this.positionRoot(tree)
         this.setExtremes(tree)
       }
+      console.log(`↑ ${tree.name}…`)
     },
     setExtremes(tree) {
       if (!tree.children) {
@@ -409,24 +413,24 @@ export default {
       }
     },
     // Separates right contour of left siblings from the left contour of the
-    // right siblings, thus separating the subtrees
+    // current subtree, thus separating the subtrees
     separate(tree, childIndex, siblingIndexList) {
-      let rightContourNode = tree.children[childIndex - 1]
-      let rightContourModSum = rightContourNode.mod
-      let leftContourNode = tree.children[childIndex]
-      let leftContourModSum = leftContourNode.mod
+      let leftSiblingRightContourNode = tree.children[childIndex - 1]
+      let rightContourModSum = leftSiblingRightContourNode.mod
+      let currentSubtreeLeftContourNode = tree.children[childIndex]
+      let leftContourModSum = currentSubtreeLeftContourNode.mod
       let iter = 0
       const maxiter = 20
-      while (rightContourNode && leftContourNode) {
-        if (this.bottom(rightContourNode) > siblingIndexList.lowY) {
+      while (leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
+        if (this.bottom(leftSiblingRightContourNode) > siblingIndexList.lowY) {
           siblingIndexList = siblingIndexList.next
         }
         const moveDistance =
           rightContourModSum +
-          rightContourNode.prelim +
-          rightContourNode.width -
+          leftSiblingRightContourNode.prelim +
+          leftSiblingRightContourNode.width -
           leftContourModSum -
-          leftContourNode.prelim
+          currentSubtreeLeftContourNode.prelim
         if (moveDistance > 0) {
           leftContourModSum += moveDistance
           // TODO: Prevent sibling index list from becoming null before contour
@@ -438,35 +442,47 @@ export default {
             moveDistance
           )
         }
-        const rightContourBottom = this.bottom(rightContourNode)
-        const leftContourBottom = this.bottom(leftContourNode)
+        const rightContourBottom = this.bottom(leftSiblingRightContourNode)
+        const leftContourBottom = this.bottom(currentSubtreeLeftContourNode)
         if (rightContourBottom <= leftContourBottom) {
-          rightContourNode = this.nextRightContour(rightContourNode)
-          if (rightContourNode) {
-            rightContourModSum += rightContourNode.mod
+          leftSiblingRightContourNode = this.nextRightContour(
+            leftSiblingRightContourNode
+          )
+          if (leftSiblingRightContourNode) {
+            rightContourModSum += leftSiblingRightContourNode.mod
           }
         }
         if (rightContourBottom >= leftContourBottom) {
-          leftContourNode = this.nextLeftContour(leftContourNode)
-          if (leftContourNode) {
-            leftContourModSum += leftContourNode.mod
+          currentSubtreeLeftContourNode = this.nextLeftContour(
+            currentSubtreeLeftContourNode
+          )
+          if (currentSubtreeLeftContourNode) {
+            leftContourModSum += currentSubtreeLeftContourNode.mod
           }
         }
         if (++iter > maxiter) {
           throw new Error('Infinite loop during separation?')
         }
       }
-      if (!rightContourNode && leftContourNode) {
+      if (!leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
         // Current subtree taller than left siblings
         // ⇒ make left thread point to the current left contour node
-        this.setLeftThread(tree, childIndex, leftContourNode, leftContourModSum)
-      } else if (rightContourNode && !leftContourNode) {
+        this.setLeftThread(
+          tree,
+          childIndex,
+          currentSubtreeLeftContourNode,
+          leftContourModSum
+        )
+      } else if (
+        leftSiblingRightContourNode &&
+        !currentSubtreeLeftContourNode
+      ) {
         // Left siblings taller than current subtree
         // ⇒ make right thread point to the current right contour node
         this.setRightThread(
           tree,
           childIndex,
-          rightContourNode,
+          leftSiblingRightContourNode,
           rightContourModSum
         )
       } else {
@@ -503,12 +519,18 @@ export default {
       }
     },
     nextLeftContour(tree) {
-      return tree.children ? tree.children[0] : tree.leftThread
+      if (tree.children) {
+        return tree.children[0]
+      } else {
+        return tree.leftThread
+      }
     },
     nextRightContour(tree) {
-      return tree.children
-        ? tree.children[childCount(tree) - 1]
-        : tree.rightThread
+      if (tree.children) {
+        return tree.children[childCount(tree) - 1]
+      } else {
+        return tree.rightThread
+      }
     },
     setLeftThread(tree, childIndex, leftContourNode, leftContourModSum) {
       const firstChild = tree.children[0]
