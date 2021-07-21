@@ -411,7 +411,7 @@ export default {
           rightContourNode.width -
           leftContourModSum -
           leftContourNode.prelim
-        if (moveDistance > 0) {
+        if (contour && moveDistance > 0) {
           leftContourModSum += moveDistance
           this.moveSubtree(tree, childIndex, contour.index, moveDistance)
         }
@@ -449,6 +449,9 @@ export default {
     },
     moveSubtree(tree, childIndex, contourIndex, moveDistance) {
       tree.children[childIndex].mod += moveDistance
+      if (!tree.children[childIndex].mod) {
+        throw new Error(`${tree.name}.mod unset in moveSubtree…`)
+      }
       tree.children[childIndex].modSumLeftContour += moveDistance
       tree.children[childIndex].modSumRightContour += moveDistance
       this.distributeExtra(tree, childIndex, contourIndex, moveDistance)
@@ -495,7 +498,7 @@ export default {
       const ri = ithChild.extremeRightDescendant
       ri.rightThread = rightContourNode
       const diff =
-        rightContourModSum - rightContourNode.mod - ithChild.extremeRightModSum
+        rightContourModSum - rightContourNode.mod - ithChild.modSumRightContour
       ri.mod += diff
       ri.prelim -= diff
       ithChild.extremeRightDescendant =
@@ -517,13 +520,7 @@ export default {
     },
     secondWalk(tree, modsum) {
       modsum += tree.mod
-      if (!tree.mod) {
-        throw new Error(tree.name + '.mod is NaN when starting second walk…')
-      }
       tree.x = tree.prelim + modsum
-      if (!tree.x) {
-        throw new Error(tree.name + '.x set to NaN during second walk…')
-      }
       this.addChildSpacing(tree)
       for (let i = 0; i < childCount(tree); i++) {
         const child = tree.children[i]
@@ -601,14 +598,13 @@ export default {
   cursor: pointer;
 }
 
-#tree-view-container {
-  min-height: 600px;
+div#tree-view-container {
+  min-height: 400px;
   overflow: scroll;
 }
 
-#tree-view {
-  height: 500px;
-  overflow: scroll;
-  width: 100%;
+svg#tree-view {
+  min-height: 500px;
+  min-width: 1000px;
 }
 </style>
