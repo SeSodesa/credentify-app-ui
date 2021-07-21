@@ -375,16 +375,20 @@ export default {
         )
         for (let childIndex = 1; childIndex < childCount(tree); childIndex++) {
           this.firstWalk(tree.children[childIndex])
-          const minY = this.bottom(
+          // Store lowest descendant coordinate while extreme nodes are still
+          // in current subtree
+          const minYRight = this.bottom(
             tree.children[childIndex].extremeRightDescendant
           )
           this.separate(tree, childIndex, siblingIndexList)
           siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
-            minY,
+            minYRight,
             childIndex,
             siblingIndexList
           )
         }
+        console.log(tree.name)
+        console.log(siblingIndexList)
         this.positionRoot(tree)
         this.setExtremes(tree)
       }
