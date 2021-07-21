@@ -401,7 +401,7 @@ export default {
       let leftContourModSum = leftContourNode.mod
       let iter = 0
       const maxiter = 20
-      while (rightContourNode && leftContourNode && contour) {
+      while (rightContourNode && leftContourNode) {
         if (this.bottom(rightContourNode) > contour.lowY) {
           contour = contour.next
         }
@@ -411,7 +411,7 @@ export default {
           rightContourNode.width -
           leftContourModSum -
           leftContourNode.prelim
-        if (contour && moveDistance > 0) {
+        if (moveDistance > 0) {
           leftContourModSum += moveDistance
           this.moveSubtree(tree, childIndex, contour.index, moveDistance)
         }
@@ -434,14 +434,20 @@ export default {
         }
       }
       if (!rightContourNode && leftContourNode) {
+        // Current subtree taller than left siblings
+        // ⇒ make left thread point to the current left contour node
         this.setLeftThread(tree, childIndex, leftContourNode, leftContourModSum)
       } else if (rightContourNode && !leftContourNode) {
+        // Left siblings taller than current subtree
+        // ⇒ make right thread point to the current right contour node
         this.setRightThread(
           tree,
           childIndex,
           rightContourNode,
           rightContourModSum
         )
+      } else {
+        // Do nothing
       }
     },
     bottom(tree) {
@@ -518,6 +524,8 @@ export default {
           2 -
         tree.width / 2
     },
+    // Sets the x-coordonates of each node based on the information
+    // gathered and set during firstWalk
     secondWalk(tree, modsum) {
       modsum += tree.mod
       tree.x = tree.prelim + modsum
