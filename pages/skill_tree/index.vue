@@ -141,9 +141,9 @@ function childCount(tree) {
  *
  * -- Ploeg 2014
  **/
-function Contour(lowY, index, next) {
+function ListOfSiblingsWithDescendantInRightContour(lowY, index, next) {
   this.lowY = lowY
-  this.index = index
+  this.siblingIndex = index
   this.next = next
 }
 
@@ -156,11 +156,19 @@ function Contour(lowY, index, next) {
  *
  * -- Ploeg 2014
  **/
-function updateContour(minY, childIndex, contour) {
-  while (contour && minY >= contour.lowY) {
-    contour = contour.next
+function updateListOfSiblingsWithDescendantInRightContour(
+  minY,
+  childIndex,
+  siblingIndexList
+) {
+  while (siblingIndexList && minY >= siblingIndexList.lowY) {
+    siblingIndexList = siblingIndexList.next
   }
-  return new Contour(minY, childIndex, contour)
+  return new ListOfSiblingsWithDescendantInRightContour(
+    minY,
+    childIndex,
+    siblingIndexList
+  )
 }
 
 export default {
@@ -360,7 +368,7 @@ export default {
         this.setExtremes(tree)
       } else {
         this.firstWalk(tree.children[0])
-        let contour = updateContour(
+        let siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
           this.bottom(tree.children[0].extremeLeftDescendant),
           0,
           null
@@ -370,8 +378,12 @@ export default {
           const minY = this.bottom(
             tree.children[childIndex].extremeRightDescendant
           )
-          this.separate(tree, childIndex, contour)
-          contour = updateContour(minY, childIndex, contour)
+          this.separate(tree, childIndex, siblingIndexList)
+          siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
+            minY,
+            childIndex,
+            siblingIndexList
+          )
         }
         this.positionRoot(tree)
         this.setExtremes(tree)
@@ -394,7 +406,7 @@ export default {
     },
     // Separates right contour of left siblings from the left contour of the
     // right siblings, thus separating the subtrees
-    separate(tree, childIndex, contour) {
+    separate(tree, childIndex, siblingIndexList) {
       let rightContourNode = tree.children[childIndex - 1]
       let rightContourModSum = rightContourNode.mod
       let leftContourNode = tree.children[childIndex]
@@ -402,8 +414,8 @@ export default {
       let iter = 0
       const maxiter = 20
       while (rightContourNode && leftContourNode) {
-        if (this.bottom(rightContourNode) > contour.lowY) {
-          contour = contour.next
+        if (this.bottom(rightContourNode) > siblingIndexList.lowY) {
+          siblingIndexList = siblingIndexList.next
         }
         const moveDistance =
           rightContourModSum +
@@ -413,7 +425,14 @@ export default {
           leftContourNode.prelim
         if (moveDistance > 0) {
           leftContourModSum += moveDistance
-          this.moveSubtree(tree, childIndex, contour.index, moveDistance)
+          // TODO: Prevent sibling index list from becoming null before contour
+          // pair is mutually null
+          this.moveSubtree(
+            tree,
+            childIndex,
+            siblingIndexList.siblingIndex,
+            moveDistance
+          )
         }
         const rightContourBottom = this.bottom(rightContourNode)
         const leftContourBottom = this.bottom(leftContourNode)
