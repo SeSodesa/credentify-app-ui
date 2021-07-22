@@ -666,7 +666,7 @@ export default {
                 nodeFontSize
               )
               credentialNode = new SkillTreeNode(
-                credential,
+                credential.achievement.name,
                 0,
                 null,
                 credential,
