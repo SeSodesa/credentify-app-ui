@@ -88,10 +88,10 @@ function nodeDimensions(text, font, fontsize) {
   return { width: nw, height: nh }
 }
 
-// A class that stores the fields needed in positioning tree nodes as insructed
+// A class that stores the fields needed in positioning tree nodes as instructed
 // by Ploeg 2014. See https://doi.org/10.1002/spe.2213.
 class PositionableTreeNode {
-  children: Array<PositionableTreeNode> | null
+  children: Array<PositionableTreeNode> | null = null
   x: number = 0
   y: number
   height: number = 0
@@ -167,7 +167,7 @@ function nextLeftContour(tree: SkillTreeNode) {
   }
 }
 
-function nextRightContour(tree: SkillTreeNode) {
+function nextRightContour(tree: SkillTreeNode): SkillTreeNode | null {
   if (tree.children) {
     return tree.children[childCount(tree) - 1]
   } else {
@@ -190,26 +190,33 @@ function firstWalk(tree: SkillTreeNode) {
     setExtremes(tree)
   } else {
     firstWalk(tree.children[0])
-    let siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
+    let leftSiblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
       bottom(tree.children[0].extremeLeftDescendant),
       0,
       null
     )
     console.log('←←←←←←←←←←← LEFT SIBLING INDEX LIST ←←←←←←←←←←←')
-    console.log(siblingIndexList)
-    for (let childIndex = 1; childIndex < childCount(tree); childIndex++) {
-      firstWalk(tree.children[childIndex])
+    console.log(leftSiblingIndexList)
+    for (
+      let currentIndex = 1;
+      currentIndex < childCount(tree);
+      currentIndex++
+    ) {
+      firstWalk(tree.children[currentIndex])
       console.log(`→ ${tree.name}`)
       // Store lowest descendant coordinate while extreme nodes are still
       // in current subtree
-      const minYRight = bottom(tree.children[childIndex].extremeRightDescendant)
-      separate(tree, childIndex, siblingIndexList)
-      siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
-        minYRight,
-        childIndex,
-        siblingIndexList
+      const minYRight: number = bottom(
+        tree.children[currentIndex].extremeRightDescendant
       )
-      console.log(siblingIndexList)
+      separate(tree, currentIndex, leftSiblingIndexList)
+      // Removed indices of left siblings not visible directly from the right
+      leftSiblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
+        minYRight,
+        currentIndex,
+        leftSiblingIndexList
+      )
+      console.log(leftSiblingIndexList)
     }
     positionRoot(tree)
     setExtremes(tree)
@@ -235,24 +242,22 @@ function setExtremes(tree: SkillTreeNode) {
 
 // Separates right contour of left siblings from the left contour of the
 // current subtree, thus separating the subtrees
-function separate(tree: SkillTreeNode, childIndex: number, siblingIndexList) {
-  let leftSiblingRightContourNode = tree.children[childIndex - 1]
-  let rightContourModSum = leftSiblingRightContourNode.mod
-  let currentSubtreeLeftContourNode = tree.children[childIndex]
-  let leftContourModSum = currentSubtreeLeftContourNode.mod
+function separate(
+  tree: SkillTreeNode,
+  currentIndex: number,
+  leftSiblingIndexList: ListOfSiblingsWithDescendantInRightContour
+) {
+  let leftSiblingRightContourNode = tree.children[currentIndex - 1]
+  let rightContourModSum: number = leftSiblingRightContourNode.mod
+  let currentSubtreeLeftContourNode = tree.children[currentIndex]
+  let leftContourModSum: number = currentSubtreeLeftContourNode.mod
   let iter = 0
   const maxiter = 20
   while (leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
-    console.log(
-      leftSiblingRightContourNode.name +
-        ': ' +
-        bottom(leftSiblingRightContourNode)
-    )
-    console.log(siblingIndexList)
-    if (bottom(leftSiblingRightContourNode) > siblingIndexList.lowY) {
-      siblingIndexList = siblingIndexList.next
+    if (bottom(leftSiblingRightContourNode) > leftSiblingIndexList.lowY) {
+      leftSiblingIndexList = leftSiblingIndexList.next
     }
-    const moveDistance =
+    const moveDistance: number =
       rightContourModSum +
       leftSiblingRightContourNode.prelim +
       leftSiblingRightContourNode.width -
@@ -262,7 +267,12 @@ function separate(tree: SkillTreeNode, childIndex: number, siblingIndexList) {
       leftContourModSum += moveDistance
       // TODO: Prevent sibling index list from becoming null before contour
       // pair is mutually null
-      moveSubtree(tree, childIndex, siblingIndexList.siblingIndex, moveDistance)
+      moveSubtree(
+        tree,
+        currentIndex,
+        leftSiblingIndexList.siblingIndex,
+        moveDistance
+      )
     }
     const rightContourBottom = bottom(leftSiblingRightContourNode)
     const leftContourBottom = bottom(currentSubtreeLeftContourNode)
@@ -291,7 +301,7 @@ function separate(tree: SkillTreeNode, childIndex: number, siblingIndexList) {
     // ⇒ make left thread point to the current left contour node
     setLeftThread(
       tree,
-      childIndex,
+      currentIndex,
       currentSubtreeLeftContourNode,
       leftContourModSum
     )
@@ -300,7 +310,7 @@ function separate(tree: SkillTreeNode, childIndex: number, siblingIndexList) {
     // ⇒ make right thread point to the current right contour node
     setRightThread(
       tree,
-      childIndex,
+      currentIndex,
       leftSiblingRightContourNode,
       rightContourModSum
     )
@@ -315,28 +325,28 @@ function bottom(tree: SkillTreeNode) {
 
 function moveSubtree(
   tree: SkillTreeNode,
-  childIndex: number,
+  currentIndex: number,
   siblingIndex: number,
   moveDistance: number
 ) {
-  tree.children[childIndex].mod += moveDistance
-  if (!tree.children[childIndex].mod) {
+  tree.children[currentIndex].mod += moveDistance
+  if (!tree.children[currentIndex].mod) {
     throw new Error(`${tree.name}.mod unset in moveSubtree…`)
   }
-  tree.children[childIndex].modSumLeftContour += moveDistance
-  tree.children[childIndex].modSumRightContour += moveDistance
-  distributeExtra(tree, childIndex, siblingIndex, moveDistance)
+  tree.children[currentIndex].modSumLeftContour += moveDistance
+  tree.children[currentIndex].modSumRightContour += moveDistance
+  distributeExtra(tree, currentIndex, siblingIndex, moveDistance)
 }
 // Distributes the available horizontal space between two given children
 // evenly
 function distributeExtra(
   tree: SkillTreeNode,
-  childIndex: number,
+  currentIndex: number,
   siblingIndex: number,
   moveDistance: number
 ) {
-  if (siblingIndex !== childIndex) {
-    const intermediates = childIndex - siblingIndex
+  if (siblingIndex !== currentIndex) {
+    const intermediates = currentIndex - siblingIndex
     if (intermediates === 0) {
       throw new Error(
         'Division by 0 when distributing horizontal space among children of ' +
@@ -344,15 +354,15 @@ function distributeExtra(
       )
     }
     tree.children[siblingIndex + 1].shift += moveDistance / intermediates
-    tree.children[childIndex].shift -= moveDistance / intermediates
-    tree.children[childIndex].change -=
+    tree.children[currentIndex].shift -= moveDistance / intermediates
+    tree.children[currentIndex].change -=
       moveDistance - moveDistance / intermediates
   }
 }
 
 function setLeftThread(
   tree: SkillTreeNode,
-  childIndex: number,
+  currentIndex: number,
   leftContourNode: SkillTreeNode,
   leftContourModSum: number
 ) {
@@ -364,17 +374,17 @@ function setLeftThread(
   li.mod += diff
   li.prelim -= diff
   firstChild.extremeLeftDescendant =
-    tree.children[childIndex].extremeLeftDescendant
-  firstChild.modSumLeftContour = tree.children[childIndex].modSumLeftContour
+    tree.children[currentIndex].extremeLeftDescendant
+  firstChild.modSumLeftContour = tree.children[currentIndex].modSumLeftContour
 }
 
 function setRightThread(
   tree: SkillTreeNode,
-  childIndex: number,
+  currentIndex: number,
   rightContourNode: SkillTreeNode,
   rightContourModSum: number
 ) {
-  const ithChild = tree.children[childIndex]
+  const ithChild = tree.children[currentIndex]
   const ri = ithChild.extremeRightDescendant
   ri.rightThread = rightContourNode
   const diff =
@@ -382,8 +392,9 @@ function setRightThread(
   ri.mod += diff
   ri.prelim -= diff
   ithChild.extremeRightDescendant =
-    tree.children[childIndex - 1].extremeRightDescendant
-  ithChild.modSumRightContour = tree.children[childIndex - 1].modSumRightContour
+    tree.children[currentIndex - 1].extremeRightDescendant
+  ithChild.modSumRightContour =
+    tree.children[currentIndex - 1].modSumRightContour
 }
 
 function positionRoot(tree: SkillTreeNode) {
@@ -478,16 +489,16 @@ class ListOfSiblingsWithDescendantInRightContour {
  **/
 function updateListOfSiblingsWithDescendantInRightContour(
   minY: number,
-  childIndex: number,
-  siblingIndexList: ListOfSiblingsWithDescendantInRightContour | null
+  currentIndex: number,
+  leftSiblingIndexList: ListOfSiblingsWithDescendantInRightContour | null
 ) {
-  while (siblingIndexList && minY >= siblingIndexList.lowY) {
-    siblingIndexList = siblingIndexList.next
+  while (leftSiblingIndexList && minY >= leftSiblingIndexList.lowY) {
+    leftSiblingIndexList = leftSiblingIndexList.next
   }
   return new ListOfSiblingsWithDescendantInRightContour(
     minY,
-    childIndex,
-    siblingIndexList
+    currentIndex,
+    leftSiblingIndexList
   )
 }
 
