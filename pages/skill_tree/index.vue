@@ -210,7 +210,7 @@ function firstWalk(tree: SkillTreeNode) {
         tree.children[currentIndex].extremeRightDescendant
       )
       separate(tree, currentIndex, leftSiblingIndexList)
-      // Removed indices of left siblings not visible directly from the right
+      // Remove indices of left siblings not visible directly from the right
       leftSiblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
         minYRight,
         currentIndex,
@@ -251,8 +251,8 @@ function separate(
   let rightContourModSum: number = leftSiblingRightContourNode.mod
   let currentSubtreeLeftContourNode = tree.children[currentIndex]
   let leftContourModSum: number = currentSubtreeLeftContourNode.mod
-  let iter = 0
-  const maxiter = 20
+  // Go down contours until either of the nodes in observed contour pair is
+  // null
   while (leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
     if (bottom(leftSiblingRightContourNode) > leftSiblingIndexList.lowY) {
       leftSiblingIndexList = leftSiblingIndexList.next
@@ -292,10 +292,9 @@ function separate(
         leftContourModSum += currentSubtreeLeftContourNode.mod
       }
     }
-    if (++iter > maxiter) {
-      throw new Error('Infinite loop during separation?')
-    }
   }
+  // Merge contours by connecting right thread of current subtree to
+  // the right extreme node of the left sibling or vice versa
   if (!leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
     // Current subtree taller than left siblings
     // ⇒ make left thread point to the current left contour node
@@ -315,7 +314,7 @@ function separate(
       rightContourModSum
     )
   } else {
-    // Do nothing
+    // Height of trees the same ⇒ no need to merge contours
   }
 }
 
@@ -330,13 +329,11 @@ function moveSubtree(
   moveDistance: number
 ) {
   tree.children[currentIndex].mod += moveDistance
-  if (!tree.children[currentIndex].mod) {
-    throw new Error(`${tree.name}.mod unset in moveSubtree…`)
-  }
   tree.children[currentIndex].modSumLeftContour += moveDistance
   tree.children[currentIndex].modSumRightContour += moveDistance
   distributeExtra(tree, currentIndex, siblingIndex, moveDistance)
 }
+
 // Distributes the available horizontal space between two given children
 // evenly
 function distributeExtra(
@@ -347,7 +344,7 @@ function distributeExtra(
 ) {
   if (siblingIndex !== currentIndex) {
     const intermediates = currentIndex - siblingIndex
-    if (intermediates === 0) {
+    if (!intermediates) {
       throw new Error(
         'Division by 0 when distributing horizontal space among children of ' +
           tree.name
@@ -685,8 +682,8 @@ export default {
                 nd.height,
                 bottom(skillNode)
               )
+              tree.set(credential.id, credentialNode)
             }
-            tree.set(credential.id, credentialNode)
             skillNode.children.push(credentialNode)
             /* Check for existence of credential in the skill */
           } else {
