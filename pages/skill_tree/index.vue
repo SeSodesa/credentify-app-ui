@@ -352,14 +352,15 @@ export default {
     this.$store.commit('nav/setBackUrl', '')
   },
   mounted() {
-    this.drawSkillTree(this.skillTree.get(this.normalizeTag('main categories')))
+    const root = this.skillTree.get(this.normalizeTag('main categories'))
+    this.drawSkillTree(root)
   },
   methods: {
     // Calculates the positions of the nodes based on a modification to the
     // Reingold--Tilford algorithm, and adds them to each node.
     //
     // See https://doi.org/10.1002/spe.2213
-    calculateNodePositions(tree) {
+    setLayout(tree) {
       this.firstWalk(tree)
       this.secondWalk(tree, 0)
     },
@@ -422,6 +423,12 @@ export default {
       let iter = 0
       const maxiter = 20
       while (leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
+        console.log(
+          leftSiblingRightContourNode.name +
+            ': ' +
+            this.bottom(leftSiblingRightContourNode)
+        )
+        console.log(siblingIndexList)
         if (this.bottom(leftSiblingRightContourNode) > siblingIndexList.lowY) {
           siblingIndexList = siblingIndexList.next
         }
@@ -492,14 +499,14 @@ export default {
     bottom(tree) {
       return tree.y + tree.height
     },
-    moveSubtree(tree, childIndex, contourIndex, moveDistance) {
+    moveSubtree(tree, childIndex, siblingIndex, moveDistance) {
       tree.children[childIndex].mod += moveDistance
       if (!tree.children[childIndex].mod) {
         throw new Error(`${tree.name}.mod unset in moveSubtree…`)
       }
       tree.children[childIndex].modSumLeftContour += moveDistance
       tree.children[childIndex].modSumRightContour += moveDistance
-      this.distributeExtra(tree, childIndex, contourIndex, moveDistance)
+      this.distributeExtra(tree, childIndex, siblingIndex, moveDistance)
     },
     // Distributes the available horizontal space between two given children
     // evenly
@@ -607,9 +614,9 @@ export default {
         this.drawNodes(tree.children[i], level + 1)
       }
     },
-    drawSkillTree(skillTree) {
-      this.calculateNodePositions(skillTree)
-      this.drawNodes(skillTree, 1)
+    drawSkillTree(root) {
+      this.setLayout(root)
+      this.drawNodes(root, 1)
     },
     lowerTag(tag) {
       const whitespaceNormalized = tag
