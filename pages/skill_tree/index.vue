@@ -489,9 +489,11 @@ function updateListOfSiblingsWithDescendantInRightContour(
   currentIndex: number,
   leftSiblingIndexList: ListOfSiblingsWithDescendantInRightContour | null
 ) {
+  // Remove siblings that are obscured by current node looking from the right
   while (leftSiblingIndexList && minY >= leftSiblingIndexList.lowY) {
     leftSiblingIndexList = leftSiblingIndexList.next
   }
+  // Add current node to the head of the list
   return new ListOfSiblingsWithDescendantInRightContour(
     minY,
     currentIndex,
