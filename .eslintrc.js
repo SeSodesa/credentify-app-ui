@@ -19,6 +19,7 @@ module.exports = {
   ],
   // add your custom rules here
   rules: {
-    'vue/comment-directive': 'off'
+    'vue/comment-directive': 'off',
+    'no-use-before-define': ["error", {"functions": false, "classes": false}]
   }
 }
