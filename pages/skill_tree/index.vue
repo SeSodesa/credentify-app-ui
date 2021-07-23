@@ -141,7 +141,7 @@ function childCount(tree) {
  *
  * -- Ploeg 2014
  **/
-function ListOfSiblingsWithDescendantInRightContour(lowY, index, next) {
+function ListOfLeftSiblingsWithDescendantInRightContour(lowY, index, next) {
   this.lowY = lowY
   this.siblingIndex = index
   this.next = next
@@ -156,7 +156,7 @@ function ListOfSiblingsWithDescendantInRightContour(lowY, index, next) {
  *
  * -- Ploeg 2014
  **/
-function updateListOfSiblingsWithDescendantInRightContour(
+function updateListOfLeftSiblingsWithDescendantInRightContour(
   minY,
   childIndex,
   siblingIndexList
@@ -164,7 +164,7 @@ function updateListOfSiblingsWithDescendantInRightContour(
   while (siblingIndexList && minY >= siblingIndexList.lowY) {
     siblingIndexList = siblingIndexList.next
   }
-  return new ListOfSiblingsWithDescendantInRightContour(
+  return new ListOfLeftSiblingsWithDescendantInRightContour(
     minY,
     childIndex,
     siblingIndexList
@@ -211,28 +211,36 @@ export default {
   data() {
     return {
       svgNameSpace: 'http://www.w3.org/2000/svg',
-      categoryLevels: Object.freeze({
-        1: {
-          name: 'Main categories',
-          color: '#5470c6'
-        },
-        2: {
-          name: 'Subcategories',
-          color: '#91cc75'
-        },
-        3: {
-          name: 'Skills',
-          color: '#fac858'
-        },
-        4: {
-          name: 'Credentials',
-          color: '#ee6666'
-        },
-        5: {
-          name: 'Specific credential',
-          color: '#73c0de'
+      categoryLevels(level) {
+        if (level === 1) {
+          return {
+            name: 'Main categories',
+            color: '#5470c6'
+          }
+        } else if (level === 2) {
+          return {
+            name: 'Subcategories',
+            color: '#91cc75'
+          }
+        } else if (level === 3) {
+          return {
+            name: 'Skills',
+            color: '#fac858'
+          }
+        } else if (level === 4) {
+          return {
+            name: 'Credentials',
+            color: '#ee6666'
+          }
+        } else if (level === 5) {
+          return {
+            name: 'Specific credential',
+            color: '#73c0de'
+          }
+        } else {
+          return null
         }
-      }),
+      },
       credentialData: null
     }
   },
@@ -332,7 +340,7 @@ export default {
                 }
               )
             }
-            tree.set(credential.id, credentialNode)
+            tree.set(credential.id + credentialNode.value, credentialNode)
             skillNode.children.push(credentialNode)
             /* Check for existence of credential in the skill */
           } else {
@@ -365,38 +373,33 @@ export default {
       this.secondWalk(tree, 0)
     },
     firstWalk(tree) {
-      console.log(`↓ ${tree.name}…`)
       if (!tree.children) {
         this.setExtremes(tree)
       } else {
         this.firstWalk(tree.children[0])
-        let siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
+        let siblingIndexList = updateListOfLeftSiblingsWithDescendantInRightContour(
           this.bottom(tree.children[0].extremeLeftDescendant),
           0,
           null
         )
-        console.log('←←←←←←←←←←← LEFT SIBLING INDEX LIST ←←←←←←←←←←←')
-        console.log(siblingIndexList)
         for (let childIndex = 1; childIndex < childCount(tree); childIndex++) {
           this.firstWalk(tree.children[childIndex])
-          console.log(`→ ${tree.name}`)
-          // Store lowest descendant coordinate while extreme nodes are still
-          // in current subtree
+          // Left siblings less tall than this will be obscured from the right
+          // by the current subtree
           const minYRight = this.bottom(
             tree.children[childIndex].extremeRightDescendant
           )
           this.separate(tree, childIndex, siblingIndexList)
-          siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
+          // Update left siblings not obsucred by current node when looking from the right
+          siblingIndexList = updateListOfLeftSiblingsWithDescendantInRightContour(
             minYRight,
             childIndex,
             siblingIndexList
           )
-          console.log(siblingIndexList)
         }
         this.positionRoot(tree)
         this.setExtremes(tree)
       }
-      console.log(`↑ ${tree.name}…`)
     },
     setExtremes(tree) {
       if (!tree.children) {
@@ -422,13 +425,8 @@ export default {
       let leftContourModSum = currentSubtreeLeftContourNode.mod
       let iter = 0
       const maxiter = 20
+      // Go down contours until either end is reached
       while (leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
-        console.log(
-          leftSiblingRightContourNode.name +
-            ': ' +
-            this.bottom(leftSiblingRightContourNode)
-        )
-        console.log(siblingIndexList)
         if (this.bottom(leftSiblingRightContourNode) > siblingIndexList.lowY) {
           siblingIndexList = siblingIndexList.next
         }
@@ -471,6 +469,7 @@ export default {
           throw new Error('Infinite loop during separation?')
         }
       }
+      // Merge contours after moving of current subtree:
       if (!leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
         // Current subtree taller than left siblings
         // ⇒ make left thread point to the current left contour node
@@ -493,7 +492,8 @@ export default {
           rightContourModSum
         )
       } else {
-        // Do nothing
+        // Current subtree equally tall as left sibling
+        // ⇒ do not merge contours as left sibling is hidden form the right by current subtree
       }
     },
     bottom(tree) {
@@ -607,7 +607,7 @@ export default {
       mynode.setAttributeNS(null, 'height', tree.height + 'px')
       mynode.setAttributeNS(null, 'rx', 10)
       mynode.setAttributeNS(null, 'ry', 10)
-      mynode.setAttributeNS(null, 'fill', this.categoryLevels[level].color)
+      mynode.setAttributeNS(null, 'fill', this.categoryLevels(level).color)
       mynode.setAttributeNS(null, 'stroke', 'black')
       treeView.appendChild(mynode)
       for (let i = 0; i < childCount(tree); i++) {
