@@ -42,11 +42,8 @@
   </div>
 </template>
 
-<script lang="ts">
-import Vue from 'vue'
+<script>
 import SingleCredentialView from '~/components/SingleCredentialView'
-
-const svgNameSpace = 'http://www.w3.org/2000/svg'
 
 /**
  * Uses canvas.measureText to compute and return the width of the given text of given font in pixels.
@@ -89,372 +86,51 @@ function nodeDimensions(text, font, fontsize) {
   return { width: nw, height: nh }
 }
 
-// A class that stores the fields needed in positioning tree nodes as instructed
-// by Ploeg 2014. See https://doi.org/10.1002/spe.2213.
-class PositionableTreeNode {
-  children: Array<PositionableTreeNode> | null = null
-  x: number = 0
-  y: number
-  height: number = 0
-  width: number = 0
+// A single node in the skill tree
+function SkillTreeNode(name, value, children, credential, posArgs) {
+  // Node data
+  this.name = name
+  this.value = value
+  this.children = children
+  this.credential = credential
+  // ↓ Positioning fields ↓
+  this.width = 'width' in posArgs ? posArgs.width : 0
+  this.height = 'height' in posArgs ? posArgs.height : 0
+  this.x = 'x' in posArgs ? posArgs.x : 0
+  this.y = 'y' in posArgs ? posArgs.y : 0
   // Preliminary horizontal coordinate of the node.
   // Set when positioning the root, after moving its children.
-  prelim: number = 0
+  this.prelim = 'prelim' in posArgs ? posArgs.prelim : 0
   // How much entire subtree should be moved horizontally.
-  mod: number = 0
+  this.mod = 'mod' in posArgs ? posArgs.mod : 0
   // Used to calculate positions of siblings in O(1), together with `change`
-  shift: number = 0
+  this.shift = 'shift' in posArgs ? posArgs.shift : 0
   // Used to calculate positions of siblings in O(1) together with `shift`
-  change: number = 0
+  this.change = 'change' in posArgs ? posArgs.change : 0
   // Reference to the extreme right node of the left siblings of current root.
   // Only set for leaf nodes and updated if left subtree is taller than current.
-  rightThread: PositionableTreeNode = null
+  this.rightThread = 'rightThread' in posArgs ? posArgs.rightThread : null
   // Reference to the extreme left node of the current root from left siblings.
   // Only set for leaf nodes and updated if current subtree is taller than left.
-  leftThread: PositionableTreeNode = null
+  this.leftThread = 'leftThread' in posArgs ? posArgs.leftThread : null
   // Lowest node in this subtree that can be seen from the left.
   // Used to keep left thread up to date.
-  extremeLeftDescendant: PositionableTreeNode = null
+  this.extremeLeftDescendant =
+    'extremeLeft' in posArgs ? posArgs.extremeLeft : null
   // Lowest node in this subtree that can be seen from the right
   // Used to keep right thread up to date.
-  extremeRightDescendant: PositionableTreeNode = null
+  this.extremeRightDescendant =
+    'extremeRight' in posArgs ? posArgs.extremeRight : null
   // Sum of mods along left contour. Needed in relative positioning.
-  modSumLeftContour: number = null
+  this.modSumLeftContour =
+    'modSumLeftContour' in posArgs ? posArgs.modSumLeftContour : null
   // Sum of mods along right contour. Needed in relative positioning.
-  modSumRightContour: number = null
-  constructor(
-    width: number,
-    height: number,
-    y: number,
-    children: Array<PositionableTreeNode>
-  ) {
-    this.width = width
-    this.height = height
-    this.y = y
-    this.children = children
-  }
+  this.modSumRightContour =
+    'modSumRightContour' in posArgs ? posArgs.modSumRightContour : null
 }
 
-// A single node in the skill tree
-class SkillTreeNode extends PositionableTreeNode {
-  name: string
-  value: number = 0
-  credential: Object | null = null
-  constructor(
-    name: string,
-    value: number,
-    children: Array<PositionableTreeNode>,
-    credential: any,
-    width: number,
-    height: number,
-    y: number
-  ) {
-    super(width, height, y, children)
-    this.name = name
-    this.value = value
-    this.credential = credential
-  }
-}
-
-function childCount(tree: SkillTreeNode) {
+function childCount(tree) {
   return tree.children ? tree.children.length : 0
-}
-
-function nextLeftContour(tree: SkillTreeNode) {
-  if (tree.children) {
-    return tree.children[0]
-  } else {
-    return tree.leftThread
-  }
-}
-
-function nextRightContour(tree: SkillTreeNode): SkillTreeNode | null {
-  if (tree.children) {
-    return tree.children[childCount(tree) - 1]
-  } else {
-    return tree.rightThread
-  }
-}
-
-// Calculates the positions of the nodes based on a modification to the
-// Reingold--Tilford algorithm, and adds them to each node.
-//
-// See https://doi.org/10.1002/spe.2213
-function setLayout(tree: SkillTreeNode) {
-  firstWalk(tree)
-  secondWalk(tree, 0)
-}
-
-function firstWalk(tree: SkillTreeNode) {
-  console.log(`↓ ${tree.name}…`)
-  if (!tree.children) {
-    setExtremes(tree)
-  } else {
-    firstWalk(tree.children[0])
-    let leftSiblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
-      bottom(tree.children[0].extremeLeftDescendant),
-      0,
-      null
-    )
-    console.log('←←←←←←←←←←← LEFT SIBLING INDEX LIST ←←←←←←←←←←←')
-    console.log(leftSiblingIndexList)
-    for (
-      let currentIndex = 1;
-      currentIndex < childCount(tree);
-      currentIndex++
-    ) {
-      firstWalk(tree.children[currentIndex])
-      console.log(`→ ${tree.name}`)
-      // Store lowest descendant coordinate while extreme nodes are still
-      // in current subtree
-      const minYRight: number = bottom(
-        tree.children[currentIndex].extremeRightDescendant
-      )
-      separate(tree, currentIndex, leftSiblingIndexList)
-      // Remove indices of left siblings not visible directly from the right
-      leftSiblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
-        minYRight,
-        currentIndex,
-        leftSiblingIndexList
-      )
-      console.log(leftSiblingIndexList)
-    }
-    positionRoot(tree)
-    setExtremes(tree)
-  }
-  console.log(`↑ ${tree.name}…`)
-}
-
-function setExtremes(tree: SkillTreeNode) {
-  if (!tree.children) {
-    tree.extremeLeftDescendant = tree
-    tree.extremeRightDescendant = tree
-    tree.modSumLeftContour = 0
-    tree.modSumRightContour = 0
-  } else {
-    tree.extremeLeftDescendant = tree.children[0].extremeLeftDescendant
-    tree.modSumLeftContour = tree.children[0].modSumLeftContour
-    tree.extremeRightDescendant =
-      tree.children[childCount(tree) - 1].extremeRightDescendant
-    tree.modSumRightContour =
-      tree.children[childCount(tree) - 1].modSumRightContour
-  }
-}
-
-// Separates right contour of left siblings from the left contour of the
-// current subtree, thus separating the subtrees
-function separate(
-  tree: SkillTreeNode,
-  currentIndex: number,
-  leftSiblingIndexList: ListOfSiblingsWithDescendantInRightContour
-) {
-  let leftSiblingRightContourNode = tree.children[currentIndex - 1]
-  let rightContourModSum: number = leftSiblingRightContourNode.mod
-  let currentSubtreeLeftContourNode = tree.children[currentIndex]
-  let leftContourModSum: number = currentSubtreeLeftContourNode.mod
-  // Go down contours until either of the nodes in observed contour pair is
-  // null
-  while (leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
-    if (bottom(leftSiblingRightContourNode) > leftSiblingIndexList.lowY) {
-      leftSiblingIndexList = leftSiblingIndexList.next
-    }
-    const moveDistance: number =
-      rightContourModSum +
-      leftSiblingRightContourNode.prelim +
-      leftSiblingRightContourNode.width -
-      leftContourModSum -
-      currentSubtreeLeftContourNode.prelim
-    if (moveDistance > 0) {
-      leftContourModSum += moveDistance
-      // TODO: Prevent sibling index list from becoming null before contour
-      // pair is mutually null
-      moveSubtree(
-        tree,
-        currentIndex,
-        leftSiblingIndexList.siblingIndex,
-        moveDistance
-      )
-    }
-    const rightContourBottom = bottom(leftSiblingRightContourNode)
-    const leftContourBottom = bottom(currentSubtreeLeftContourNode)
-    if (rightContourBottom <= leftContourBottom) {
-      leftSiblingRightContourNode = nextRightContour(
-        leftSiblingRightContourNode
-      )
-      if (leftSiblingRightContourNode) {
-        rightContourModSum += leftSiblingRightContourNode.mod
-      }
-    }
-    if (rightContourBottom >= leftContourBottom) {
-      currentSubtreeLeftContourNode = nextLeftContour(
-        currentSubtreeLeftContourNode
-      )
-      if (currentSubtreeLeftContourNode) {
-        leftContourModSum += currentSubtreeLeftContourNode.mod
-      }
-    }
-  }
-  // Merge contours by connecting right thread of current subtree to
-  // the right extreme node of the left sibling or vice versa
-  if (!leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
-    // Current subtree taller than left siblings
-    // ⇒ make left thread point to the current left contour node
-    setLeftThread(
-      tree,
-      currentIndex,
-      currentSubtreeLeftContourNode,
-      leftContourModSum
-    )
-  } else if (leftSiblingRightContourNode && !currentSubtreeLeftContourNode) {
-    // Left siblings taller than current subtree
-    // ⇒ make right thread point to the current right contour node
-    setRightThread(
-      tree,
-      currentIndex,
-      leftSiblingRightContourNode,
-      rightContourModSum
-    )
-  } else {
-    // Height of trees the same ⇒ no need to merge contours
-  }
-}
-
-function bottom(tree: SkillTreeNode) {
-  return tree.y + tree.height
-}
-
-function moveSubtree(
-  tree: SkillTreeNode,
-  currentIndex: number,
-  siblingIndex: number,
-  moveDistance: number
-) {
-  tree.children[currentIndex].mod += moveDistance
-  tree.children[currentIndex].modSumLeftContour += moveDistance
-  tree.children[currentIndex].modSumRightContour += moveDistance
-  distributeExtra(tree, currentIndex, siblingIndex, moveDistance)
-}
-
-// Distributes the available horizontal space between two given children
-// evenly
-function distributeExtra(
-  tree: SkillTreeNode,
-  currentIndex: number,
-  siblingIndex: number,
-  moveDistance: number
-) {
-  if (siblingIndex !== currentIndex) {
-    const intermediates = currentIndex - siblingIndex
-    if (!intermediates) {
-      throw new Error(
-        'Division by 0 when distributing horizontal space among children of ' +
-          tree.name
-      )
-    }
-    tree.children[siblingIndex + 1].shift += moveDistance / intermediates
-    tree.children[currentIndex].shift -= moveDistance / intermediates
-    tree.children[currentIndex].change -=
-      moveDistance - moveDistance / intermediates
-  }
-}
-
-function setLeftThread(
-  tree: SkillTreeNode,
-  currentIndex: number,
-  leftContourNode: SkillTreeNode,
-  leftContourModSum: number
-) {
-  const firstChild = tree.children[0]
-  const li = firstChild.extremeLeftDescendant
-  li.leftThread = leftContourNode
-  const diff =
-    leftContourModSum - leftContourNode.mod - firstChild.modSumLeftContour
-  li.mod += diff
-  li.prelim -= diff
-  firstChild.extremeLeftDescendant =
-    tree.children[currentIndex].extremeLeftDescendant
-  firstChild.modSumLeftContour = tree.children[currentIndex].modSumLeftContour
-}
-
-function setRightThread(
-  tree: SkillTreeNode,
-  currentIndex: number,
-  rightContourNode: SkillTreeNode,
-  rightContourModSum: number
-) {
-  const ithChild = tree.children[currentIndex]
-  const ri = ithChild.extremeRightDescendant
-  ri.rightThread = rightContourNode
-  const diff =
-    rightContourModSum - rightContourNode.mod - ithChild.modSumRightContour
-  ri.mod += diff
-  ri.prelim -= diff
-  ithChild.extremeRightDescendant =
-    tree.children[currentIndex - 1].extremeRightDescendant
-  ithChild.modSumRightContour =
-    tree.children[currentIndex - 1].modSumRightContour
-}
-
-function positionRoot(tree: SkillTreeNode) {
-  const firstChild = tree.children[0]
-  const lastChild = tree.children[childCount(tree) - 1]
-  tree.prelim =
-    (firstChild.prelim +
-      firstChild.mod +
-      lastChild.mod +
-      lastChild.prelim +
-      lastChild.width) /
-      2 -
-    tree.width / 2
-}
-// Sets the x-coordonates of each node based on the information
-// gathered and set during firstWalk
-function secondWalk(tree: SkillTreeNode, modsum: number) {
-  modsum += tree.mod
-  tree.x = tree.prelim + modsum
-  addChildSpacing(tree)
-  for (let i = 0; i < childCount(tree); i++) {
-    const child = tree.children[i]
-    secondWalk(child, modsum)
-  }
-}
-
-function addChildSpacing(tree: SkillTreeNode) {
-  let d = 0
-  let modsumdelta = 0
-  for (let i = 0; i < childCount(tree); i++) {
-    const child = tree.children[i]
-    d += child.shift
-    modsumdelta += d + child.change
-    child.mod += modsumdelta
-  }
-}
-
-function drawNodes(tree: SkillTreeNode, level: number) {
-  const treeView = document.getElementById('tree-view')
-  const mynode = document.createElementNS(svgNameSpace, 'rect')
-  mynode.setAttributeNS(null, 'id', tree.name)
-  mynode.setAttributeNS(null, 'x', tree.x + 'px')
-  mynode.setAttributeNS(null, 'y', tree.y + 'px')
-  mynode.setAttributeNS(null, 'width', tree.width + 'px')
-  mynode.setAttributeNS(null, 'height', tree.height + 'px')
-  mynode.setAttributeNS(null, 'rx', '10')
-  mynode.setAttributeNS(null, 'ry', '10')
-  mynode.setAttributeNS(null, 'fill', categoryLevels(level).color)
-  mynode.setAttributeNS(null, 'stroke', 'black')
-  if (treeView !== null) {
-    treeView.appendChild(mynode)
-  } else {
-    throw new TypeError(`Could not add ${tree.name} to tree view…`)
-  }
-  for (let i = 0; i < childCount(tree); i++) {
-    drawNodes(tree.children[i], level + 1)
-  }
-}
-
-function drawSkillTree(root: SkillTreeNode) {
-  setLayout(root)
-  drawNodes(root, 1)
 }
 
 /**
@@ -465,15 +141,10 @@ function drawSkillTree(root: SkillTreeNode) {
  *
  * -- Ploeg 2014
  **/
-class ListOfSiblingsWithDescendantInRightContour {
-  lowY: number
-  index: number
-  next: ListOfSiblingsWithDescendantInRightContour
-  constructor(lowY, index, next) {
-    this.lowY = lowY
-    this.siblingIndex = index
-    this.next = next
-  }
+function ListOfSiblingsWithDescendantInRightContour(lowY, index, next) {
+  this.lowY = lowY
+  this.siblingIndex = index
+  this.next = next
 }
 
 /**
@@ -486,54 +157,21 @@ class ListOfSiblingsWithDescendantInRightContour {
  * -- Ploeg 2014
  **/
 function updateListOfSiblingsWithDescendantInRightContour(
-  minY: number,
-  currentIndex: number,
-  leftSiblingIndexList: ListOfSiblingsWithDescendantInRightContour | null
+  minY,
+  childIndex,
+  siblingIndexList
 ) {
-  // Remove siblings that are obscured by current node looking from the right
-  while (leftSiblingIndexList && minY >= leftSiblingIndexList.lowY) {
-    leftSiblingIndexList = leftSiblingIndexList.next
+  while (siblingIndexList && minY >= siblingIndexList.lowY) {
+    siblingIndexList = siblingIndexList.next
   }
-  // Add current node to the head of the list
   return new ListOfSiblingsWithDescendantInRightContour(
     minY,
-    currentIndex,
-    leftSiblingIndexList
+    childIndex,
+    siblingIndexList
   )
 }
 
-function categoryLevels(level: number) {
-  if (level === 1) {
-    return {
-      name: 'Main categories',
-      color: '#5470c6'
-    }
-  } else if (level === 2) {
-    return {
-      name: 'Subcategories',
-      color: '#91cc75'
-    }
-  } else if (level === 3) {
-    return {
-      name: 'Skills',
-      color: '#fac858'
-    }
-  } else if (level === 4) {
-    return {
-      name: 'Credentials',
-      color: '#ee6666'
-    }
-  } else if (level === 5) {
-    return {
-      name: 'Specific credential',
-      color: '#73c0de'
-    }
-  } else {
-    throw new Error(`${level} is not a known category level…`)
-  }
-}
-
-export default Vue.extend({
+export default {
   components: {
     SingleCredentialView
   },
@@ -572,6 +210,29 @@ export default Vue.extend({
   },
   data() {
     return {
+      svgNameSpace: 'http://www.w3.org/2000/svg',
+      categoryLevels: Object.freeze({
+        1: {
+          name: 'Main categories',
+          color: '#5470c6'
+        },
+        2: {
+          name: 'Subcategories',
+          color: '#91cc75'
+        },
+        3: {
+          name: 'Skills',
+          color: '#fac858'
+        },
+        4: {
+          name: 'Credentials',
+          color: '#ee6666'
+        },
+        5: {
+          name: 'Specific credential',
+          color: '#73c0de'
+        }
+      }),
       credentialData: null
     }
   },
@@ -584,22 +245,18 @@ export default Vue.extend({
         this.credentialData = newValue
       }
     },
-    // Assembles the skill tree based on the skill mapping on GitLab
+    /* Filters data for drawing the summary graph */
     skillTree() {
       const tree = new Map()
       const nodeFont = 'bold 14px fira sans'
       const nodeFontSize = 14
       const rootKey = this.normalizeTag('main categories')
       const nd = nodeDimensions(rootKey, nodeFont, nodeFontSize)
-      const root = new SkillTreeNode(
-        rootKey,
-        0,
-        [],
-        null,
-        nd.width,
-        nd.height,
-        0
-      )
+      const root = new SkillTreeNode(rootKey, 0, [], null, {
+        width: nd.width,
+        height: nd.height,
+        y: 0
+      })
       tree.set(rootKey, root)
       for (const credential of this.credentials) {
         // if (credential.stage === 5) {
@@ -609,24 +266,19 @@ export default Vue.extend({
           const lowerTag = this.lowerTag(tag)
           const catAndSubCat = this.skillMapping[lowerTag]
           if (catAndSubCat) {
-            // Normalize level names
             const category = this.normalizeTag(catAndSubCat.category)
             const subCategory = this.normalizeTag(catAndSubCat['sub-category'])
-            // Start building this tree branch
             let categoryNode = tree.get(category)
             if (categoryNode) {
+              const categoryNode = tree.get(category)
               categoryNode.value += 1
             } else {
               const nd = nodeDimensions(category, nodeFont, nodeFontSize)
-              categoryNode = new SkillTreeNode(
-                category,
-                0,
-                [],
-                null,
-                nd.width,
-                nd.height,
-                bottom(root)
-              )
+              categoryNode = new SkillTreeNode(category, 0, [], null, {
+                width: nd.width,
+                height: nd.height,
+                y: this.bottom(root)
+              })
               tree.set(category, categoryNode)
               root.children.push(categoryNode)
             }
@@ -636,15 +288,11 @@ export default Vue.extend({
               subcategoryNode.value += 1
             } else {
               const nd = nodeDimensions(subCategory, nodeFont, nodeFontSize)
-              subcategoryNode = new SkillTreeNode(
-                subCategory,
-                0,
-                [],
-                null,
-                nd.width,
-                nd.height,
-                bottom(categoryNode)
-              )
+              subcategoryNode = new SkillTreeNode(subCategory, 0, [], null, {
+                width: nd.width,
+                height: nd.height,
+                y: this.bottom(categoryNode)
+              })
               tree.set(subCategory, subcategoryNode)
               categoryNode.children.push(subcategoryNode)
             }
@@ -655,15 +303,11 @@ export default Vue.extend({
               skillNode.value += 1
             } else {
               const nd = nodeDimensions(subCategory, nodeFont, nodeFontSize)
-              skillNode = new SkillTreeNode(
-                skill,
-                0,
-                [],
-                null,
-                nd.width,
-                nd.height,
-                bottom(subcategoryNode)
-              )
+              skillNode = new SkillTreeNode(skill, 0, [], null, {
+                width: nd.width,
+                height: nd.height,
+                y: this.bottom(subcategoryNode)
+              })
               tree.set(skill, skillNode)
               subcategoryNode.children.push(skillNode)
             }
@@ -681,18 +325,18 @@ export default Vue.extend({
                 0,
                 null,
                 credential,
-                nd.width,
-                nd.height,
-                bottom(skillNode)
+                {
+                  width: nd.width,
+                  height: nd.height,
+                  y: this.bottom(skillNode)
+                }
               )
-              tree.set(credential.id, credentialNode)
             }
+            tree.set(credential.id, credentialNode)
             skillNode.children.push(credentialNode)
             /* Check for existence of credential in the skill */
           } else {
-            throw new Error(
-              'Categories not found from skill mapping when constructing skill tree…'
-            )
+            //
           }
         }
         // }
@@ -709,10 +353,272 @@ export default Vue.extend({
   },
   mounted() {
     const root = this.skillTree.get(this.normalizeTag('main categories'))
-    drawSkillTree(root)
+    this.drawSkillTree(root)
   },
   methods: {
-    lowerTag(tag: string) {
+    // Calculates the positions of the nodes based on a modification to the
+    // Reingold--Tilford algorithm, and adds them to each node.
+    //
+    // See https://doi.org/10.1002/spe.2213
+    setLayout(tree) {
+      this.firstWalk(tree)
+      this.secondWalk(tree, 0)
+    },
+    firstWalk(tree) {
+      console.log(`↓ ${tree.name}…`)
+      if (!tree.children) {
+        this.setExtremes(tree)
+      } else {
+        this.firstWalk(tree.children[0])
+        let siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
+          this.bottom(tree.children[0].extremeLeftDescendant),
+          0,
+          null
+        )
+        console.log('←←←←←←←←←←← LEFT SIBLING INDEX LIST ←←←←←←←←←←←')
+        console.log(siblingIndexList)
+        for (let childIndex = 1; childIndex < childCount(tree); childIndex++) {
+          this.firstWalk(tree.children[childIndex])
+          console.log(`→ ${tree.name}`)
+          // Store lowest descendant coordinate while extreme nodes are still
+          // in current subtree
+          const minYRight = this.bottom(
+            tree.children[childIndex].extremeRightDescendant
+          )
+          this.separate(tree, childIndex, siblingIndexList)
+          siblingIndexList = updateListOfSiblingsWithDescendantInRightContour(
+            minYRight,
+            childIndex,
+            siblingIndexList
+          )
+          console.log(siblingIndexList)
+        }
+        this.positionRoot(tree)
+        this.setExtremes(tree)
+      }
+      console.log(`↑ ${tree.name}…`)
+    },
+    setExtremes(tree) {
+      if (!tree.children) {
+        tree.extremeLeftDescendant = tree
+        tree.extremeRightDescendant = tree
+        tree.modSumLeftContour = 0
+        tree.modSumRightContour = 0
+      } else {
+        tree.extremeLeftDescendant = tree.children[0].extremeLeftDescendant
+        tree.modSumLeftContour = tree.children[0].modSumLeftContour
+        tree.extremeRightDescendant =
+          tree.children[childCount(tree) - 1].extremeRightDescendant
+        tree.modSumRightContour =
+          tree.children[childCount(tree) - 1].modSumRightContour
+      }
+    },
+    // Separates right contour of left siblings from the left contour of the
+    // current subtree, thus separating the subtrees
+    separate(tree, childIndex, siblingIndexList) {
+      let leftSiblingRightContourNode = tree.children[childIndex - 1]
+      let rightContourModSum = leftSiblingRightContourNode.mod
+      let currentSubtreeLeftContourNode = tree.children[childIndex]
+      let leftContourModSum = currentSubtreeLeftContourNode.mod
+      let iter = 0
+      const maxiter = 20
+      while (leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
+        console.log(
+          leftSiblingRightContourNode.name +
+            ': ' +
+            this.bottom(leftSiblingRightContourNode)
+        )
+        console.log(siblingIndexList)
+        if (this.bottom(leftSiblingRightContourNode) > siblingIndexList.lowY) {
+          siblingIndexList = siblingIndexList.next
+        }
+        const moveDistance =
+          rightContourModSum +
+          leftSiblingRightContourNode.prelim +
+          leftSiblingRightContourNode.width -
+          leftContourModSum -
+          currentSubtreeLeftContourNode.prelim
+        if (moveDistance > 0) {
+          leftContourModSum += moveDistance
+          // TODO: Prevent sibling index list from becoming null before contour
+          // pair is mutually null
+          this.moveSubtree(
+            tree,
+            childIndex,
+            siblingIndexList.siblingIndex,
+            moveDistance
+          )
+        }
+        const rightContourBottom = this.bottom(leftSiblingRightContourNode)
+        const leftContourBottom = this.bottom(currentSubtreeLeftContourNode)
+        if (rightContourBottom <= leftContourBottom) {
+          leftSiblingRightContourNode = this.nextRightContour(
+            leftSiblingRightContourNode
+          )
+          if (leftSiblingRightContourNode) {
+            rightContourModSum += leftSiblingRightContourNode.mod
+          }
+        }
+        if (rightContourBottom >= leftContourBottom) {
+          currentSubtreeLeftContourNode = this.nextLeftContour(
+            currentSubtreeLeftContourNode
+          )
+          if (currentSubtreeLeftContourNode) {
+            leftContourModSum += currentSubtreeLeftContourNode.mod
+          }
+        }
+        if (++iter > maxiter) {
+          throw new Error('Infinite loop during separation?')
+        }
+      }
+      if (!leftSiblingRightContourNode && currentSubtreeLeftContourNode) {
+        // Current subtree taller than left siblings
+        // ⇒ make left thread point to the current left contour node
+        this.setLeftThread(
+          tree,
+          childIndex,
+          currentSubtreeLeftContourNode,
+          leftContourModSum
+        )
+      } else if (
+        leftSiblingRightContourNode &&
+        !currentSubtreeLeftContourNode
+      ) {
+        // Left siblings taller than current subtree
+        // ⇒ make right thread point to the current right contour node
+        this.setRightThread(
+          tree,
+          childIndex,
+          leftSiblingRightContourNode,
+          rightContourModSum
+        )
+      } else {
+        // Do nothing
+      }
+    },
+    bottom(tree) {
+      return tree.y + tree.height
+    },
+    moveSubtree(tree, childIndex, siblingIndex, moveDistance) {
+      tree.children[childIndex].mod += moveDistance
+      if (!tree.children[childIndex].mod) {
+        throw new Error(`${tree.name}.mod unset in moveSubtree…`)
+      }
+      tree.children[childIndex].modSumLeftContour += moveDistance
+      tree.children[childIndex].modSumRightContour += moveDistance
+      this.distributeExtra(tree, childIndex, siblingIndex, moveDistance)
+    },
+    // Distributes the available horizontal space between two given children
+    // evenly
+    distributeExtra(tree, childIndex, siblingIndex, moveDistance) {
+      if (siblingIndex !== childIndex) {
+        const intermediates = childIndex - siblingIndex
+        if (intermediates === 0) {
+          throw new Error(
+            'Division by 0 when distributing horizontal space among children of ' +
+              tree.name
+          )
+        }
+        tree.children[siblingIndex + 1].shift += moveDistance / intermediates
+        tree.children[childIndex].shift -= moveDistance / intermediates
+        tree.children[childIndex].change -=
+          moveDistance - moveDistance / intermediates
+      }
+    },
+    nextLeftContour(tree) {
+      if (tree.children) {
+        return tree.children[0]
+      } else {
+        return tree.leftThread
+      }
+    },
+    nextRightContour(tree) {
+      if (tree.children) {
+        return tree.children[childCount(tree) - 1]
+      } else {
+        return tree.rightThread
+      }
+    },
+    setLeftThread(tree, childIndex, leftContourNode, leftContourModSum) {
+      const firstChild = tree.children[0]
+      const li = firstChild.extremeLeftDescendant
+      li.leftThread = leftContourNode
+      const diff =
+        leftContourModSum - leftContourNode.mod - firstChild.modSumLeftContour
+      li.mod += diff
+      li.prelim -= diff
+      firstChild.extremeLeftDescendant =
+        tree.children[childIndex].extremeLeftDescendant
+      firstChild.modSumLeftContour = tree.children[childIndex].modSumLeftContour
+    },
+    setRightThread(tree, childIndex, rightContourNode, rightContourModSum) {
+      const ithChild = tree.children[childIndex]
+      const ri = ithChild.extremeRightDescendant
+      ri.rightThread = rightContourNode
+      const diff =
+        rightContourModSum - rightContourNode.mod - ithChild.modSumRightContour
+      ri.mod += diff
+      ri.prelim -= diff
+      ithChild.extremeRightDescendant =
+        tree.children[childIndex - 1].extremeRightDescendant
+      ithChild.modSumRightContour =
+        tree.children[childIndex - 1].modSumRightContour
+    },
+    positionRoot(tree) {
+      const firstChild = tree.children[0]
+      const lastChild = tree.children[childCount(tree) - 1]
+      tree.prelim =
+        (firstChild.prelim +
+          firstChild.mod +
+          lastChild.mod +
+          lastChild.prelim +
+          lastChild.width) /
+          2 -
+        tree.width / 2
+    },
+    // Sets the x-coordonates of each node based on the information
+    // gathered and set during firstWalk
+    secondWalk(tree, modsum) {
+      modsum += tree.mod
+      tree.x = tree.prelim + modsum
+      this.addChildSpacing(tree)
+      for (let i = 0; i < childCount(tree); i++) {
+        const child = tree.children[i]
+        this.secondWalk(child, modsum)
+      }
+    },
+    addChildSpacing(tree) {
+      let d = 0
+      let modsumdelta = 0
+      for (let i = 0; i < childCount(tree); i++) {
+        const child = tree.children[i]
+        d += child.shift
+        modsumdelta += d + child.change
+        child.mod += modsumdelta
+      }
+    },
+    drawNodes(tree, level) {
+      const treeView = document.getElementById('tree-view')
+      const mynode = document.createElementNS(this.svgNameSpace, 'rect')
+      mynode.setAttributeNS(null, 'id', tree.name)
+      mynode.setAttributeNS(null, 'x', tree.x + 'px')
+      mynode.setAttributeNS(null, 'y', tree.y + 'px')
+      mynode.setAttributeNS(null, 'width', tree.width + 'px')
+      mynode.setAttributeNS(null, 'height', tree.height + 'px')
+      mynode.setAttributeNS(null, 'rx', 10)
+      mynode.setAttributeNS(null, 'ry', 10)
+      mynode.setAttributeNS(null, 'fill', this.categoryLevels[level].color)
+      mynode.setAttributeNS(null, 'stroke', 'black')
+      treeView.appendChild(mynode)
+      for (let i = 0; i < childCount(tree); i++) {
+        this.drawNodes(tree.children[i], level + 1)
+      }
+    },
+    drawSkillTree(root) {
+      this.setLayout(root)
+      this.drawNodes(root, 1)
+    },
+    lowerTag(tag) {
       const whitespaceNormalized = tag
         .trim()
         .split(/\s+/)
@@ -720,7 +626,7 @@ export default Vue.extend({
       const lower = whitespaceNormalized.toLowerCase()
       return lower
     },
-    normalizeTag(tag: string) {
+    normalizeTag(tag) {
       const whitespaceNormalized = tag
         .trim()
         .split(/\s+/)
@@ -730,12 +636,12 @@ export default Vue.extend({
         whitespaceNormalized.slice(1).toLowerCase()
       return capitalized
     },
-    toValidURL(category: string) {
+    toValidURL(category) {
       const lower = category.trim().toLowerCase()
       return lower.split(/\s+/).join('_')
     }
   }
-})
+}
 </script>
 
 <style>

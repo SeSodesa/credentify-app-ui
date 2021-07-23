@@ -124,7 +124,6 @@ export default {
   buildModules: [
     '@nuxtjs/eslint-module',
     '@nuxtjs/stylelint-module',
-    '@nuxt/typescript-build',
     [
       '@nuxtjs/google-analytics',
       {
