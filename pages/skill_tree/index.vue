@@ -24,12 +24,8 @@
     <div v-if="credentials && !credential">
       Awaiting construction…
       <div id="tree-view-container">
-        <svg
-          id="tree-view"
-          xmlns="http://www.w3.org/2000/svg"
-          width="5000px"
-          height="5000px"
-        ></svg>
+        <!-- This will be populated later -->
+        <svg id="tree-view" :xmlns="svgNameSpace"></svg>
       </div>
     </div>
     <div v-else-if="credentials && credential">
@@ -600,7 +596,6 @@ export default {
     drawNodes(tree, level) {
       const treeView = document.getElementById('tree-view')
       const mynode = document.createElementNS(this.svgNameSpace, 'rect')
-      mynode.setAttributeNS(null, 'id', tree.name)
       mynode.setAttributeNS(null, 'x', tree.x + 'px')
       mynode.setAttributeNS(null, 'y', tree.y + 'px')
       mynode.setAttributeNS(null, 'width', tree.width + 'px')
@@ -617,6 +612,11 @@ export default {
     drawSkillTree(root) {
       this.setLayout(root)
       this.drawNodes(root, 1)
+      // Resize svg to fit contents
+      const svg = document.getElementById('tree-view')
+      const bbox = svg.getBBox()
+      svg.setAttribute('width', bbox.x + bbox.width + bbox.x)
+      svg.setAttribute('height', bbox.y + bbox.height + bbox.y)
     },
     lowerTag(tag) {
       const whitespaceNormalized = tag
