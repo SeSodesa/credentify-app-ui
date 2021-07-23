@@ -43,6 +43,7 @@
 </template>
 
 <script lang="ts">
+import Vue from 'vue'
 import SingleCredentialView from '~/components/SingleCredentialView'
 
 const svgNameSpace = 'http://www.w3.org/2000/svg'
@@ -532,7 +533,7 @@ function categoryLevels(level: number) {
   }
 }
 
-export default {
+export default Vue.extend({
   components: {
     SingleCredentialView
   },
@@ -734,7 +735,7 @@ export default {
       return lower.split(/\s+/).join('_')
     }
   }
-}
+})
 </script>
 
 <style>
