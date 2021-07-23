@@ -1,6 +1,6 @@
 <template>
   <div class="stage">
-    <div v-if="!credential">
+    <div v-if="credentials && !credential">
       <div class="icon--title mb-2">
         <img src="~/assets/icons/tree_icon.svg" width="45" alt="Skills image" />
         <h1>Skill Tree</h1>
@@ -9,7 +9,7 @@
         A summary page of your earned skills and achievements.
       </div>
     </div>
-    <div v-else-if="credential">
+    <div v-else-if="credentials && credential">
       <div class="icon--title">
         <img src="~/assets/icons/credentials-big.svg" alt="Credential logo" />
         <h1>Credential details</h1>
@@ -22,18 +22,17 @@
       <h1>Oops. Something went wrong…</h1>
     </div>
     <div v-if="credentials && !credential">
-      Awaiting construction…
       <div id="tree-view-container">
         <!-- This will be populated later -->
         <svg id="tree-view" :xmlns="svgNameSpace"></svg>
       </div>
     </div>
-    <div v-else-if="credentials && credential">
-      Credentials found but no single credential to display…
-    </div>
-    <single-credential-view v-else-if="credential" :credential="credential" />
+    <single-credential-view
+      v-else-if="credentials && credential"
+      :credential="credential"
+    />
     <div v-else>
-      No credentials downloaded…
+      No credentials to display…
     </div>
   </div>
 </template>
@@ -61,8 +60,8 @@ function getTextWidth(text, font) {
 }
 
 function nodeDimensions(text, font, fontsize) {
-  const MIN_NODE_WIDTH = 80
-  const MAX_NODE_WIDTH = 150
+  const MIN_NODE_WIDTH = 100
+  const MAX_NODE_WIDTH = 300
   const tw = Math.ceil(getTextWidth(text, font))
   if (!tw) {
     throw new Error(`Text width calculation for text "${text}" failed…`)
@@ -253,7 +252,7 @@ export default {
     skillTree() {
       const tree = new Map()
       const nodeFont = 'bold 14px fira sans'
-      const nodeFontSize = 14
+      const nodeFontSize = 40
       const rootKey = this.normalizeTag('main categories')
       const nd = nodeDimensions(rootKey, nodeFont, nodeFontSize)
       const root = new SkillTreeNode(rootKey, 0, [], null, {
@@ -604,6 +603,11 @@ export default {
       mynode.setAttributeNS(null, 'ry', 10)
       mynode.setAttributeNS(null, 'fill', this.categoryLevels(level).color)
       mynode.setAttributeNS(null, 'stroke', 'black')
+      if (tree.credential) {
+        mynode.setAttributeNS(null, 'class', 'pointable')
+        mynode.credential = tree.credential
+        mynode.addEventListener('click', this.focusOnCredential)
+      }
       treeView.appendChild(mynode)
       for (let i = 0; i < childCount(tree); i++) {
         this.drawNodes(tree.children[i], level + 1)
@@ -639,6 +643,16 @@ export default {
     toValidURL(category) {
       const lower = category.trim().toLowerCase()
       return lower.split(/\s+/).join('_')
+    },
+    focusOnCredential(node) {
+      if (node.currentTarget.credential) {
+        this.credentialData = node.currentTarget.credential
+      }
+    },
+    backUp(node) {
+      // TODO: do sppmething to prevent an error in SingleCredentialView,
+      // when credential goes missing
+      this.credential = {}
     }
   }
 }
@@ -664,7 +678,7 @@ div#tree-view-container {
 }
 
 svg#tree-view {
-  min-height: 500px;
+  min-height: 300px;
   min-width: 1000px;
 }
 </style>
