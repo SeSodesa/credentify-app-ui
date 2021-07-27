@@ -4,5 +4,6 @@ node_modules
 dist
 npm-debug.log
 static/sw.js
+.eslintcache
 
 ignorecase = false
