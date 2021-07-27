@@ -9,9 +9,7 @@
           <img src="~/assets/icons/achievements-big.svg" alt="" />
           <h1>Update achievement</h1>
         </div>
-        <div class="form--heading">
-          Update achievement details
-        </div>
+        <div class="form--heading">Update achievement details</div>
         <div class="fields">
           <div class="field--item">
             <label class="equal-small">Title</label>
@@ -109,9 +107,7 @@
             />
           </div>
         </div>
-        <div class="form--heading">
-          Additional fields
-        </div>
+        <div class="form--heading">Additional fields</div>
         <div class="fields">
           <div
             v-for="(field, key) in schema"
@@ -136,9 +132,7 @@
     </transition>
     <sweet-modal ref="errorModal" title="Error" overlay-theme="dark">
       <p>{{ errors.first('response') }}</p>
-      <b-link @click.native="$refs.errorModal.close()">
-        Close
-      </b-link>
+      <b-link @click.native="$refs.errorModal.close()"> Close </b-link>
     </sweet-modal>
   </div>
 </template>
@@ -149,7 +143,7 @@ import schema from '~/static/data/schema.json'
 
 export default {
   components: {
-    TagInput
+    TagInput,
   },
   async asyncData({ app, params }) {
     try {
@@ -157,8 +151,8 @@ export default {
         // Get communities with 'create achievemet' ability
         .get('/communities/', {
           params: {
-            limit: 200
-          }
+            limit: 200,
+          },
         })
         .then((res) => res.data.data)
       const achievement = await app.$axios
@@ -167,8 +161,8 @@ export default {
       const achievements = await app.$axios
         .get('/achievements', {
           params: {
-            limit: 200
-          }
+            limit: 200,
+          },
         })
         .then((res) => res.data.data)
       return { achievements, achievement, institutions }
@@ -182,18 +176,18 @@ export default {
       loading: false,
       institutions: [],
       institutionsChanged: false,
-      achievement: {}
+      achievement: {},
     }
   },
   computed: {
     communityIds() {
       return this.achievement.communityIds
-    }
+    },
   },
   watch: {
     communityIds() {
       this.institutionsChanged = true
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Achievements')
@@ -209,13 +203,13 @@ export default {
           this.loading = true
           if (this.institutionsChanged) {
             await this.$axios.put(`/achievements/${achievement.id}`, {
-              ...achievement
+              ...achievement,
             })
           } else {
             const excludeCommunityIds = achievement
             delete excludeCommunityIds.communityIds
             await this.$axios.put(`/achievements/${achievement.id}`, {
-              ...excludeCommunityIds
+              ...excludeCommunityIds,
             })
           }
 
@@ -226,8 +220,8 @@ export default {
       } finally {
         this.loading = false
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

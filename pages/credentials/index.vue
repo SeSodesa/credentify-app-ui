@@ -18,24 +18,24 @@ export default {
         {
           title: 'All credentials',
           url: '/credentials/all/',
-          requiredAbilities: [1011, 2020]
+          requiredAbilities: [1011, 2020],
         },
         {
           title: 'My credentials',
           url: '/credentials',
-          requiredAbilities: [1010]
-        }
+          requiredAbilities: [1010],
+        },
         // {
         //   title: 'Requests',
         //   url: '/credentials/requests',
         //   number: 3,
         // },
-      ]
+      ],
     }
   },
   created() {
     this.$store.commit('nav/setTitle', 'Credentials')
     this.$store.commit('nav/setBackUrl', '')
-  }
+  },
 }
 </script>

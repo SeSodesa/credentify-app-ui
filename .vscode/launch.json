@@ -24,8 +24,10 @@
       }
     }
   ],
-  "compounds": [{
-    "name": "fullstack: nuxt",
-    "configurations": ["server: nuxt", "client: chrome"]
-  }]
+  "compounds": [
+    {
+      "name": "fullstack: nuxt",
+      "configurations": ["server: nuxt", "client: chrome"]
+    }
+  ]
 }

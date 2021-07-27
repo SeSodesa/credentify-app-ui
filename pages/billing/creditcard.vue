@@ -1,8 +1,6 @@
 <template>
   <form class="billing form" @submit.prevent="submit()">
-    <div class="form--heading">
-      Enter credit card details
-    </div>
+    <div class="form--heading">Enter credit card details</div>
     <div class="fields in-row">
       <div class="field--item grow">
         <label for="username">Card number details</label>
@@ -15,9 +13,7 @@
         <input type="text" placeholder="CVC" style="width: 60px;" />
       </div>
     </div>
-    <div class="form--heading">
-      Billilng information
-    </div>
+    <div class="form--heading">Billilng information</div>
     <div class="fields in-row equal">
       <div class="field--item">
         <label for="">First name</label>
@@ -71,29 +67,29 @@
 export default {
   transition: {
     name: 'slide-fade',
-    mode: 'out-in'
+    mode: 'out-in',
   },
   data() {
     return {
       options: [
         {
           title: 'Slovenia',
-          description: 'SI'
+          description: 'SI',
         },
         {
           title: 'United Kingdom',
-          description: 'UK'
+          description: 'UK',
         },
         {
           title: 'Germany',
-          description: 'DE'
+          description: 'DE',
         },
         {
           title: 'Italy',
-          description: 'IT'
-        }
-      ]
+          description: 'IT',
+        },
+      ],
     }
-  }
+  },
 }
 </script>

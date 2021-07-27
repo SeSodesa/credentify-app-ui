@@ -5,9 +5,7 @@
       <img src="~/assets/icons/credentials-big.svg" alt="" />
       <h1>Credential details</h1>
     </div>
-    <div class="form--heading">
-      Participant details
-    </div>
+    <div class="form--heading">Participant details</div>
     <user-profile :participant="$auth.user">
       <credential-stage :stage="credential.stage" />
       <div v-if="credential.note" class="reason">
@@ -20,9 +18,7 @@
         </b-link>
       </div>
     </user-profile>
-    <div class="form--heading">
-      Credential for achievemnt
-    </div>
+    <div class="form--heading">Credential for achievemnt</div>
     <table-achievements
       :institutions="credential.communities"
       :data="[credential.achievement]"
@@ -43,9 +39,7 @@
         v-if="Object.keys(getCedentialResults).length"
         class="credential-results"
       >
-        <div class="form--heading">
-          Credential results
-        </div>
+        <div class="form--heading">Credential results</div>
         <div class="options">
           <div
             v-for="(field, key) in getCedentialResults"
@@ -74,9 +68,7 @@
           </div>
         </div>
       </div>
-      <div class="form--heading">
-        Credential metadata
-      </div>
+      <div class="form--heading">Credential metadata</div>
       <div class="options">
         <Metadata :data="JSON.stringify(credential.metadata)" />
       </div>
@@ -86,9 +78,7 @@
     </div>
     <sweet-modal ref="errorModal" title="Error" overlay-theme="dark">
       <p>{{ errors.first('response') }}</p>
-      <b-link @click.native="$refs.errorModal.close()">
-        Close
-      </b-link>
+      <b-link @click.native="$refs.errorModal.close()"> Close </b-link>
     </sweet-modal>
     <sweet-modal
       ref="confirmRequestCancelation"
@@ -126,17 +116,17 @@ export default {
   components: {
     TableAchievements,
     Metadata,
-    VerifyModal
+    VerifyModal,
   },
   async asyncData({ app, params }) {
     try {
       const credential = await app.$axios
         .get('/profile/credentials', {
-          params: { filterIds: [params.credentialId] }
+          params: { filterIds: [params.credentialId] },
         })
         .then((res) => res.data.data[0])
       return {
-        credential
+        credential,
       }
     } catch (err) {
       return { asyncDataError: err }
@@ -146,7 +136,7 @@ export default {
     return {
       credentialSchema,
       page: 1,
-      note: ''
+      note: '',
     }
   },
   computed: {
@@ -163,7 +153,7 @@ export default {
         'stage',
         '_createdAt',
         'awardingBodyId',
-        'wallet'
+        'wallet',
       ]
       exclude.forEach((key) => delete obj[key])
       for (const [key] of Object.entries(obj)) {
@@ -172,7 +162,7 @@ export default {
         }
       }
       return obj
-    }
+    },
   },
   mounted() {
     this.$store.commit('nav/setBackUrl', '/credentials')
@@ -200,8 +190,8 @@ export default {
         this.handleErrors(err)
       }
       this.$refs.confirmRequestCancelation.close()
-    }
-  }
+    },
+  },
 }
 </script>
 

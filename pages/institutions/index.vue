@@ -21,18 +21,18 @@ export default {
       links: [
         {
           title: 'Available institutions',
-          url: '/institutions'
+          url: '/institutions',
         },
         {
           title: 'My institutions',
-          url: '/institutions/mine'
-        }
-      ]
+          url: '/institutions/mine',
+        },
+      ],
     }
   },
   created() {
     this.$store.commit('nav/setTitle', 'Institutions')
     this.$store.commit('nav/setBackUrl', '')
-  }
+  },
 }
 </script>

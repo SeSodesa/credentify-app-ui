@@ -13,6 +13,6 @@ module.exports = {
     'selector-max-compound-selectors': null,
     'selector-class-pattern': '[a-z_]+',
     'selector-max-id': 2,
-    'max-nesting-depth': 4
-  }
+    'max-nesting-depth': 4,
+  },
 }

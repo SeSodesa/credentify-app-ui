@@ -10,9 +10,7 @@
           <h1>Issue new credential</h1>
         </div>
         <form class="billing form">
-          <div class="form--heading">
-            Enter credential details
-          </div>
+          <div class="form--heading">Enter credential details</div>
           <div class="fields">
             <div class="field--item">
               <label class="equal-small">Select achievement</label>
@@ -87,20 +85,20 @@ export default {
       const achievements = await app.$axios
         .get('/achievements', {
           params: {
-            limit: 500
-          }
+            limit: 500,
+          },
         })
         .then((res) => res.data.data)
       const participants = await app.$axios
         .get('/users', {
           params: {
-            limit: 500
-          }
+            limit: 500,
+          },
         })
         .then((res) => res.data.data)
       return {
         achievements,
-        participants
+        participants,
       }
     } catch (err) {
       return { asyncDataError: err }
@@ -111,8 +109,8 @@ export default {
       loading: false,
       credential: {
         achievementId: '',
-        profileId: ''
-      }
+        profileId: '',
+      },
     }
   },
   created() {
@@ -133,7 +131,7 @@ export default {
         this.handleErrors(err)
         this.loading = false
       }
-    }
-  }
+    },
+  },
 }
 </script>

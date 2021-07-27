@@ -22,13 +22,13 @@ export default {
   props: {
     data: {
       default: '',
-      type: String
-    }
+      type: String,
+    },
   },
   computed: {
     parsedData() {
       return this.data ? JSON.parse(this.data) : {}
-    }
+    },
   },
   methods: {
     flattenObject(obj) {
@@ -56,8 +56,8 @@ export default {
         }
       }
       return result
-    }
-  }
+    },
+  },
 }
 </script>
 

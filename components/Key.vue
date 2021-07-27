@@ -13,17 +13,13 @@
       </div>
     </div>
     <div class="col">
-      <div class="label">
-        API ID
-      </div>
+      <div class="label">API ID</div>
       <div class="id">
         {{ key.id }}
       </div>
     </div>
     <div class="col">
-      <div class="label">
-        Requests
-      </div>
+      <div class="label">Requests</div>
       <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
@@ -49,9 +45,7 @@
       </svg>
     </div>
     <div class="col">
-      <div class="label">
-        Status
-      </div>
+      <div class="label">Status</div>
       <div class="status">
         <span v-if="key.status == 1" class="tag green round">Healthy</span>
         <span v-if="key.status == 2" class="tag red round">Alert</span>
@@ -67,7 +61,7 @@
 export default {
   data() {
     return {
-      chartHeight: 15
+      chartHeight: 15,
     }
   },
   methods: {
@@ -77,8 +71,8 @@ export default {
       const randomInt = Math.floor(Math.random() * (max - min + 1)) + min
       this.randomInt = randomInt
       return randomInt
-    }
-  }
+    },
+  },
 }
 </script>
 

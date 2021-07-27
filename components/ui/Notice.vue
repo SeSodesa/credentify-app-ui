@@ -17,17 +17,17 @@ export default {
   props: {
     success: {
       type: Boolean,
-      default: false
+      default: false,
     },
     error: {
       type: Boolean,
-      default: false
+      default: false,
     },
     warning: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>
 

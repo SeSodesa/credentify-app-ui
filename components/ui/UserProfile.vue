@@ -38,9 +38,9 @@ export default {
   props: {
     participant: {
       type: Object,
-      default: () => ({})
-    }
-  }
+      default: () => ({}),
+    },
+  },
 }
 </script>
 

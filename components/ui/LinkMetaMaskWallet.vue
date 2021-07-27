@@ -17,7 +17,7 @@ import Notice from '~/components/ui/Notice'
 
 export default {
   components: {
-    Notice
+    Notice,
   },
   methods: {
     async linkMetamaskWallet() {
@@ -28,7 +28,7 @@ export default {
         )
         await this.$axios.put('/profile/wallet', {
           signature,
-          kind: 1
+          kind: 1,
         })
         await this.$auth.fetchUser()
         this.$modal.hide('link-wallet-modal')
@@ -36,7 +36,7 @@ export default {
         this.$modal.hide('link-wallet-modal')
         this.handleErrors(error)
       }
-    }
-  }
+    },
+  },
 }
 </script>

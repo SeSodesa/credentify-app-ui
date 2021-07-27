@@ -4,7 +4,7 @@ export const state = () => ({
   description: '',
   keys: [],
   addons: [],
-  role: null
+  role: null,
 })
 
 export const mutations = {
@@ -25,5 +25,5 @@ export const mutations = {
   updateIntitution(state, updated) {
     state.name = updated.name
     state.description = updated.description
-  }
+  },
 }

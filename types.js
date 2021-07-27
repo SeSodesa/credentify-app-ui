@@ -3,7 +3,7 @@ export const CommunityRequestRole = {
   TEACHER: 2,
   ADMIN: 3,
   CUSTOM: 4,
-  NONE: 5
+  NONE: 5,
 }
 
 export const CommunityPermissionKinds = {
@@ -27,7 +27,7 @@ export const CommunityPermissionKinds = {
   DELETE_CREDENTIAL: 2022,
   MANAGE_REQUEST_CREDENTIAL: 2023,
   FINALIZE_CREDENTIAL: 2024,
-  READ_USER: 2025
+  READ_USER: 2025,
 }
 
 export const admin = [
@@ -51,7 +51,7 @@ export const admin = [
   CommunityPermissionKinds.DELETE_CREDENTIAL,
   CommunityPermissionKinds.MANAGE_REQUEST_CREDENTIAL,
   CommunityPermissionKinds.FINALIZE_CREDENTIAL,
-  CommunityPermissionKinds.READ_USER
+  CommunityPermissionKinds.READ_USER,
 ]
 
 export const teacher = [
@@ -59,10 +59,10 @@ export const teacher = [
   CommunityPermissionKinds.CREATE_ACHIEVEMENT,
   CommunityPermissionKinds.DELETE_ACHIEVEMENT,
   CommunityPermissionKinds.UPDATE_ACHIEVEMENT,
-  CommunityPermissionKinds.READ_ACHIEVEMENT
+  CommunityPermissionKinds.READ_ACHIEVEMENT,
 ]
 
 export const student = [
   CommunityPermissionKinds.READ,
-  CommunityPermissionKinds.READ_ACHIEVEMENT
+  CommunityPermissionKinds.READ_ACHIEVEMENT,
 ]

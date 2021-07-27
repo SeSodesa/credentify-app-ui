@@ -4,9 +4,7 @@
       <img src="~/assets/icons/achievements-big.svg" alt="Achievement" />
       <h1 v-if="achievement.name" class="name">{{ achievement.name }}</h1>
     </div>
-    <div class="form--heading">
-      Achievement details
-    </div>
+    <div class="form--heading">Achievement details</div>
     <div class="fields">
       <div class="field--item achievement">
         <div class="achievement--data col">
@@ -74,24 +72,18 @@
       </div>
     </div>
     <div v-if="dependentAchievements.length">
-      <div class="form--heading">
-        Consists of
-      </div>
+      <div class="form--heading">Consists of</div>
       <table-achievements
         :data="dependentAchievements"
         :institutions="institutions"
       />
     </div>
     <div v-if="canConsistOf.length">
-      <div class="form--heading">
-        Can consists of
-      </div>
+      <div class="form--heading">Can consists of</div>
       <table-achievements :data="canConsistOf" :institutions="institutions" />
     </div>
     <div v-if="Object.keys(additionalInformation).length != 0">
-      <div class="form--heading">
-        Additional information
-      </div>
+      <div class="form--heading">Additional information</div>
       <div class="options">
         <div
           v-for="(field, key) in additionalInformation"
@@ -106,9 +98,7 @@
       </div>
     </div>
     <div v-if="hasAbility([2017])">
-      <div class="form--heading danger">
-        Danger zone
-      </div>
+      <div class="form--heading danger">Danger zone</div>
       <div class="fields danger">
         <div class="field--item">
           <div class="description">
@@ -147,15 +137,15 @@ import schema from '~/static/data/schema.json'
 // /credentials?filterAchievementIds=[ID] stage
 export default {
   components: {
-    TableAchievements
+    TableAchievements,
   },
   async asyncData({ app, params }) {
     try {
       const achievement = await app.$axios
         .get('/achievements', {
           params: {
-            filterIds: [params.achievementId]
-          }
+            filterIds: [params.achievementId],
+          },
         })
         .then((res) => res.data.data[0])
       let dependentAchievements = []
@@ -166,8 +156,8 @@ export default {
         .get('/profile/credentials', {
           params: {
             filterAchievementIds: [params.achievementId],
-            filterStages: [1]
-          }
+            filterStages: [1],
+          },
         })
         .then((res) => res.data.data[0])
 
@@ -175,7 +165,7 @@ export default {
         if (achievement.dependentAchievementIds.length > 0) {
           dependentAchievements = await app.$axios
             .get('/achievements', {
-              params: { filterIds: achievement.dependentAchievementIds }
+              params: { filterIds: achievement.dependentAchievementIds },
             })
             .then((res) => res.data.data)
         }
@@ -185,13 +175,13 @@ export default {
         ) {
           canConsistOf = await app.$axios
             .get('/achievements', {
-              params: { filterIds: achievement.canConsistOfIds }
+              params: { filterIds: achievement.canConsistOfIds },
             })
             .then((res) => res.data.data)
         }
         institutions = await app.$axios
           .get('/communities', {
-            params: { limit: 100 }
+            params: { limit: 100 },
           })
           .then((res) => res.data.data)
       }
@@ -200,7 +190,7 @@ export default {
         institutions,
         dependentAchievements,
         existingCredential,
-        canConsistOf
+        canConsistOf,
       }
     } catch (err) {
       return { asyncDataError: err }
@@ -210,7 +200,7 @@ export default {
     return {
       schema,
       requested: false,
-      achievement: {}
+      achievement: {},
     }
   },
   computed: {
@@ -225,7 +215,7 @@ export default {
         'publisherId',
         'canConsistOfIds',
         '_createdAt',
-        '_updatedAt'
+        '_updatedAt',
       ]
       exclude.forEach((key) => delete obj[key])
       for (const [key] of Object.entries(obj)) {
@@ -234,7 +224,7 @@ export default {
         }
       }
       return obj
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Achievement details')
@@ -261,8 +251,7 @@ export default {
     deleteCourse(communityId, achievementId, modal) {
       this.$modal.show('dialog', {
         title: 'Delete confirmation',
-        text:
-          "You're about to permanently delete this achievement. Are you sure?",
+        text: "You're about to permanently delete this achievement. Are you sure?",
         buttons: [
           { title: 'Close' },
           {
@@ -276,15 +265,15 @@ export default {
               } catch (err) {
                 this.handleErrors(err)
               }
-            }
-          }
-        ]
+            },
+          },
+        ],
       })
     },
     getKeyLabel(key) {
       return this.schema[key] ? this.schema[key].label : key
-    }
-  }
+    },
+  },
 }
 </script>
 

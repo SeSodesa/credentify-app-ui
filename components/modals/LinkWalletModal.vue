@@ -29,8 +29,8 @@ import LinkMetaMaskWallet from '~/components/ui/LinkMetaMaskWallet.vue'
 export default {
   components: {
     // LinkBitskiWallet,
-    LinkMetaMaskWallet
-  }
+    LinkMetaMaskWallet,
+  },
 }
 </script>
 

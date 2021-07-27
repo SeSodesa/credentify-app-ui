@@ -1,6 +1,6 @@
 /* Stores the credentials of an individual */
 export const state = () => ({
-  credentials: []
+  credentials: [],
 })
 
 export const mutations = {
@@ -9,7 +9,7 @@ export const mutations = {
   },
   forgetCredentials(state) {
     state.credentials = []
-  }
+  },
 }
 
 export const actions = {
@@ -25,5 +25,5 @@ export const actions = {
   },
   credentialsExist(state) {
     return state.credentials.length > 0
-  }
+  },
 }

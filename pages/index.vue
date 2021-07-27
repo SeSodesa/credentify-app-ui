@@ -28,7 +28,7 @@ export default {
   auth: false,
   created() {
     this.$store.commit('nav/setTitle', 'Welcome')
-  }
+  },
 }
 </script>
 

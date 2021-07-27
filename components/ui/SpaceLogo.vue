@@ -1,13 +1,11 @@
 <template>
   <div
     class="logo tag"
-    :style="
-      `
+    :style="`
       background-color: ${stringToHslColor(name, s, 90)};
       color: ${stringToHslColor(name, s, l)};
       border: 1px solid ${stringToHslColor(name, s, l)};
-    `
-    "
+    `"
   >
     {{ getFirstChar(name) }}
   </div>
@@ -18,16 +16,16 @@ export default {
   props: {
     s: {
       type: Number,
-      default: 75
+      default: 75,
     },
     l: {
       type: Number,
-      default: 55
+      default: 55,
     },
     name: {
       type: String,
-      default: 'o'
-    }
+      default: 'o',
+    },
   },
   methods: {
     getFirstChar(str) {
@@ -40,8 +38,8 @@ export default {
       }
       const h = hash % 360
       return `hsl(${h}, ${s}%, ${l}%)`
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -3,9 +3,7 @@
     <div class="controls">
       <tag-search />
       <div v-if="hasAbility([1006])" class="action">
-        <b-link to="/institutions/new" add>
-          Add new insitution
-        </b-link>
+        <b-link to="/institutions/new" add> Add new insitution </b-link>
       </div>
     </div>
     <div class="options table--institutions">
@@ -49,7 +47,7 @@ import { roles } from '~/static/data/roles.js'
 export default {
   components: {
     TagSearch,
-    InfiniteLoading
+    InfiniteLoading,
   },
   data() {
     return {
@@ -58,13 +56,13 @@ export default {
       itemsPerPage: 10,
       infiniteId: +new Date(),
       listing: [],
-      roles
+      roles,
     }
   },
   watch: {
     '$route.query.search'() {
       this.changeSearch()
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Institutions')
@@ -84,7 +82,7 @@ export default {
           : undefined
         const institutions = await this.$axios
           .get('profile/communities', {
-            params: { limit: this.itemsPerPage, skip, search }
+            params: { limit: this.itemsPerPage, skip, search },
           })
           .then((res) => res.data.data)
         if (institutions.length) {
@@ -97,7 +95,7 @@ export default {
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

@@ -5,44 +5,44 @@ export default {
     title: 'Credentify',
     meta: [
       {
-        charset: 'utf-8'
+        charset: 'utf-8',
       },
       {
         name: 'viewport',
-        content: 'width=device-width, initial-scale=1'
+        content: 'width=device-width, initial-scale=1',
       },
       {
         hid: 'description',
         name: 'description',
-        content: 'The first blockchain-based issuer of ECTS credentials.'
-      }
+        content: 'The first blockchain-based issuer of ECTS credentials.',
+      },
     ],
     link: [
       {
         rel: 'icon',
         type: 'image/png',
-        href: '/favicon.png'
-      }
-    ]
+        href: '/favicon.png',
+      },
+    ],
   },
   pageTransition: {
     name: 'slide-fade',
-    mode: 'out-in'
+    mode: 'out-in',
   },
   scrollToTop: true,
   loading: {
-    color: '#3651FF'
+    color: '#3651FF',
   },
   router: {
     linkActiveClass: 'active',
     linkExactActiveClass: 'exact-active',
-    middleware: ['auth']
+    middleware: ['auth'],
   },
   auth: {
     redirect: {
       login: '/login',
       logout: '/',
-      home: '/institutions'
+      home: '/institutions',
     },
     resetOnError: true,
     strategies: {
@@ -51,17 +51,17 @@ export default {
           login: {
             url: '/profile/auth',
             method: 'post',
-            propertyName: 'data.authToken'
+            propertyName: 'data.authToken',
           },
           logout: false,
           user: {
             url: '/profile',
             method: 'get',
-            propertyName: 'data'
-          }
-        }
-      }
-    }
+            propertyName: 'data',
+          },
+        },
+      },
+    },
   },
   plugins: [
     { src: '~plugins/axios' },
@@ -74,13 +74,13 @@ export default {
     { src: '~plugins/vue-date' },
     { src: '~plugins/vue-js-modal' },
     { src: '~plugins/providers' },
-    { src: '~plugins/vue-date' }
+    { src: '~plugins/vue-date' },
   ],
   styleResources: {
     scss: [
       './assets/styles/components/_variables.scss',
-      './assets/styles/components/_mixins.scss'
-    ]
+      './assets/styles/components/_mixins.scss',
+    ],
   },
   css: [
     './assets/styles/components/_layout',
@@ -91,22 +91,22 @@ export default {
     './assets/styles/components/_tags',
     './assets/styles/typography',
     './assets/styles/global',
-    './assets/styles/vendor/grid'
+    './assets/styles/vendor/grid',
   ],
   modules: [
     '@nuxtjs/axios',
     '@nuxtjs/auth',
     '@nuxtjs/style-resources',
-    '@nuxtjs/toast'
+    '@nuxtjs/toast',
   ],
   toast: {
     position: 'bottom-right',
-    duration: 3000
+    duration: 3000,
   },
   axios: {
     headers: { 'content-type': 'application/json' },
     // baseURL: process.env.API_BASE_URL || 'http://localhost:4444'
-    baseURL: process.env.API_BASE_URL || 'https://api-staging.credentify.eu/'
+    baseURL: process.env.API_BASE_URL || 'https://api-staging.credentify.eu/',
   },
   env: {
     bitskiRedirect:
@@ -115,11 +115,11 @@ export default {
       process.env.SIGNING_MESSAGE || 'I accept Credentify Terms of Use.',
     etherscanUrl: process.env.ETHERSCAN_URL || 'https://rinkeby.etherscan.io',
     ledgerId:
-      process.env.LEDGER_ID || '0x6D984eD0a0675199C5146220BBeE274b52EC0b13'
+      process.env.LEDGER_ID || '0x6D984eD0a0675199C5146220BBeE274b52EC0b13',
   },
   stylelint: {
     quiet: true,
-    fix: true
+    fix: true,
   },
   buildModules: [
     '@nuxtjs/eslint-module',
@@ -127,15 +127,15 @@ export default {
     [
       '@nuxtjs/google-analytics',
       {
-        id: 'UA-115025060-2'
-      }
-    ]
+        id: 'UA-115025060-2',
+      },
+    ],
   ],
   build: {
     extend(config, ctx) {
       if (ctx.isDev) {
         config.devtool = ctx.isClient ? 'source-map' : 'inline-source-map'
       }
-    }
-  }
+    },
+  },
 }

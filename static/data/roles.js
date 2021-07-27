@@ -1,22 +1,22 @@
 export const roles = [
   {
     role: 1,
-    label: 'Student'
+    label: 'Student',
   },
   {
     role: 2,
-    label: 'Teacher'
+    label: 'Teacher',
   },
   {
     role: 3,
-    label: 'Admin'
+    label: 'Admin',
   },
   {
     role: 4,
-    label: 'Custom'
+    label: 'Custom',
   },
   {
     role: 5,
-    label: 'Canceled'
-  }
+    label: 'Canceled',
+  },
 ]

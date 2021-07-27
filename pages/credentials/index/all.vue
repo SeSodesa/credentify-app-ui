@@ -62,7 +62,7 @@ import TagSearch from '~/components/TagSearch'
 export default {
   components: {
     TagSearch,
-    InfiniteLoading
+    InfiniteLoading,
   },
   data() {
     return {
@@ -70,13 +70,13 @@ export default {
       page: 1,
       itemsPerPage: 10,
       listing: [],
-      infiniteId: +new Date()
+      infiniteId: +new Date(),
     }
   },
   watch: {
     '$route.query.search'() {
       this.changeSearch()
-    }
+    },
   },
   methods: {
     changeSearch() {
@@ -92,14 +92,14 @@ export default {
           : undefined
         const credentials = await this.$axios
           .get('/credentials', {
-            params: { limit: this.itemsPerPage, skip, search }
+            params: { limit: this.itemsPerPage, skip, search },
           })
           .then((res) => res.data.data)
         const participants = await this.$axios
           .get('/users', {
             params: {
-              filterIds: [...new Set(credentials.map((a) => a.profileId))]
-            }
+              filterIds: [...new Set(credentials.map((a) => a.profileId))],
+            },
           })
           .then((res) => res.data.data)
         const result = credentials.map((a) => ({
@@ -107,7 +107,7 @@ export default {
           participantName: participants.find((p) => p.id === a.profileId)
             ? `${participants.find((p) => p.id === a.profileId).firstName}
               ${participants.find((p) => p.id === a.profileId).lastName}`
-            : a.profileId
+            : a.profileId,
         }))
         if (credentials.length) {
           this.page += 1
@@ -119,7 +119,7 @@ export default {
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

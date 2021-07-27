@@ -30,24 +30,24 @@ export default {
   props: {
     disable: {
       type: Boolean,
-      default: false
+      default: false,
     },
     label: {
       type: String,
-      default: 'Search'
-    }
+      default: 'Search',
+    },
   },
   data() {
     return {
       currentTag: '',
       tags: [],
-      deleted: false
+      deleted: false,
     }
   },
   watch: {
     '$route.query.search'() {
       this.parseTags()
-    }
+    },
   },
   created() {
     this.parseTags()
@@ -65,8 +65,8 @@ export default {
         this.$router.replace({
           query: {
             ...this.$route.query,
-            ...{ search: searchQuery.concat(newTag.replace(/\s{1,}/g, '-')) }
-          }
+            ...{ search: searchQuery.concat(newTag.replace(/\s{1,}/g, '-')) },
+          },
         })
       }
     },
@@ -79,8 +79,8 @@ export default {
       this.$router.replace({
         query: {
           ...this.$route.query,
-          ...{ search: searchQuery || undefined }
-        }
+          ...{ search: searchQuery || undefined },
+        },
       })
       this.tags.splice(index, 1)
     },
@@ -98,8 +98,8 @@ export default {
         })
         this.tags = this.tags.filter((tag) => tag !== undefined)
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

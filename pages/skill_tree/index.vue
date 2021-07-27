@@ -31,9 +31,7 @@
       v-else-if="credentials && credential"
       :credential="credential"
     />
-    <div v-else>
-      No credentials to display…
-    </div>
+    <div v-else>No credentials to display…</div>
   </div>
 </template>
 
@@ -168,7 +166,7 @@ function updateListOfLeftSiblingsWithDescendantInRightContour(
 
 export default {
   components: {
-    SingleCredentialView
+    SingleCredentialView,
   },
   async asyncData({ app, params }) {
     try {
@@ -180,8 +178,8 @@ export default {
             params: { job: 'test_data_to_json' },
             headers: {
               /*  Request access without authorization, as none is needed. */
-              Authorization: ''
-            }
+              Authorization: '',
+            },
           }
         )
         .then((result) => result.data)
@@ -193,8 +191,8 @@ export default {
             params: { job: 'make_json_mapping' },
             headers: {
               /*  Request access without authorization, as none is needed. */
-              Authorization: ''
-            }
+              Authorization: '',
+            },
           }
         )
         .then((result) => result.data)
@@ -210,33 +208,33 @@ export default {
         if (level === 1) {
           return {
             name: 'Main categories',
-            color: '#5470c6'
+            color: '#5470c6',
           }
         } else if (level === 2) {
           return {
             name: 'Subcategories',
-            color: '#91cc75'
+            color: '#91cc75',
           }
         } else if (level === 3) {
           return {
             name: 'Skills',
-            color: '#fac858'
+            color: '#fac858',
           }
         } else if (level === 4) {
           return {
             name: 'Credentials',
-            color: '#ee6666'
+            color: '#ee6666',
           }
         } else if (level === 5) {
           return {
             name: 'Specific credential',
-            color: '#73c0de'
+            color: '#73c0de',
           }
         } else {
           return null
         }
       },
-      credentialData: null
+      credentialData: null,
     }
   },
   computed: {
@@ -246,7 +244,7 @@ export default {
       },
       set(newValue) {
         this.credentialData = newValue
-      }
+      },
     },
     /* Filters data for drawing the summary graph */
     skillTree() {
@@ -258,7 +256,7 @@ export default {
       const root = new SkillTreeNode(rootKey, 0, [], null, {
         width: nd.width,
         height: nd.height,
-        y: 0
+        y: 0,
       })
       tree.set(rootKey, root)
       for (const credential of this.credentials) {
@@ -280,7 +278,7 @@ export default {
               categoryNode = new SkillTreeNode(category, 0, [], null, {
                 width: nd.width,
                 height: nd.height,
-                y: this.bottom(root)
+                y: this.bottom(root),
               })
               tree.set(category, categoryNode)
               root.children.push(categoryNode)
@@ -294,7 +292,7 @@ export default {
               subcategoryNode = new SkillTreeNode(subCategory, 0, [], null, {
                 width: nd.width,
                 height: nd.height,
-                y: this.bottom(categoryNode)
+                y: this.bottom(categoryNode),
               })
               tree.set(subCategory, subcategoryNode)
               categoryNode.children.push(subcategoryNode)
@@ -309,7 +307,7 @@ export default {
               skillNode = new SkillTreeNode(skill, 0, [], null, {
                 width: nd.width,
                 height: nd.height,
-                y: this.bottom(subcategoryNode)
+                y: this.bottom(subcategoryNode),
               })
               tree.set(skill, skillNode)
               subcategoryNode.children.push(skillNode)
@@ -331,7 +329,7 @@ export default {
                 {
                   width: nd.width,
                   height: nd.height,
-                  y: this.bottom(skillNode)
+                  y: this.bottom(skillNode),
                 }
               )
             }
@@ -348,7 +346,7 @@ export default {
     },
     credentialsExist() {
       return this.credentials.length > 0
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Skill Tree')
@@ -372,11 +370,12 @@ export default {
         this.setExtremes(tree)
       } else {
         this.firstWalk(tree.children[0])
-        let siblingIndexList = updateListOfLeftSiblingsWithDescendantInRightContour(
-          this.bottom(tree.children[0].extremeLeftDescendant),
-          0,
-          null
-        )
+        let siblingIndexList =
+          updateListOfLeftSiblingsWithDescendantInRightContour(
+            this.bottom(tree.children[0].extremeLeftDescendant),
+            0,
+            null
+          )
         for (let childIndex = 1; childIndex < childCount(tree); childIndex++) {
           this.firstWalk(tree.children[childIndex])
           // Left siblings less tall than this will be obscured from the right
@@ -386,11 +385,12 @@ export default {
           )
           this.separate(tree, childIndex, siblingIndexList)
           // Update left siblings not obsucred by current node when looking from the right
-          siblingIndexList = updateListOfLeftSiblingsWithDescendantInRightContour(
-            minYRight,
-            childIndex,
-            siblingIndexList
-          )
+          siblingIndexList =
+            updateListOfLeftSiblingsWithDescendantInRightContour(
+              minYRight,
+              childIndex,
+              siblingIndexList
+            )
         }
         this.positionRoot(tree)
         this.setExtremes(tree)
@@ -623,18 +623,12 @@ export default {
       svg.setAttribute('height', bbox.y + bbox.height + bbox.y)
     },
     lowerTag(tag) {
-      const whitespaceNormalized = tag
-        .trim()
-        .split(/\s+/)
-        .join(' ')
+      const whitespaceNormalized = tag.trim().split(/\s+/).join(' ')
       const lower = whitespaceNormalized.toLowerCase()
       return lower
     },
     normalizeTag(tag) {
-      const whitespaceNormalized = tag
-        .trim()
-        .split(/\s+/)
-        .join(' ')
+      const whitespaceNormalized = tag.trim().split(/\s+/).join(' ')
       const capitalized =
         whitespaceNormalized.charAt(0).toUpperCase() +
         whitespaceNormalized.slice(1).toLowerCase()
@@ -653,8 +647,8 @@ export default {
       // TODO: do sppmething to prevent an error in SingleCredentialView,
       // when credential goes missing
       this.credential = {}
-    }
-  }
+    },
+  },
 }
 </script>
 

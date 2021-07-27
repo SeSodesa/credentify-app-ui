@@ -2,9 +2,7 @@
   <div class="form">
     <LinkWalletModal />
     <h1>User profile</h1>
-    <div class="form--heading">
-      Basic data
-    </div>
+    <div class="form--heading">Basic data</div>
     <div class="fields">
       <div class="field--item profile">
         <div class="description">
@@ -38,9 +36,7 @@
         </div> -->
       </div>
     </div>
-    <div class="form--heading">
-      Wallet
-    </div>
+    <div class="form--heading">Wallet</div>
     <div class="fields">
       <div class="field--item align-center">
         <div class="description">
@@ -72,9 +68,7 @@
       </div>
     </div>
 
-    <div class="form--heading">
-      My institutions
-    </div>
+    <div class="form--heading">My institutions</div>
     <div class="fields">
       <div class="field--item align-center">
         <div class="description large-label">
@@ -86,9 +80,7 @@
         </div>
       </div>
     </div>
-    <div class="form--heading">
-      Profile abilities
-    </div>
+    <div class="form--heading">Profile abilities</div>
     <div class="options">
       <div
         v-for="ability in profileAbilities"
@@ -116,9 +108,7 @@
           </div>
       </div>      
     </div>  -->
-    <div class="form--heading danger">
-      Deactivate account
-    </div>
+    <div class="form--heading danger">Deactivate account</div>
     <div class="fields danger">
       <div class="field--item">
         <div class="description">
@@ -133,9 +123,7 @@
     </div>
     <sweet-modal ref="errorModal" title="Error" overlay-theme="dark">
       <p>{{ errors.first('response') }}</p>
-      <b-link @click.native="$refs.errorModal.close()">
-        Close
-      </b-link>
+      <b-link @click.native="$refs.errorModal.close()"> Close </b-link>
     </sweet-modal>
     <sweet-modal
       ref="confirmUserDelete"
@@ -164,7 +152,7 @@ import profileAbilityLabels from '~/static/data/profileAbilityLabels.json'
 
 export default {
   components: {
-    LinkWalletModal
+    LinkWalletModal,
   },
   async asyncData({ app }) {
     try {
@@ -181,14 +169,14 @@ export default {
       communityAbilityLabels,
       profileAbilityLabels,
       profile: {
-        subscription: true
-      }
+        subscription: true,
+      },
     }
   },
   computed: {
     profileAbilities() {
       return this.profileAbilityLabels.filter((x) => this.hasAbility([x.kind]))
-    }
+    },
   },
   methods: {
     openLinkWalletModal() {
@@ -202,8 +190,8 @@ export default {
         this.handleErrors(err)
       }
       this.$refs.confirmUserDelete.close()
-    }
-  }
+    },
+  },
 }
 </script>
 

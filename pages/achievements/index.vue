@@ -32,7 +32,7 @@ export default {
   components: {
     TableAchievements,
     TagSearch,
-    InfiniteLoading
+    InfiniteLoading,
   },
   data() {
     return {
@@ -42,18 +42,18 @@ export default {
       listing: [],
       institutionIds: [],
       institutions: [],
-      infiniteId: +new Date()
+      infiniteId: +new Date(),
     }
   },
   computed: {
     skip() {
       return (Number(this.page) - 1) * this.itemsPerPage
-    }
+    },
   },
   watch: {
     '$route.query.search'() {
       this.changeSearch()
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Achievements')
@@ -80,7 +80,7 @@ export default {
           : undefined
         const achievements = await this.$axios
           .get('/achievements', {
-            params: { limit: this.itemsPerPage, skip, search }
+            params: { limit: this.itemsPerPage, skip, search },
           })
           .then((res) => res.data.data)
         if (achievements.length) {
@@ -91,8 +91,8 @@ export default {
           const institutions = await this.$axios
             .get('/communities', {
               params: {
-                filterIds: [...this.institutionIds]
-              }
+                filterIds: [...this.institutionIds],
+              },
             })
             .then((res) => res.data.data)
           this.page += 1
@@ -106,7 +106,7 @@ export default {
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

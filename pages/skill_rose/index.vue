@@ -49,9 +49,7 @@
       v-else-if="credentialsExist && currentCategoryLevel === maxCategoryLevel"
       :credential="credential"
     />
-    <div v-else>
-      No credentials to display…
-    </div>
+    <div v-else>No credentials to display…</div>
   </div>
 </template>
 
@@ -68,7 +66,7 @@ echarts.use([TitleComponent, PieChart, SVGRenderer])
 export default {
   components: {
     VChart,
-    SingleCredentialView
+    SingleCredentialView,
   },
   async asyncData({ app, params }) {
     try {
@@ -80,8 +78,8 @@ export default {
             params: { job: 'test_data_to_json' },
             headers: {
               /*  Request access without authorization, as none is needed. */
-              Authorization: ''
-            }
+              Authorization: '',
+            },
           }
         )
         .then((result) => result.data)
@@ -93,8 +91,8 @@ export default {
             params: { job: 'make_json_mapping' },
             headers: {
               /*  Request access without authorization, as none is needed. */
-              Authorization: ''
-            }
+              Authorization: '',
+            },
           }
         )
         .then((result) => result.data)
@@ -109,31 +107,31 @@ export default {
       categoryLevels: Object.freeze({
         1: {
           name: 'Main categories',
-          color: '#5470c6'
+          color: '#5470c6',
         },
         2: {
           name: 'Subcategories',
-          color: '#91cc75'
+          color: '#91cc75',
         },
         3: {
           name: 'Skills',
-          color: '#fac858'
+          color: '#fac858',
         },
         4: {
           name: 'Credentials',
-          color: '#ee6666'
+          color: '#ee6666',
         },
         5: {
           name: 'Specific credential',
-          color: '#73c0de'
-        }
+          color: '#73c0de',
+        },
       }),
       credentialData: {},
       categoryLevelTitles: {
         mainCategory: {
           text: 'Main categories',
           subtext: '',
-          triggerEvent: false
+          triggerEvent: false,
         },
         subCategory(breadcrumb) {
           return {
@@ -141,14 +139,14 @@ export default {
             subtext: '↑ Back up',
             textStyle: {
               width: 1000,
-              overflow: 'break'
+              overflow: 'break',
             },
             subtextStyle: {
-              fontSize: 14
+              fontSize: 14,
             },
-            triggerEvent: true
+            triggerEvent: true,
           }
-        }
+        },
       },
       commonSeriesSettings: {
         id: 'Skill tree visualization',
@@ -157,7 +155,7 @@ export default {
         center: ['50%', '50%'],
         roseType: 'area',
         itemStyle: {
-          borderRadius: 8
+          borderRadius: 8,
         },
         label: {
           overflow: 'break',
@@ -173,11 +171,11 @@ export default {
           position: 'outer',
           alignTo: 'edge',
           edgeDistance: 0,
-          distanceToLabelLine: 10
-        }
+          distanceToLabelLine: 10,
+        },
       },
       breadcrumb: [],
-      optionStackData: []
+      optionStackData: [],
     }
   },
   computed: {
@@ -193,7 +191,7 @@ export default {
       },
       set(newValue) {
         this.credentialData = newValue
-      }
+      },
     },
     optionStack() {
       return this.optionStackData
@@ -222,7 +220,7 @@ export default {
                 value: 1,
                 name: category,
                 url: `/skills/${this.toValidURL(category)}`,
-                children: {}
+                children: {},
               }
             }
             /* Then check for subcategory in category */
@@ -235,7 +233,7 @@ export default {
                 url: `skills/${this.toValidURL(category)}/${this.toValidURL(
                   subCategory
                 )}`,
-                children: {}
+                children: {},
               }
             }
             /* Finally, attach skill information and credential to subcategories */
@@ -248,7 +246,7 @@ export default {
               observedSubCategory.children[skill] = {
                 value: 1,
                 name: skill,
-                children: {}
+                children: {},
               }
             }
             /* Check for existence of credential in the skill */
@@ -260,7 +258,7 @@ export default {
               observedSkill.children[credential.id] = {
                 value: 1,
                 name: credential.achievement.name,
-                credential
+                credential,
                 // url: `skills/${this.toValidURL(category)}/${this.toValidURL(
                 //   subCategory
                 // )}/${this.toValidURL(credential.achievement.name)}`
@@ -293,14 +291,14 @@ export default {
           {
             name: 'Main categories',
             ...this.commonSeriesSettings,
-            data: Object.values(this.skillTree)
-          }
-        ]
+            data: Object.values(this.skillTree),
+          },
+        ],
       }
     },
     currentChartOption() {
       return this.optionStack[this.optionStack.length - 1]
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Skill Rose')
@@ -318,18 +316,12 @@ export default {
       this.credential = {}
     },
     lowerTag(tag) {
-      const whitespaceNormalized = tag
-        .trim()
-        .split(/\s+/)
-        .join(' ')
+      const whitespaceNormalized = tag.trim().split(/\s+/).join(' ')
       const lower = whitespaceNormalized.toLowerCase()
       return lower
     },
     normalizeTag(tag) {
-      const whitespaceNormalized = tag
-        .trim()
-        .split(/\s+/)
-        .join(' ')
+      const whitespaceNormalized = tag.trim().split(/\s+/).join(' ')
       const capitalized =
         whitespaceNormalized.charAt(0).toUpperCase() +
         whitespaceNormalized.slice(1).toLowerCase()
@@ -352,9 +344,9 @@ export default {
           {
             name: label,
             ...this.commonSeriesSettings,
-            data: data !== null ? Object.values(data) : [null]
-          }
-        ]
+            data: data !== null ? Object.values(data) : [null],
+          },
+        ],
       }
       this.optionStack.push(newOption)
     },
@@ -410,8 +402,8 @@ export default {
         tints.push(nextColorHex)
       }
       return tints
-    }
-  }
+    },
+  },
 }
 </script>
 

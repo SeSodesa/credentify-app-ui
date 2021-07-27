@@ -19,10 +19,10 @@ import LeftSidebar from '~/components/LeftSidebar'
 export default {
   components: {
     Controller,
-    LeftSidebar
+    LeftSidebar,
   },
   computed: mapState({
-    sidebarOpen: (state) => state.nav.sidebarOpen
-  })
+    sidebarOpen: (state) => state.nav.sidebarOpen,
+  }),
 }
 </script>

@@ -79,8 +79,8 @@ export default {
   props: {
     credential: {
       type: Object,
-      default: () => {}
-    }
+      default: () => {},
+    },
   },
   data() {
     return {
@@ -89,7 +89,7 @@ export default {
       schema: '',
       metadata: '',
       evidence: '',
-      loading: false
+      loading: false,
     }
   },
   methods: {
@@ -123,8 +123,8 @@ export default {
       } finally {
         this.loading = false
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

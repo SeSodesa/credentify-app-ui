@@ -59,25 +59,25 @@ export default {
           degree: 'Business Psihology',
           institution: 'Faculty of Arts ',
           achievers: 37,
-          type: 'Video hours'
+          type: 'Video hours',
         },
         {
           id: '123343212',
           degree: 'Business Psihology',
           institution: 'Faculty of Arts ',
           achievers: 37,
-          type: 'Video hours'
+          type: 'Video hours',
         },
         {
           id: '123243214',
           degree: 'Business Psihology',
           institution: 'Faculty of Arts ',
           achievers: 37,
-          type: 'Video hours'
-        }
-      ]
+          type: 'Video hours',
+        },
+      ],
     }
-  }
+  },
 }
 </script>
 

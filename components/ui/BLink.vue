@@ -4,7 +4,7 @@
     :class="[
       'button',
       { blue, red, green, inverted },
-      { 'is-loading': loading }
+      { 'is-loading': loading },
     ]"
     type="submit"
     :disabled="disable"
@@ -17,7 +17,7 @@
     :class="[
       'button',
       { blue, red, green, inverted },
-      { 'is-loading': loading }
+      { 'is-loading': loading },
     ]"
   >
     <img v-if="add" class="icon" src="~/assets/icons/add.svg" alt="" />
@@ -30,41 +30,41 @@ export default {
   props: {
     to: {
       default: '',
-      type: String
+      type: String,
     },
     native: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     add: {
       default: false,
-      type: Boolean
+      type: Boolean,
     },
     blue: {
       type: Boolean,
-      default: true
+      default: true,
     },
     red: {
       type: Boolean,
-      default: false
+      default: false,
     },
     green: {
       type: Boolean,
-      default: false
+      default: false,
     },
     inverted: {
       type: Boolean,
-      default: false
+      default: false,
     },
     loading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     disable: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>
 

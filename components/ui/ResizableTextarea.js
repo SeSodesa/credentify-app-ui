@@ -3,7 +3,7 @@ export default {
     resizeTextarea(event) {
       event.target.style.height = 'auto'
       event.target.style.height = event.target.scrollHeight + 'px'
-    }
+    },
   },
   mounted() {
     this.$nextTick(() => {
@@ -19,5 +19,5 @@ export default {
   },
   render() {
     return this.$slots.default[0]
-  }
+  },
 }

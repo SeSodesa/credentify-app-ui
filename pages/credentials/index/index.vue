@@ -45,7 +45,7 @@ export default {
         .get('/profile/credentials')
         .then((res) => res.data.data)
       return {
-        credentials
+        credentials,
       }
     } catch (err) {
       return { asyncDataError: err }
@@ -55,8 +55,8 @@ export default {
     return {
       headers: ['Credential', 'Institution(s)', 'Stage', 'Details'],
       credentials: [],
-      institutions: []
+      institutions: [],
     }
-  }
+  },
 }
 </script>

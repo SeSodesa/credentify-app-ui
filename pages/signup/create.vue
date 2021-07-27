@@ -25,8 +25,8 @@ export default {
     return {
       state: 0,
       data: {
-        requestToken: ''
-      }
+        requestToken: '',
+      },
     }
   },
   mounted() {
@@ -43,7 +43,7 @@ export default {
       } catch (err) {
         this.state = 2
       }
-    }
-  }
+    },
+  },
 }
 </script>

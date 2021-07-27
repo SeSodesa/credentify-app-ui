@@ -4,9 +4,7 @@
       <img src="~/assets/icons/institutions-big.svg" alt="" />
       <h1>Institution membership</h1>
     </div>
-    <div class="form--heading">
-      Institution details
-    </div>
+    <div class="form--heading">Institution details</div>
     <div class="fields">
       <div class="field--item">
         <label class="equal">Institution</label>
@@ -94,18 +92,18 @@ export default {
       roles: [
         {
           role: 1,
-          label: 'Student'
+          label: 'Student',
         },
         {
           role: 2,
-          label: 'Teacher'
+          label: 'Teacher',
         },
         {
           role: 3,
-          label: 'Admin'
-        }
+          label: 'Admin',
+        },
       ],
-      selected: 1
+      selected: 1,
     }
   },
   created() {
@@ -130,7 +128,7 @@ export default {
         this.handleErrors(err)
         this.request.status = 0
       }
-    }
-  }
+    },
+  },
 }
 </script>

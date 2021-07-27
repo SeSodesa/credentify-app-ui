@@ -1,9 +1,7 @@
 <template>
   <div class="form">
     <h3>Security</h3>
-    <div class="form--heading">
-      Security options
-    </div>
+    <div class="form--heading">Security options</div>
     <div class="fields in-row">
       <div class="field--item">
         <label for="alerts" class="pointer">
@@ -19,7 +17,7 @@
 export default {
   transition: {
     name: 'slide-fade',
-    mode: 'out-in'
-  }
+    mode: 'out-in',
+  },
 }
 </script>

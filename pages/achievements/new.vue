@@ -9,9 +9,7 @@
           <img src="~/assets/icons/achievements-big.svg" alt="" />
           <h1>Add new achievement</h1>
         </div>
-        <div class="form--heading">
-          Enter achievement details
-        </div>
+        <div class="form--heading">Enter achievement details</div>
         <div class="fields">
           <div class="field--item">
             <label class="equal-small">Title</label>
@@ -105,9 +103,7 @@
             />
           </div>
         </div>
-        <div class="form--heading">
-          Additional fields
-        </div>
+        <div class="form--heading">Additional fields</div>
         <div class="fields">
           <div
             v-for="(field, key) in schema"
@@ -132,9 +128,7 @@
     </transition>
     <sweet-modal ref="errorModal" title="Error" overlay-theme="dark">
       <p>{{ errors.first('response') }}</p>
-      <b-link @click.native="$refs.errorModal.close()">
-        Close
-      </b-link>
+      <b-link @click.native="$refs.errorModal.close()"> Close </b-link>
     </sweet-modal>
   </div>
 </template>
@@ -145,7 +139,7 @@ import schema from '~/static/data/schema.json'
 
 export default {
   components: {
-    TagInput
+    TagInput,
   },
   async asyncData({ app, params }) {
     try {
@@ -154,15 +148,15 @@ export default {
         .get('/communities/', {
           params: {
             filterPermissionKinds: ['2016'],
-            limit: 100
-          }
+            limit: 100,
+          },
         })
         .then((res) => res.data.data)
       const achievements = await app.$axios
         .get('/achievements', {
           params: {
-            limit: 100
-          }
+            limit: 100,
+          },
         })
         .then((res) => res.data.data)
       return { achievements, institutions }
@@ -179,8 +173,8 @@ export default {
       achievement: {
         communityIds: [],
         tag: [],
-        dependentAchievementIds: []
-      }
+        dependentAchievementIds: [],
+      },
     }
   },
   created() {
@@ -205,7 +199,7 @@ export default {
         this.handleErrors(err)
         this.loading = false
       }
-    }
-  }
+    },
+  },
 }
 </script>

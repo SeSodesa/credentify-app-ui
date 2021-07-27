@@ -26,8 +26,8 @@ Vue.mixin({
       },
       set(newVal) {
         this.$router.push({ query: { page: newVal } })
-      }
-    }
+      },
+    },
   },
   created() {
     if (this.asyncDataError) {
@@ -69,12 +69,12 @@ Vue.mixin({
             ...this.$store.state.auth.user.profileAbilities,
             ...this.$store.state.auth.user.communityAbilities.filter(
               (x) => x.communityId === communityId
-            )
+            ),
           ]
         } else {
           allAbilities = [
             ...this.$store.state.auth.user.profileAbilities,
-            ...this.$store.state.auth.user.communityAbilities
+            ...this.$store.state.auth.user.communityAbilities,
           ]
         }
         return allAbilities.some((el) => abilities.includes(el.kind))
@@ -88,29 +88,29 @@ Vue.mixin({
         this.$modal.show('dialog', {
           title: 'An error occurred',
           text: 'Unable to reach API server',
-          buttons: [{ title: 'Close' }]
+          buttons: [{ title: 'Close' }],
         })
       } else {
         err.response.data.errors.forEach((err) => {
           if (err.code === 400003) {
             this.$validator.errors.add({
               field: 'response',
-              msg: 'Request token is invalid.'
+              msg: 'Request token is invalid.',
             })
           } else if (err.code === 422003) {
             this.$validator.errors.add({
               field: 'email',
-              msg: 'User with this email is already registered'
+              msg: 'User with this email is already registered',
             })
           } else if (err.code === 400002) {
             this.$validator.errors.add({
               field: 'email',
-              msg: 'This user does not have valid credentials.'
+              msg: 'This user does not have valid credentials.',
             })
           } else if (err.code === 422009) {
             this.$validator.errors.add({
               field: 'email',
-              msg: 'User with this email does not exists.'
+              msg: 'User with this email does not exists.',
             })
           } else {
             const error = err.message
@@ -118,16 +118,16 @@ Vue.mixin({
               : `Error with code ${err.code} ocurred.`
             this.$validator.errors.add({
               field: 'response',
-              msg: error
+              msg: error,
             })
             this.$modal.show('dialog', {
               title: 'An error occurred',
               text: error,
-              buttons: [{ title: 'Close' }]
+              buttons: [{ title: 'Close' }],
             })
           }
         })
       }
-    }
-  }
+    },
+  },
 })

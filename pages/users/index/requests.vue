@@ -55,7 +55,7 @@ import { roles } from '~/static/data/roles.js'
 
 export default {
   components: {
-    InfiniteLoading
+    InfiniteLoading,
   },
   data() {
     return {
@@ -64,18 +64,18 @@ export default {
       roles,
       itemsPerPage: 10,
       listing: [],
-      infiniteId: +new Date()
+      infiniteId: +new Date(),
     }
   },
   computed: {
     skip() {
       return (Number(this.page) - 1) * this.itemsPerPage
-    }
+    },
   },
   watch: {
     '$route.query.search'() {
       this.changeSearch()
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'User requests')
@@ -92,7 +92,7 @@ export default {
         const skip = (Number(this.page) - 1) * this.itemsPerPage
         const requests = await this.$axios
           .get('/communities/requests', {
-            params: { limit: this.itemsPerPage, skip }
+            params: { limit: this.itemsPerPage, skip },
           })
           .then((res) => res.data.data)
         const pending = requests.filter((r) => r.status === 1).length
@@ -108,7 +108,7 @@ export default {
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

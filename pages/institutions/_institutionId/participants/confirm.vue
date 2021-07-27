@@ -29,8 +29,8 @@ export default {
       state: 'loading',
       communityId: '',
       data: {
-        requestToken: ''
-      }
+        requestToken: '',
+      },
     }
   },
   mounted() {
@@ -51,7 +51,7 @@ export default {
       } catch (err) {
         this.state = 'error'
       }
-    }
-  }
+    },
+  },
 }
 </script>

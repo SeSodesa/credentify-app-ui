@@ -159,10 +159,10 @@ export default {
         lastName: '',
         email: '',
         password: '',
-        legal: false
+        legal: false,
       },
       passwordFieldType: 'password',
-      isSubmited: false
+      isSubmited: false,
     }
   },
   created() {
@@ -183,8 +183,8 @@ export default {
     switchVisibility() {
       this.passwordFieldType =
         this.passwordFieldType === 'password' ? 'text' : 'password'
-    }
-  }
+    },
+  },
 }
 </script>
 

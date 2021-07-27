@@ -131,11 +131,7 @@
 .controller {
   background-color: #fff;
   box-shadow: $box-shadow-strong;
-  clip-path:
-    polygon(0 0,
-    100% 0,
-    100% 400px,
-    0 400px);
+  clip-path: polygon(0 0, 100% 0, 100% 400px, 0 400px);
   color: $controllers;
   display: flex;
   min-height: var(--controller-height);

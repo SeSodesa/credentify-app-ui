@@ -11,9 +11,9 @@ export default {
   props: {
     spaceBetween: {
       type: Boolean,
-      default: false
-    }
-  }
+      default: false,
+    },
+  },
 }
 </script>
 

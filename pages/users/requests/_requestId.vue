@@ -4,9 +4,7 @@
       <img src="~/assets/icons/institutions-big.svg" alt="" />
       <h1>Request for membership</h1>
     </div>
-    <div class="form--heading">
-      Request details
-    </div>
+    <div class="form--heading">Request details</div>
     <div class="fields">
       <div class="field--item">
         <label class="equal">User</label>
@@ -101,8 +99,8 @@ export default {
       const request = await app.$axios
         .get('/communities/requests', {
           params: {
-            filterIds: [params.requestId]
-          }
+            filterIds: [params.requestId],
+          },
         })
         .then((res) => res.data.data[0])
 
@@ -117,20 +115,20 @@ export default {
       roles: [
         {
           role: 1,
-          label: 'Student'
+          label: 'Student',
         },
         {
           role: 2,
-          label: 'Teacher'
+          label: 'Teacher',
         },
         {
           role: 3,
-          label: 'Admin'
-        }
+          label: 'Admin',
+        },
       ],
       selected: 1,
       requested: false,
-      note: ''
+      note: '',
     }
   },
   created() {
@@ -154,14 +152,14 @@ export default {
         await this.$axios.post(
           `/communities/requests/${this.request.id}/reject`,
           {
-            note: this.note
+            note: this.note,
           }
         )
         this.$router.push('/users/requests')
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

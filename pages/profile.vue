@@ -12,9 +12,9 @@ export default {
       links: [
         { title: 'Profile', url: '/profile' },
         { title: 'Billing', url: '/profile/billing' },
-        { title: 'Security', url: '/profile/security' }
-      ]
+        { title: 'Security', url: '/profile/security' },
+      ],
     }
-  }
+  },
 }
 </script>

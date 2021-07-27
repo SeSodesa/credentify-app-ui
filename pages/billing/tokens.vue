@@ -1,8 +1,6 @@
 <template>
   <form class="billing form">
-    <div class="form--heading">
-      KYC information
-    </div>
+    <div class="form--heading">KYC information</div>
     <div class="fields">
       <div class="field--item">
         <div class="description">
@@ -10,15 +8,11 @@
           You will be redirected to our KYC provider service.
         </div>
         <div class="cta">
-          <b-link blue inverted>
-            Start KYC
-          </b-link>
+          <b-link blue inverted> Start KYC </b-link>
         </div>
       </div>
     </div>
-    <div class="form--heading">
-      ZXC Wallet
-    </div>
+    <div class="form--heading">ZXC Wallet</div>
     <div class="fields">
       <div class="field--item">
         <div class="description message">
@@ -29,15 +23,11 @@
     <div class="fields mt-2">
       <div class="field--item">
         <label class="equal">Deposit address</label>
-        <div class="value">
-          0x8578497cc89F71fD99537059ED525e0888f8fd59
-        </div>
+        <div class="value">0x8578497cc89F71fD99537059ED525e0888f8fd59</div>
       </div>
       <div class="field--item">
         <label class="equal">ZXC ballance</label>
-        <div class="value">
-          1.123.123,003293876 ZXC
-        </div>
+        <div class="value">1.123.123,003293876 ZXC</div>
       </div>
     </div>
   </form>
@@ -49,10 +39,10 @@ import BLink from '~/components/ui/BLink.vue'
 export default {
   transition: {
     name: 'slide-fade',
-    mode: 'out-in'
+    mode: 'out-in',
   },
   components: {
-    BLink
-  }
+    BLink,
+  },
 }
 </script>

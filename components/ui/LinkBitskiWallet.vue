@@ -26,7 +26,7 @@ export default {
         )
         await this.$axios.put('/profile/wallet', {
           signature,
-          kind: 2
+          kind: 2,
         })
         await this.$auth.fetchUser()
         this.$modal.hide('link-wallet-modal')
@@ -34,7 +34,7 @@ export default {
         this.$modal.hide('link-wallet-modal')
         this.handleErrors(error)
       }
-    }
-  }
+    },
+  },
 }
 </script>

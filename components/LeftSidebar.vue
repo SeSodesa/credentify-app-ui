@@ -88,7 +88,7 @@ export default {
       menuItems: (state) => state.nav.menuItems,
       requiredUserViewRights: (state) =>
         state.nav.menuItems[2].requiredAbilities,
-      profileAbilities: (state) => state.profile.profileAbilities
+      profileAbilities: (state) => state.profile.profileAbilities,
     }),
     filteredMenuItems() {
       const filteredItems = []
@@ -109,8 +109,8 @@ export default {
         }
       }
       return filteredItems
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -1,13 +1,9 @@
 <template>
   <div class="stage">
     <h1>Participant overview</h1>
-    <div class="form--heading">
-      Basic data
-    </div>
+    <div class="form--heading">Basic data</div>
     <user-profile :participant="participant" />
-    <div class="form--heading">
-      Role
-    </div>
+    <div class="form--heading">Role</div>
     <div class="fields">
       <div class="field--item align-center">
         <label>Participant's role:</label>
@@ -27,8 +23,8 @@
         <div
           v-if="
             selectedRole !== 4 &&
-              selectedRole &&
-              selectedRole !== getParticipantRole
+            selectedRole &&
+            selectedRole !== getParticipantRole
           "
           class="cta ml-2"
         >
@@ -78,9 +74,7 @@
       />
     </sweet-modal>
     <div v-if="hasAbility([2002], institutionId)">
-      <div class="form--heading danger mt-3">
-        Cancel membership
-      </div>
+      <div class="form--heading danger mt-3">Cancel membership</div>
       <div class="fields danger">
         <div class="field--item align-center">
           <div class="description">
@@ -119,20 +113,20 @@ export default {
       roles: [
         {
           role: 1,
-          label: 'Student'
+          label: 'Student',
         },
         {
           role: 2,
-          label: 'Teacher'
+          label: 'Teacher',
         },
         {
           role: 3,
-          label: 'Admin'
+          label: 'Admin',
         },
         {
           role: 4,
-          label: 'Custom'
-        }
+          label: 'Custom',
+        },
       ],
       selectedRole: null,
       updating: false,
@@ -140,7 +134,7 @@ export default {
       teacher,
       student,
       communityPermissionKinds: CommunityPermissionKinds,
-      communityAbilityLabels
+      communityAbilityLabels,
     }
   },
   computed: {
@@ -166,8 +160,8 @@ export default {
       },
       set(role) {
         this.selectedRole = role
-      }
-    }
+      },
+    },
   },
   created() {
     this.$store.commit(
@@ -245,7 +239,7 @@ export default {
         this.$axios
           .post(`/communities/${this.institutionId}/abilities`, {
             profileId: this.participant.id,
-            kind
+            kind,
           })
           .then((res) => res.data.data)
       )
@@ -282,7 +276,7 @@ export default {
             event.target.name
           )
         : this.disableAbility(event, institutionId, event.target.id)
-    }
-  }
+    },
+  },
 }
 </script>

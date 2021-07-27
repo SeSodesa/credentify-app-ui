@@ -9,9 +9,7 @@
         <h1>Add new institution</h1>
       </div>
       <form class="billing form" @keyup.enter="createCommunity(institution)">
-        <div class="form--heading">
-          Enter institution details
-        </div>
+        <div class="form--heading">Enter institution details</div>
         <div class="fields">
           <div class="field--item">
             <label class="equal-small">Name</label>
@@ -66,15 +64,15 @@ export default {
   components: {
     BLink,
     Toolbar,
-    ResizableTextarea
+    ResizableTextarea,
   },
   data() {
     return {
       loading: false,
       institution: {
         name: '',
-        description: ''
-      }
+        description: '',
+      },
     }
   },
   created() {
@@ -94,7 +92,7 @@ export default {
         this.loading = false
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

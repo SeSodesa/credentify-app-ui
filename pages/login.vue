@@ -63,12 +63,8 @@
             </div>
           </div>
           <div class="links">
-            <n-link to="/password/reset">
-              Forgot password?
-            </n-link>
-            <n-link to="/signup" class="ml-1">
-              Sign up
-            </n-link>
+            <n-link to="/password/reset"> Forgot password? </n-link>
+            <n-link to="/signup" class="ml-1"> Sign up </n-link>
           </div>
         </form>
       </div>
@@ -77,15 +73,11 @@
       </div>
     </transition>
     <toolbar>
-      <b-link @click.native="userLogin()">
-        Log in
-      </b-link>
+      <b-link @click.native="userLogin()"> Log in </b-link>
     </toolbar>
     <sweet-modal ref="errorModal" title="Error" overlay-theme="dark">
       <p>{{ errors.first('response') }}</p>
-      <b-link @click.native="$refs.errorModal.close()">
-        Close
-      </b-link>
+      <b-link @click.native="$refs.errorModal.close()"> Close </b-link>
     </sweet-modal>
   </div>
 </template>
@@ -97,7 +89,7 @@ export default {
       state: '',
       email: '',
       password: '',
-      passwordFieldType: 'password'
+      passwordFieldType: 'password',
     }
   },
   created() {
@@ -111,8 +103,8 @@ export default {
           await this.$auth.loginWith('local', {
             data: {
               email: this.email,
-              password: this.password
-            }
+              password: this.password,
+            },
           })
         }
       } catch (err) {
@@ -122,7 +114,7 @@ export default {
     switchVisibility() {
       this.passwordFieldType =
         this.passwordFieldType === 'password' ? 'text' : 'password'
-    }
-  }
+    },
+  },
 }
 </script>

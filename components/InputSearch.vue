@@ -26,12 +26,12 @@ export default {
   props: {
     placeholder: {
       default: 'Quick search',
-      type: String
-    }
+      type: String,
+    },
   },
   data() {
     return {
-      currentSearch: ''
+      currentSearch: '',
     }
   },
   computed: {
@@ -41,19 +41,19 @@ export default {
       },
       set(newVal) {
         this.currentSearch = newVal
-      }
-    }
+      },
+    },
   },
   methods: {
     performSearch(keyword) {
       this.$router.replace({
         query: {
           ...this.$route.query,
-          ...{ search: keyword || undefined }
-        }
+          ...{ search: keyword || undefined },
+        },
       })
-    }
-  }
+    },
+  },
 }
 </script>
 

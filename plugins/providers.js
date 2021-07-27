@@ -14,8 +14,8 @@ const bitskiProvider = new BitskiProvider({
   gatewayConfig: {
     actionsOrderId: '0x2e697eAcdCEc69A9695fb4908a35D04C80aB7E49',
     assetLedgerDeployOrderId: '0xBdd421cfD425BC952d704c2C68D902672FF7738D',
-    valueLedgerDeployOrderId: '0xa5ff982d4b054F777DC3eFe77b5D91236A389800'
-  }
+    valueLedgerDeployOrderId: '0xa5ff982d4b054F777DC3eFe77b5D91236A389800',
+  },
 })
 
 /**
@@ -27,15 +27,15 @@ const metamaskProvider = new MetamaskProvider({
   gatewayConfig: {
     actionsOrderId: '0x2e697eAcdCEc69A9695fb4908a35D04C80aB7E49',
     assetLedgerDeployOrderId: '0xBdd421cfD425BC952d704c2C68D902672FF7738D',
-    valueLedgerDeployOrderId: '0xa5ff982d4b054F777DC3eFe77b5D91236A389800'
-  }
+    valueLedgerDeployOrderId: '0xa5ff982d4b054F777DC3eFe77b5D91236A389800',
+  },
 })
 
 Vue.mixin({
   data() {
     return {
       bitskiProvider,
-      metamaskProvider
+      metamaskProvider,
     }
-  }
+  },
 })

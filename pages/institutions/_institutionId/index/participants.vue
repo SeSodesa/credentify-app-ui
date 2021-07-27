@@ -61,11 +61,11 @@ export default {
       const search = query.search ? { search: String(query.search) } : ''
       const participants = await app.$axios
         .get(`/communities/${params.institutionId}/collaborators`, {
-          params: { ...search }
+          params: { ...search },
         })
         .then((res) => res.data.data)
       return {
-        participants
+        participants,
       }
     } catch (err) {
       return { asyncDataError: err }
@@ -78,7 +78,7 @@ export default {
       admin,
       teacher,
       student,
-      communityPermissionKinds: CommunityPermissionKinds
+      communityPermissionKinds: CommunityPermissionKinds,
     }
   },
   created() {
@@ -104,8 +104,8 @@ export default {
       } else {
         return 'Custom'
       }
-    }
-  }
+    },
+  },
 }
 </script>
 

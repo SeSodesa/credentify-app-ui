@@ -38,7 +38,7 @@ import TagSearch from '~/components/TagSearch'
 export default {
   components: {
     TagSearch,
-    InfiniteLoading
+    InfiniteLoading,
   },
   data() {
     return {
@@ -46,13 +46,13 @@ export default {
       page: 1,
       itemsPerPage: 10,
       listing: [],
-      infiniteId: +new Date()
+      infiniteId: +new Date(),
     }
   },
   watch: {
     '$route.query.search'() {
       this.changeSearch()
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Users')
@@ -72,7 +72,7 @@ export default {
           : undefined
         const users = await this.$axios
           .get('/users', {
-            params: { limit: this.itemsPerPage, skip, search }
+            params: { limit: this.itemsPerPage, skip, search },
           })
           .then((res) => res.data.data)
         if (users.length) {
@@ -85,7 +85,7 @@ export default {
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

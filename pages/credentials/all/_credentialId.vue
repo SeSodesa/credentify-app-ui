@@ -4,9 +4,7 @@
       <img src="~/assets/icons/credentials-big.svg" alt="Credentials" />
       <h1>Credential details</h1>
     </div>
-    <div class="form--heading">
-      Participant details
-    </div>
+    <div class="form--heading">Participant details</div>
     <user-profile :participant="participant">
       <credential-stage :stage="credential.stage" />
       <div v-if="credential.note" class="reason">
@@ -19,18 +17,14 @@
         </b-link>
       </div>
     </user-profile>
-    <div class="form--heading">
-      Credential for achievemnt
-    </div>
+    <div class="form--heading">Credential for achievemnt</div>
     <table-achievements
       :institutions="institutions"
       :institution="credential.community"
       :data="[credential.achievement]"
     />
     <div v-if="credential.achievement.dependentAchievementIds.length">
-      <div class="form--heading">
-        Must consist of
-      </div>
+      <div class="form--heading">Must consist of</div>
       <table-achievements
         :institutions="institutions"
         :institution="credential.community"
@@ -38,9 +32,7 @@
       />
     </div>
     <div v-if="credential.achievement.canConsistOfIds.length">
-      <div class="form--heading">
-        Can consist of
-      </div>
+      <div class="form--heading">Can consist of</div>
       <table-achievements
         :institutions="institutions"
         :institution="credential.community"
@@ -48,9 +40,7 @@
       />
     </div>
     <div v-if="credential.stage == 4 && hasAbility([2024])">
-      <div class="form--heading">
-        Enter credential results
-      </div>
+      <div class="form--heading">Enter credential results</div>
       <div class="fields">
         <div
           v-for="(field, key) in credentialSchema"
@@ -72,9 +62,7 @@
         v-if="Object.keys(getCedentialResults).length"
         class="credential-results"
       >
-        <div class="form--heading">
-          Credential results
-        </div>
+        <div class="form--heading">Credential results</div>
         <div class="options">
           <div
             v-for="(field, key) in getCedentialResults"
@@ -99,9 +87,7 @@
       </div>
     </div>
     <div v-if="credential.stage < 5 && hasAbility([2022])">
-      <div class="form--heading danger mt-3">
-        Danger zone
-      </div>
+      <div class="form--heading danger mt-3">Danger zone</div>
       <div class="fields danger">
         <div class="field--item">
           <div class="description">
@@ -214,10 +200,10 @@
     <toolbar
       v-if="
         credential.stage !== 2 &&
-          credential.stage !== 3 &&
-          credential.stage !== 5 &&
-          credential.stage !== 6 &&
-          credential.stage !== 7
+        credential.stage !== 3 &&
+        credential.stage !== 5 &&
+        credential.stage !== 6 &&
+        credential.stage !== 7
       "
       space-between
     >
@@ -254,7 +240,7 @@ import credentialSchema from '~/static/data/credentialSchema.json'
 
 export default {
   components: {
-    TableAchievements
+    TableAchievements,
   },
   async asyncData({ app, params }) {
     try {
@@ -271,8 +257,8 @@ export default {
         dependentAchievements = await app.$axios
           .get('/achievements', {
             params: {
-              filterIds: credential.achievement.dependentAchievementIds
-            }
+              filterIds: credential.achievement.dependentAchievementIds,
+            },
           })
           .then((res) => res.data.data)
       }
@@ -283,8 +269,8 @@ export default {
         canConsistOf = await app.$axios
           .get('/achievements', {
             params: {
-              filterIds: credential.achievement.canConsistOfIds
-            }
+              filterIds: credential.achievement.canConsistOfIds,
+            },
           })
           .then((res) => res.data.data)
       }
@@ -297,18 +283,18 @@ export default {
             params: {
               filterAchievementIds: [
                 ...credential.achievement.dependentAchievementIds,
-                ...credential.achievement.canConsistOfIds
+                ...credential.achievement.canConsistOfIds,
               ],
-              filterProfileIds: [credential.profileId]
-            }
+              filterProfileIds: [credential.profileId],
+            },
           })
           .then((res) => res.data.data)
       }
       const institutions = await app.$axios
         .get('/communities', {
           params: {
-            filterIds: [...credential.achievement.communityIds]
-          }
+            filterIds: [...credential.achievement.communityIds],
+          },
         })
         .then((res) => res.data.data)
       return {
@@ -321,11 +307,11 @@ export default {
               )
                 ? dependentCredentials.find((i) => i.achievement.id === d.id)
                     .stage
-                : 0
+                : 0,
             }))
           : dependentAchievements.map((d) => ({
               ...d,
-              credentialStage: 0
+              credentialStage: 0,
             })),
         canConsistOf: dependentCredentials.length
           ? canConsistOf.map((d) => ({
@@ -335,15 +321,15 @@ export default {
               )
                 ? dependentCredentials.find((i) => i.achievement.id === d.id)
                     .stage
-                : 0
+                : 0,
             }))
           : canConsistOf.map((d) => ({
               ...d,
-              credentialStage: 0
+              credentialStage: 0,
             })),
         institutions,
         credential,
-        participant
+        participant,
       }
     } catch (error) {
       return { asyncDataError: error }
@@ -359,7 +345,7 @@ export default {
       institutions: [],
       credential: {},
       credentialResults: {},
-      participant: {}
+      participant: {},
     }
   },
   computed: {
@@ -383,7 +369,7 @@ export default {
         'stage',
         '_createdAt',
         'awardingBodyId',
-        'wallet'
+        'wallet',
       ]
       exclude.forEach((key) => delete obj[key])
       for (const [key] of Object.entries(obj)) {
@@ -392,7 +378,7 @@ export default {
         }
       }
       return obj
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Credential details')
@@ -412,7 +398,7 @@ export default {
       this.loading = true
       try {
         await this.$axios.post(`/credentials/${this.credential.id}/complete`, {
-          ...this.credentialResults
+          ...this.credentialResults,
         })
         this.credential.stage = 7
         Object.assign(this.credential, this.credentialResults)
@@ -448,7 +434,7 @@ export default {
       try {
         if (await this.$validator.validateAll()) {
           await this.$axios.post(`/credentials/${this.credential.id}/reject`, {
-            note: this.note
+            note: this.note,
           })
           this.credential.stage = 2
         }
@@ -469,8 +455,8 @@ export default {
     },
     getKeyLabel(key) {
       return this.credentialSchema[key] ? this.credentialSchema[key].label : key
-    }
-  }
+    },
+  },
 }
 </script>
 

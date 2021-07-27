@@ -41,9 +41,7 @@
       </div>
     </div>
     <div v-if="hasAbility([2003], institutionId)">
-      <div class="form--heading danger">
-        Danger zone
-      </div>
+      <div class="form--heading danger">Danger zone</div>
       <div class="fields danger">
         <div class="field--item">
           <div class="description">
@@ -89,13 +87,13 @@ export default {
     return {
       update: {
         name: '',
-        descrption: ''
-      }
+        descrption: '',
+      },
     }
   },
   computed: {
     ...mapState('institution', {
-      institution: (state) => state
+      institution: (state) => state,
     }),
     name: {
       get() {
@@ -103,7 +101,7 @@ export default {
       },
       set(name) {
         this.update.name = name
-      }
+      },
     },
     description: {
       get() {
@@ -111,13 +109,13 @@ export default {
       },
       set(description) {
         this.update.description = description
-      }
+      },
     },
     role: {
       get() {
         return this.institution.role
-      }
-    }
+      },
+    },
   },
   mounted() {
     this.update.name = this.name
@@ -130,11 +128,11 @@ export default {
         if (await this.$validator.validateAll()) {
           await this.$axios.put(`/communities/${institutionId}`, {
             name,
-            description
+            description,
           })
           this.$store.commit('institution/updateIntitution', {
             name,
-            description
+            description,
           })
         }
       } catch (err) {
@@ -148,7 +146,7 @@ export default {
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

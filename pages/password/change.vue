@@ -67,8 +67,8 @@ export default {
       data: {
         requestToken: '',
         confirmPassword: '',
-        password: ''
-      }
+        password: '',
+      },
     }
   },
   mounted() {
@@ -86,7 +86,7 @@ export default {
       } catch (err) {
         this.state = 2
       }
-    }
-  }
+    },
+  },
 }
 </script>

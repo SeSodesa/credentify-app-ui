@@ -57,15 +57,15 @@ export default {
     ...mapState('nav', {
       title: (state) => state.title,
       sidebarOpen: (state) => state.sidebarOpen,
-      backUrl: (state) => state.backUrl
-    })
+      backUrl: (state) => state.backUrl,
+    }),
   },
   methods: {
     async logout() {
       await this.$auth.logout()
       this.$router.push('/login')
-    }
-  }
+    },
+  },
 }
 </script>
 

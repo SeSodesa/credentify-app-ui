@@ -27,17 +27,17 @@ export default {
   props: {
     showing: {
       type: Boolean,
-      default: false
+      default: false,
     },
     headingClass: {
       type: String,
-      default: 'heading'
-    }
+      default: 'heading',
+    },
   },
 
   data() {
     return {
-      show: this.showing
+      show: this.showing,
     }
   },
   methods: {
@@ -55,8 +55,8 @@ export default {
     },
     leave(el) {
       el.style.height = '0'
-    }
-  }
+    },
+  },
 }
 </script>
 

@@ -32,25 +32,25 @@ export default {
       return [
         {
           title: 'Overview',
-          url: `/institutions/${this.institutionId}`
+          url: `/institutions/${this.institutionId}`,
         },
         {
           title: 'Members',
           url: `/institutions/${this.institutionId}/participants`,
-          requiredAbilities: [2012]
-        }
+          requiredAbilities: [2012],
+        },
         // { title: 'Achievements', url: `/institutions/${this.institutionId}/achievements` },
         // { title: 'Credentials', url: `/institutions/${this.institutionId}/credentials` },
       ]
     },
     ...mapState('institution', {
-      institution: (state) => state
-    })
+      institution: (state) => state,
+    }),
   },
   created() {
     this.$store.commit('nav/setTitle', 'Institution')
     this.$store.commit('nav/setBackUrl', '/institutions')
-  }
+  },
 }
 </script>
 

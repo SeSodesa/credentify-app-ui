@@ -3,25 +3,25 @@
 @mixin breakpoint($point) {
   @if $point==desktop {
     @media (min-width: 70em) {
-      @content ;
+      @content;
     }
   }
 
   @else if $point==laptop {
     @media (min-width: 64em) {
-      @content ;
+      @content;
     }
   }
 
   @else if $point==medium {
     @media (min-width: 50em) {
-      @content ;
+      @content;
     }
   }
 
   @else if $point==small down {
     @media (max-width: 50em) {
-      @content ;
+      @content;
     }
   }
 }
@@ -43,7 +43,7 @@ $spacing-naming: (
   top: t,
   right: r,
   bottom: b,
-  left: l
+  left: l,
 );
 
 @each $key, $value in $spacing-units {

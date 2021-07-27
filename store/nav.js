@@ -7,25 +7,25 @@ export const state = () => ({
       label: 'Achievements',
       url: '/achievements/',
       adminUrl: '/achievements/',
-      icon: '/icons/achievements.svg'
+      icon: '/icons/achievements.svg',
     },
     {
       label: 'Credentials',
       url: '/credentials',
       adminUrl: '/credentials/all',
-      icon: '/icons/credentials.svg'
+      icon: '/icons/credentials.svg',
     },
     {
       label: 'Skill Rose',
       url: '/skill_rose/',
       adminUrl: '/skill_rose/',
-      icon: '' // This is drawn in components/LeftSidebar.vue
+      icon: '', // This is drawn in components/LeftSidebar.vue
     },
     {
       label: 'Skill Tree',
       url: '/skill_tree/',
       adminUrl: '/skill_tree/',
-      icon: '' // This is drawn in components/LeftSidebar.vue
+      icon: '', // This is drawn in components/LeftSidebar.vue
     },
     {
       label: 'Users',
@@ -33,15 +33,15 @@ export const state = () => ({
       adminUrl: '/users/',
       icon: '/icons/participants.svg',
       requiredAbilities: [1014, 2010],
-      number: null
+      number: null,
     },
     {
       label: 'Institutions',
       url: '/institutions',
       adminUrl: '/institutions',
-      icon: '/icons/institutions.svg'
-    }
-  ]
+      icon: '/icons/institutions.svg',
+    },
+  ],
 })
 
 export const mutations = {
@@ -56,7 +56,7 @@ export const mutations = {
   },
   toggleSidebar(state) {
     state.sidebarOpen = !state.sidebarOpen
-  }
+  },
 }
 
 export const actions = {
@@ -70,5 +70,5 @@ export const actions = {
       const pending = requests.filter((r) => r.status === 1).length
       commit('setRequests', pending)
     }
-  }
+  },
 }

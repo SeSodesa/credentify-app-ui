@@ -39,49 +39,49 @@
     "label": "Credit system title",
     "group": {
       "name": "Credit System"
-    }    
+    }
   },
   "creditSysDef": {
     "description": "Short and abstract description of the Credit system",
     "label": "Credit system description",
     "group": {
       "name": "Credit System"
-    }    
+    }
   },
   "creditSysValue": {
     "description": "Value described in terms of hours/certificates/accompl.",
     "label": "Credit system value",
     "group": {
       "name": "Credit System"
-    }    
+    }
   },
   "creditSysIssuer": {
     "description": "Which organization/consortium/law regulates who can issue this token",
     "label": "Credit system issuer",
     "group": {
       "name": "Credit System"
-    }    
+    }
   },
   "creditSysRefNum": {
     "description": "Credit system reference number",
     "label": "Credit system reference number",
     "group": {
       "name": "Credit System"
-    }    
+    }
   },
   "numCreditPoints": {
     "description": "Number of credit points assigned to the qualification following this system",
     "label": "Number of credit points",
     "group": {
       "name": "Credit System"
-    }    
+    }
   },
   "ectsCreditPoints": {
     "description": "Number of credit points assigned to the qualification following ECTS system",
     "label": "ECTS credit points",
     "group": {
       "name": "Credit System"
-    }    
+    }
   },
   "volumeOfLearning": {
     "description": "How many hours of learning are needed (notional learning hours)",
@@ -121,7 +121,7 @@
     "label": "Awarding activity",
     "group": {
       "name": "Awarding"
-    }    
+    }
   },
   "awardingMethod": {
     "description": "Whether the qualification is certified through undergoing the learning activity or an assessment of acquired competence",

@@ -18,27 +18,27 @@ export default {
   },
   computed: {
     ...mapState({
-      menuItems: (state) => state.nav.menuItems
+      menuItems: (state) => state.nav.menuItems,
     }),
     links() {
       return [
         {
           title: 'All users',
           url: '/users',
-          requiredAbilities: [1014]
+          requiredAbilities: [1014],
         },
         {
           title: 'Requests',
           url: '/users/requests',
-          number: this.menuItems[2].number
+          number: this.menuItems[2].number,
           // requiredAbilities: [2025]
-        }
+        },
       ]
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Users')
     this.$store.commit('nav/setBackUrl', '')
-  }
+  },
 }
 </script>

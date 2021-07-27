@@ -57,22 +57,22 @@ export default {
   props: {
     data: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     institutions: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     institution: {
       type: Object,
-      default: () => ({})
-    }
+      default: () => ({}),
+    },
   },
   computed: {
     appendClass() {
       return this.data[0].credentialStage >= 0 ? 'colStage' : 'col'
-    }
-  }
+    },
+  },
 }
 </script>
 

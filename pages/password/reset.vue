@@ -42,8 +42,8 @@ export default {
     return {
       isSubmited: false,
       data: {
-        email: ''
-      }
+        email: '',
+      },
     }
   },
   created() {
@@ -60,7 +60,7 @@ export default {
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

@@ -6,9 +6,7 @@
         <img src="~/assets/icons/loader.svg" alt="Loading" />
       </div>
       <div v-if="state === 'form'" key="form" class="billing form">
-        <div class="form--heading">
-          Send invitation to participant's email
-        </div>
+        <div class="form--heading">Send invitation to participant's email</div>
         <div class="fields">
           <div class="field--item">
             <label class="equal">Participant</label>
@@ -64,8 +62,8 @@ export default {
       const participants = await app.$axios
         .get('/users', {
           params: {
-            limit: 100
-          }
+            limit: 100,
+          },
         })
         .then((res) => res.data.data)
       return { participants }
@@ -77,9 +75,9 @@ export default {
     return {
       state: 'form',
       data: {
-        email: ''
+        email: '',
       },
-      participants: []
+      participants: [],
     }
   },
   created() {
@@ -107,7 +105,7 @@ export default {
         this.state = 'form'
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>

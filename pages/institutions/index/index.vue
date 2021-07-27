@@ -66,7 +66,7 @@ import { roles } from '~/static/data/roles.js'
 export default {
   components: {
     TagSearch,
-    InfiniteLoading
+    InfiniteLoading,
   },
   data() {
     return {
@@ -76,13 +76,13 @@ export default {
       itemsPerPage: 10,
       infiniteId: +new Date(),
       listing: [],
-      requests: []
+      requests: [],
     }
   },
   watch: {
     '$route.query.search'() {
       this.changeSearch()
-    }
+    },
   },
   created() {
     this.$store.commit('nav/setTitle', 'Institutions')
@@ -118,7 +118,7 @@ export default {
           : undefined
         const institutions = await this.$axios
           .get('/communities', {
-            params: { limit: this.itemsPerPage, skip, search }
+            params: { limit: this.itemsPerPage, skip, search },
           })
           .then((res) => res.data.data)
         if (institutions.length) {
@@ -131,7 +131,7 @@ export default {
       } catch (err) {
         this.handleErrors(err)
       }
-    }
-  }
+    },
+  },
 }
 </script>
